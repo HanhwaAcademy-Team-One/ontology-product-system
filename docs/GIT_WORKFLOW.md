@@ -7,12 +7,12 @@
 - [main 갱신·PR 검토 규칙](https://github.com/HanhwaAcademy-Team-One/ontology-product-system/settings/rules/24504444)
 - [main 삭제·강제 푸시 차단 규칙](https://github.com/HanhwaAcademy-Team-One/ontology-product-system/settings/rules/24504483)
 
-**목표 권한**
+**적용된 권한**
 
 | 사용자 | 작업 브랜치 개발·푸시 | main 직접 푸시 | main으로 PR 병합 |
 | --- | --- | --- | --- |
 | Isaac0424 | 가능 | 가능 | 본인이 검토 후 병합 |
-| 팀원, 저장소 Write 권한 필요 | 가능 | 차단 | PR 제출 후 Isaac0424가 검토·병합 |
+| developers 팀원 (Write 권한) | 가능 | 차단 | PR 제출 후 Isaac0424가 검토·병합 |
 
 main에만 두 Ruleset을 적용합니다. 작업 브랜치는 이 규칙의 대상이 아닙니다.
 
@@ -24,7 +24,7 @@ Isaac0424는 직접 푸시가 필요한 담당자이므로 첫 번째 규칙의 
 
 저장소나 조직의 설정 관리 권한을 가진 사람은 규칙 자체를 변경할 수 있습니다. 팀원에게는 보통 Write를 부여하고, 관리 권한을 별도로 주지 않아야 이 운영 방식이 유지됩니다.
 
-현재 조직의 기본 권한은 Read이며, 이 저장소에 직접 부여된 팀·개인 권한은 없습니다. 팀원이 저장소 안에 작업 브랜치를 푸시하려면 해당 팀·개인에게 Write를 부여해야 합니다. Read 권한으로도 공개 저장소를 Fork한 뒤 자신의 Fork에서 브랜치를 만들고 원본 main으로 PR을 보낼 수 있습니다.
+조직의 기본 권한은 Read이며, 이 저장소에는 `HanhwaAcademy-Team-One/developers` 팀(설정 당시 4명)에 Write 권한을 직접 부여했습니다. 팀원은 Fork 없이 원본 저장소에 작업 브랜치를 생성·푸시하고 main으로 PR을 보낼 수 있습니다. main의 갱신 예외에는 developers 팀을 추가하지 않았으므로 main 직접 푸시·병합은 Isaac0424만 가능합니다. 새 팀원도 developers 팀에 소속되어야 이 Write 권한을 받습니다.
 
 **팀원의 작업 순서**
 
