@@ -1,0 +1,66 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	parser(parser)
+	extraction(extraction)
+	ontology(ontology)
+	validation(validation)
+	duplicate(duplicate)
+	reviewer(reviewer)
+	registration(registration)
+	apply_manual_overrides(apply_manual_overrides)
+	post_parallel_gate(post_parallel_gate)
+	prepare_extraction_retry(prepare_extraction_retry)
+	prepare_ontology_retry(prepare_ontology_retry)
+	mark_needs_fix(mark_needs_fix)
+	prepare_human_review(prepare_human_review)
+	mark_rejected(mark_rejected)
+	human_review(human_review)
+	error_handler(error_handler)
+	__end__([<p>__end__</p>]):::last
+	__start__ --> parser;
+	apply_manual_overrides --> duplicate;
+	apply_manual_overrides --> validation;
+	duplicate --> post_parallel_gate;
+	error_handler -.-> __end__;
+	error_handler -.-> apply_manual_overrides;
+	error_handler -.-> extraction;
+	error_handler -.-> ontology;
+	error_handler -.-> parser;
+	error_handler -.-> registration;
+	error_handler -.-> reviewer;
+	extraction -.-> error_handler;
+	extraction -.-> ontology;
+	human_review -.-> __end__;
+	human_review -.-> apply_manual_overrides;
+	human_review -.-> ontology;
+	human_review -.-> registration;
+	mark_needs_fix --> human_review;
+	ontology -.-> apply_manual_overrides;
+	ontology -.-> error_handler;
+	parser -.-> error_handler;
+	parser -.-> extraction;
+	post_parallel_gate -.-> error_handler;
+	post_parallel_gate -.-> reviewer;
+	prepare_extraction_retry --> extraction;
+	prepare_human_review --> human_review;
+	prepare_ontology_retry --> ontology;
+	registration -.-> __end__;
+	registration -.-> error_handler;
+	reviewer -.-> error_handler;
+	reviewer -.-> mark_needs_fix;
+	reviewer -.-> mark_rejected;
+	reviewer -.-> prepare_extraction_retry;
+	reviewer -.-> prepare_human_review;
+	reviewer -.-> prepare_ontology_retry;
+	validation --> post_parallel_gate;
+	mark_rejected --> __end__;
+	error_handler -.-> error_handler;
+	human_review -.-> human_review;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc

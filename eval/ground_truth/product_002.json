@@ -1,0 +1,29 @@
+{
+  "case_id": "product_002",
+  "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+  "source_document": "../documents/product_002.txt",
+  "product": {
+    "product_name": "DM-510",
+    "product_class": "BLDCMotor",
+    "attributes": {
+      "manufacturer": {
+        "value": "ABC Motors"
+      },
+      "rated_voltage": {
+        "value": 24,
+        "unit": "V"
+      },
+      "rated_power": {
+        "value": 510,
+        "unit": "W"
+      },
+      "rated_speed": {
+        "value": 3200,
+        "unit": "rpm"
+      }
+    }
+  },
+  "relevant_duplicates": [
+    "DM-510"
+  ]
+}

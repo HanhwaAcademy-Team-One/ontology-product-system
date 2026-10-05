@@ -1,0 +1,49 @@
+classes:
+  Product:
+    parent: null
+  ElectricalPart:
+    parent: Product
+  Motor:
+    parent: ElectricalPart
+    required_properties:
+      manufacturer:
+        type: string
+  BLDCMotor:
+    parent: Motor
+    required_properties:
+      rated_voltage:
+        type: number
+        canonical_unit: V
+        units: [V]
+        minimum: 0
+      rated_power:
+        type: number
+        canonical_unit: W
+        units: [W, kW]
+        minimum: 0
+      rated_speed:
+        type: number
+        canonical_unit: rpm
+        units: [rpm]
+        minimum: 0
+    optional_properties:
+      weight:
+        type: number
+        canonical_unit: kg
+        units: [g, kg]
+        minimum: 0
+  MechanicalPart:
+    parent: Product
+  Bearing:
+    parent: MechanicalPart
+    required_properties:
+      inner_diameter:
+        type: number
+        canonical_unit: mm
+        units: [mm]
+        minimum: 0
+      outer_diameter:
+        type: number
+        canonical_unit: mm
+        units: [mm]
+        minimum: 0

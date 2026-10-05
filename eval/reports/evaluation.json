@@ -1,0 +1,1443 @@
+{
+  "schema_version": 1,
+  "run_id": "b9cc2744-ba70-40d2-9f64-911c6182db59",
+  "generated_at": "2026-10-05T10:28:06.899788+00:00",
+  "dataset": {
+    "name": "OntoProduct synthetic teaching fixtures",
+    "case_count": 3,
+    "limitations": "Three authored fixtures; not real document extraction or production accuracy."
+  },
+  "definitions": {
+    "detection": "Micro precision/recall/F1 of non-null raw extracted attribute names.",
+    "value": "Correct canonical normalized values / all non-null truth attributes; missing is wrong.",
+    "unit": "Correct canonical units / unit-bearing truth attributes; missing is wrong.",
+    "required": "Per truth-class required property, compare missing normalized values with MISSING_REQUIRED issues.",
+    "duplicate": "Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels. Empty denominators are null."
+  },
+  "suites": [
+    {
+      "label": "MOCK EVALUATION",
+      "agents": [
+        {
+          "name": "parser",
+          "provider": "mock",
+          "version": "0.1.0",
+          "is_mock": true,
+          "required_reads": [
+            "source_documents"
+          ],
+          "optional_reads": [],
+          "writes": [
+            "parsed_documents"
+          ],
+          "health": true
+        },
+        {
+          "name": "extraction",
+          "provider": "mock",
+          "version": "0.1.0",
+          "is_mock": true,
+          "required_reads": [
+            "parsed_documents"
+          ],
+          "optional_reads": [
+            "locked_fields",
+            "ontology_mapping",
+            "review_result"
+          ],
+          "writes": [
+            "extracted_product"
+          ],
+          "health": true
+        },
+        {
+          "name": "ontology",
+          "provider": "mock",
+          "version": "0.1.0",
+          "is_mock": true,
+          "required_reads": [
+            "extracted_product"
+          ],
+          "optional_reads": [
+            "locked_fields",
+            "manual_overrides"
+          ],
+          "writes": [
+            "base_normalized_product",
+            "ontology_mapping"
+          ],
+          "health": true
+        },
+        {
+          "name": "validation",
+          "provider": "mock",
+          "version": "0.1.0",
+          "is_mock": true,
+          "required_reads": [
+            "normalized_product",
+            "ontology_mapping"
+          ],
+          "optional_reads": [],
+          "writes": [
+            "validation_result"
+          ],
+          "health": true
+        },
+        {
+          "name": "duplicate",
+          "provider": "mock",
+          "version": "0.1.0",
+          "is_mock": true,
+          "required_reads": [
+            "normalized_product",
+            "ontology_mapping"
+          ],
+          "optional_reads": [],
+          "writes": [
+            "duplicate_candidates"
+          ],
+          "health": true
+        },
+        {
+          "name": "reviewer",
+          "provider": "mock",
+          "version": "0.1.0",
+          "is_mock": true,
+          "required_reads": [
+            "duplicate_candidates",
+            "normalized_product",
+            "ontology_mapping",
+            "validation_result"
+          ],
+          "optional_reads": [
+            "locked_fields",
+            "review_result"
+          ],
+          "writes": [
+            "review_result"
+          ],
+          "health": true
+        },
+        {
+          "name": "registration",
+          "provider": "mock",
+          "version": "0.1.0",
+          "is_mock": true,
+          "required_reads": [
+            "human_review",
+            "normalized_product"
+          ],
+          "optional_reads": [
+            "duplicate_candidates",
+            "ontology_mapping"
+          ],
+          "writes": [
+            "final_product"
+          ],
+          "health": true
+        }
+      ],
+      "metrics": {
+        "Attribute Detection Precision": {
+          "value": 0.6666666666666666,
+          "correct": 6,
+          "total": 9
+        },
+        "Attribute Detection Recall": {
+          "value": 0.6,
+          "correct": 6,
+          "total": 10
+        },
+        "Attribute Detection F1": {
+          "value": 0.631578947368421,
+          "correct": 12,
+          "total": 19
+        },
+        "Attribute Value Accuracy": {
+          "value": 0.5,
+          "correct": 5,
+          "total": 10
+        },
+        "Unit Normalization Accuracy": {
+          "value": 0.5,
+          "correct": 4,
+          "total": 8
+        },
+        "detection_counts": {
+          "tp": 6,
+          "fp": 3,
+          "fn": 4
+        },
+        "Ontology Classification Accuracy": {
+          "value": 0.6666666666666666,
+          "correct": 2,
+          "total": 3
+        },
+        "Required Field Detection Accuracy": {
+          "value": 0.8,
+          "correct": 8,
+          "total": 10
+        },
+        "Duplicate Precision@3": {
+          "value": 0.0,
+          "correct": 0,
+          "total": 9
+        },
+        "Duplicate Recall@3": {
+          "value": 0.0,
+          "correct": 0,
+          "total": 2
+        },
+        "Negative Query Accuracy": {
+          "value": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "retrieved_count": 0,
+        "queries": [
+          {
+            "case_id": "product_001",
+            "retrieved": [],
+            "relevant": [
+              "DM-500A"
+            ],
+            "hits": 0
+          },
+          {
+            "case_id": "product_002",
+            "retrieved": [],
+            "relevant": [
+              "DM-510"
+            ],
+            "hits": 0
+          },
+          {
+            "case_id": "product_003",
+            "retrieved": [],
+            "relevant": [],
+            "hits": 0
+          }
+        ]
+      },
+      "samples": [
+        {
+          "ground_truth": {
+            "case_id": "product_001",
+            "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+            "source_document": "../documents/product_001.txt",
+            "product": {
+              "product_name": "DM-500",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_power": {
+                  "value": 500,
+                  "unit": "W",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_speed": {
+                  "value": 3000,
+                  "unit": "rpm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                }
+              }
+            },
+            "relevant_duplicates": [
+              "DM-500A"
+            ],
+            "source_text": "Product: DM-500\nClass: BLDCMotor\nManufacturer: ABC Motors\nRated voltage: 24 V\nRated power: 0.5 kW\nRated speed: 3000 rpm\n",
+            "source_sha256": "b3ade37b4d04282a7c4d34e575cc97569c8a5741cfd450a5931a99ca67d97356",
+            "ground_truth_sha256": "1ed310613233c74022c80e671953ca6c3b1e6aa67263e93cc5c0ddcc8bc0d077"
+          },
+          "outputs": {
+            "extracted_product": {
+              "product_name": "DM-500",
+              "candidate_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 0.5,
+                  "unit": "kW",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "normalized_product": {
+              "product_name": "DM-500",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 500.0,
+                  "unit": "W",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "ontology_mapping": {
+              "product_class": "BLDCMotor",
+              "confidence": 0.95,
+              "required_properties": {
+                "manufacturer": {
+                  "type": "string",
+                  "canonical_unit": null,
+                  "units": [],
+                  "minimum": null,
+                  "maximum": null
+                },
+                "rated_voltage": {
+                  "type": "number",
+                  "canonical_unit": "V",
+                  "units": [
+                    "V"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_power": {
+                  "type": "number",
+                  "canonical_unit": "W",
+                  "units": [
+                    "W",
+                    "kW"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_speed": {
+                  "type": "number",
+                  "canonical_unit": "rpm",
+                  "units": [
+                    "rpm"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              },
+              "optional_properties": {
+                "weight": {
+                  "type": "number",
+                  "canonical_unit": "kg",
+                  "units": [
+                    "g",
+                    "kg"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              }
+            },
+            "validation_result": {
+              "valid": false,
+              "issues": [
+                {
+                  "field": "attributes.rated_speed",
+                  "code": "MISSING_REQUIRED",
+                  "message": "Required property rated_speed is missing",
+                  "severity": "error"
+                },
+                {
+                  "field": "attributes.weight",
+                  "code": "MISSING_OPTIONAL",
+                  "message": "Optional property weight is missing",
+                  "severity": "warning"
+                }
+              ]
+            },
+            "duplicate_candidates": [],
+            "agent_logs": [
+              {
+                "execution_id": "842bdaa4-2f29-4ef8-8880-0e33294d0f1e",
+                "agent": "parser",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+              },
+              {
+                "execution_id": "842bdaa4-2f29-4ef8-8880-0e33294d0f1e",
+                "agent": "parser",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0003437000559642911,
+                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+              },
+              {
+                "execution_id": "0f39cfcb-1397-4dcd-b54b-6eec47da7616",
+                "agent": "extraction",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+              },
+              {
+                "execution_id": "0f39cfcb-1397-4dcd-b54b-6eec47da7616",
+                "agent": "extraction",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0001574999769218266,
+                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+              },
+              {
+                "execution_id": "a268416b-a054-4f3f-ab24-451f2f1c49ab",
+                "agent": "ontology",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+              },
+              {
+                "execution_id": "a268416b-a054-4f3f-ab24-451f2f1c49ab",
+                "agent": "ontology",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0007696000393480062,
+                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+              },
+              {
+                "execution_id": "bad4254f-d9cf-48b0-b86f-871194910a90",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+              },
+              {
+                "execution_id": "bad4254f-d9cf-48b0-b86f-871194910a90",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00034899997990578413,
+                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+              },
+              {
+                "execution_id": "f11af158-0593-4ed7-9ea6-3493a8221774",
+                "agent": "validation",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+              },
+              {
+                "execution_id": "f11af158-0593-4ed7-9ea6-3493a8221774",
+                "agent": "validation",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0002584999892860651,
+                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+              },
+              {
+                "execution_id": "a2829648-7d27-4d6f-aaa4-35ea0ce87ab2",
+                "agent": "reviewer",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+              },
+              {
+                "execution_id": "a2829648-7d27-4d6f-aaa4-35ea0ce87ab2",
+                "agent": "reviewer",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0002305000089108944,
+                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+              }
+            ]
+          },
+          "case_status": "NEEDS_FIX"
+        },
+        {
+          "ground_truth": {
+            "case_id": "product_002",
+            "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+            "source_document": "../documents/product_002.txt",
+            "product": {
+              "product_name": "DM-510",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_power": {
+                  "value": 510,
+                  "unit": "W",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_speed": {
+                  "value": 3200,
+                  "unit": "rpm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                }
+              }
+            },
+            "relevant_duplicates": [
+              "DM-510"
+            ],
+            "source_text": "Product: DM-510\nClass: BLDCMotor\nManufacturer: ABC Motors\nRated voltage: 24 V\nRated power: 0.51 kW\nRated speed: 3200 rpm\n",
+            "source_sha256": "f291d8e64d883c00152e077c7604b3fa98ddf4464bc0e80d0d15aaf60a9a7ccb",
+            "ground_truth_sha256": "de58b2a7adcf9c48e7b422a1b6dc6fb8413073cd926e5cb9a2305f6231993fe3"
+          },
+          "outputs": {
+            "extracted_product": {
+              "product_name": "DM-500",
+              "candidate_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 0.5,
+                  "unit": "kW",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "normalized_product": {
+              "product_name": "DM-500",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 500.0,
+                  "unit": "W",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "ontology_mapping": {
+              "product_class": "BLDCMotor",
+              "confidence": 0.95,
+              "required_properties": {
+                "manufacturer": {
+                  "type": "string",
+                  "canonical_unit": null,
+                  "units": [],
+                  "minimum": null,
+                  "maximum": null
+                },
+                "rated_voltage": {
+                  "type": "number",
+                  "canonical_unit": "V",
+                  "units": [
+                    "V"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_power": {
+                  "type": "number",
+                  "canonical_unit": "W",
+                  "units": [
+                    "W",
+                    "kW"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_speed": {
+                  "type": "number",
+                  "canonical_unit": "rpm",
+                  "units": [
+                    "rpm"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              },
+              "optional_properties": {
+                "weight": {
+                  "type": "number",
+                  "canonical_unit": "kg",
+                  "units": [
+                    "g",
+                    "kg"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              }
+            },
+            "validation_result": {
+              "valid": false,
+              "issues": [
+                {
+                  "field": "attributes.rated_speed",
+                  "code": "MISSING_REQUIRED",
+                  "message": "Required property rated_speed is missing",
+                  "severity": "error"
+                },
+                {
+                  "field": "attributes.weight",
+                  "code": "MISSING_OPTIONAL",
+                  "message": "Optional property weight is missing",
+                  "severity": "warning"
+                }
+              ]
+            },
+            "duplicate_candidates": [],
+            "agent_logs": [
+              {
+                "execution_id": "12ab3214-17d4-4ea9-9579-3dfd65536b33",
+                "agent": "parser",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.829739+00:00"
+              },
+              {
+                "execution_id": "12ab3214-17d4-4ea9-9579-3dfd65536b33",
+                "agent": "parser",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.000256099971011281,
+                "timestamp": "2026-10-05T10:28:06.829739+00:00"
+              },
+              {
+                "execution_id": "ebccd0fa-d7bc-4f95-a420-d3ae3b4999f0",
+                "agent": "extraction",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.829739+00:00"
+              },
+              {
+                "execution_id": "ebccd0fa-d7bc-4f95-a420-d3ae3b4999f0",
+                "agent": "extraction",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0002778000198304653,
+                "timestamp": "2026-10-05T10:28:06.830652+00:00"
+              },
+              {
+                "execution_id": "5e801418-78d2-4c72-9f5d-b5adeadf8fce",
+                "agent": "ontology",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.830989+00:00"
+              },
+              {
+                "execution_id": "5e801418-78d2-4c72-9f5d-b5adeadf8fce",
+                "agent": "ontology",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0004941999795846641,
+                "timestamp": "2026-10-05T10:28:06.832064+00:00"
+              },
+              {
+                "execution_id": "41151d94-8d9f-4d38-81aa-1701089dc295",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.833064+00:00"
+              },
+              {
+                "execution_id": "41151d94-8d9f-4d38-81aa-1701089dc295",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0003572999848984182,
+                "timestamp": "2026-10-05T10:28:06.834066+00:00"
+              },
+              {
+                "execution_id": "ddd20a22-2946-4344-ba3b-a9d223a049c2",
+                "agent": "validation",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.834066+00:00"
+              },
+              {
+                "execution_id": "ddd20a22-2946-4344-ba3b-a9d223a049c2",
+                "agent": "validation",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0003478999715298414,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "344c3f28-ba29-4cb2-83f5-8dc12fc2491b",
+                "agent": "reviewer",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "344c3f28-ba29-4cb2-83f5-8dc12fc2491b",
+                "agent": "reviewer",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00021180004114285111,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              }
+            ]
+          },
+          "case_status": "NEEDS_FIX"
+        },
+        {
+          "ground_truth": {
+            "case_id": "product_003",
+            "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+            "source_document": "../documents/product_003.txt",
+            "product": {
+              "product_name": "BR-6201",
+              "product_class": "Bearing",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 10,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "outer_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                }
+              }
+            },
+            "relevant_duplicates": [],
+            "source_text": "Product: BR-6201\nClass: Bearing\nInner diameter: 10 mm\nOuter diameter: 20 mm\n",
+            "source_sha256": "f4ca69e018954eefe2c96e10c2c06fb03854e90b1810432851132044365e5a41",
+            "ground_truth_sha256": "4c9c6738391b3bed022bb8751d550c47a45fd51dfa16b10eaf5971418602a1eb"
+          },
+          "outputs": {
+            "extracted_product": {
+              "product_name": "DM-500",
+              "candidate_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 0.5,
+                  "unit": "kW",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "normalized_product": {
+              "product_name": "DM-500",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 500.0,
+                  "unit": "W",
+                  "confidence": 0.95,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "ontology_mapping": {
+              "product_class": "BLDCMotor",
+              "confidence": 0.95,
+              "required_properties": {
+                "manufacturer": {
+                  "type": "string",
+                  "canonical_unit": null,
+                  "units": [],
+                  "minimum": null,
+                  "maximum": null
+                },
+                "rated_voltage": {
+                  "type": "number",
+                  "canonical_unit": "V",
+                  "units": [
+                    "V"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_power": {
+                  "type": "number",
+                  "canonical_unit": "W",
+                  "units": [
+                    "W",
+                    "kW"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_speed": {
+                  "type": "number",
+                  "canonical_unit": "rpm",
+                  "units": [
+                    "rpm"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              },
+              "optional_properties": {
+                "weight": {
+                  "type": "number",
+                  "canonical_unit": "kg",
+                  "units": [
+                    "g",
+                    "kg"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              }
+            },
+            "validation_result": {
+              "valid": false,
+              "issues": [
+                {
+                  "field": "attributes.rated_speed",
+                  "code": "MISSING_REQUIRED",
+                  "message": "Required property rated_speed is missing",
+                  "severity": "error"
+                },
+                {
+                  "field": "attributes.weight",
+                  "code": "MISSING_OPTIONAL",
+                  "message": "Optional property weight is missing",
+                  "severity": "warning"
+                }
+              ]
+            },
+            "duplicate_candidates": [],
+            "agent_logs": [
+              {
+                "execution_id": "1d0ad723-8d96-4c53-8c37-5178b4ea47f5",
+                "agent": "parser",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "1d0ad723-8d96-4c53-8c37-5178b4ea47f5",
+                "agent": "parser",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00024989998200908303,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "6c57d103-f141-410e-a58c-81f2316db58b",
+                "agent": "extraction",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "6c57d103-f141-410e-a58c-81f2316db58b",
+                "agent": "extraction",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00013379997108131647,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "d6b80550-d1ce-4fe3-8083-531461e0e1be",
+                "agent": "ontology",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "d6b80550-d1ce-4fe3-8083-531461e0e1be",
+                "agent": "ontology",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00047259998973459005,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "fba9d717-374b-4e7e-81b0-fd1949e9b538",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "fba9d717-374b-4e7e-81b0-fd1949e9b538",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0003386000171303749,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "e1c0ece8-6a2c-403d-a777-f5f9e76623c6",
+                "agent": "validation",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "e1c0ece8-6a2c-403d-a777-f5f9e76623c6",
+                "agent": "validation",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0002416000352241099,
+                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+              },
+              {
+                "execution_id": "a264dcf0-d093-472b-9e02-1edafd103549",
+                "agent": "reviewer",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.849772+00:00"
+              },
+              {
+                "execution_id": "a264dcf0-d093-472b-9e02-1edafd103549",
+                "agent": "reviewer",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00020970002515241504,
+                "timestamp": "2026-10-05T10:28:06.849772+00:00"
+              }
+            ]
+          },
+          "case_status": "NEEDS_FIX"
+        }
+      ],
+      "input_mode": "Unmodified Mock workflow, no manual edits, zero automatic retries."
+    },
+    {
+      "label": "RULE ENGINE EVALUATION",
+      "agents": [
+        {
+          "name": "duplicate",
+          "provider": "sqlite-rule-engine",
+          "version": "0.2.0",
+          "is_mock": false,
+          "required_reads": [
+            "normalized_product",
+            "ontology_mapping"
+          ],
+          "optional_reads": [],
+          "writes": [
+            "duplicate_candidates"
+          ],
+          "health": true
+        }
+      ],
+      "metrics": {
+        "Duplicate Precision@3": {
+          "value": 0.2222222222222222,
+          "correct": 2,
+          "total": 9
+        },
+        "Duplicate Recall@3": {
+          "value": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "Negative Query Accuracy": {
+          "value": 1.0,
+          "correct": 1,
+          "total": 1
+        },
+        "retrieved_count": 5,
+        "queries": [
+          {
+            "case_id": "product_001",
+            "retrieved": [
+              "DM-500A",
+              "DM-510",
+              "MX-500"
+            ],
+            "relevant": [
+              "DM-500A"
+            ],
+            "hits": 1
+          },
+          {
+            "case_id": "product_002",
+            "retrieved": [
+              "DM-510",
+              "DM-500A"
+            ],
+            "relevant": [
+              "DM-510"
+            ],
+            "hits": 1
+          },
+          {
+            "case_id": "product_003",
+            "retrieved": [],
+            "relevant": [],
+            "hits": 0
+          }
+        ]
+      },
+      "samples": [
+        {
+          "ground_truth": {
+            "case_id": "product_001",
+            "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+            "source_document": "../documents/product_001.txt",
+            "product": {
+              "product_name": "DM-500",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_power": {
+                  "value": 500,
+                  "unit": "W",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_speed": {
+                  "value": 3000,
+                  "unit": "rpm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                }
+              }
+            },
+            "relevant_duplicates": [
+              "DM-500A"
+            ],
+            "source_text": "Product: DM-500\nClass: BLDCMotor\nManufacturer: ABC Motors\nRated voltage: 24 V\nRated power: 0.5 kW\nRated speed: 3000 rpm\n",
+            "source_sha256": "b3ade37b4d04282a7c4d34e575cc97569c8a5741cfd450a5931a99ca67d97356",
+            "ground_truth_sha256": "1ed310613233c74022c80e671953ca6c3b1e6aa67263e93cc5c0ddcc8bc0d077"
+          },
+          "outputs": {
+            "duplicate_candidates": [
+              {
+                "product_id": "5016edea-4f28-454a-8f5f-ed65e94fbd88",
+                "product_name": "DM-500A",
+                "score": 0.9692307692307693,
+                "reason": "Rule similarity of class, name, and shared canonical attributes."
+              },
+              {
+                "product_id": "9c66f6ff-f24b-4936-8687-0b85bbfa819e",
+                "product_name": "DM-510",
+                "score": 0.7333333333333334,
+                "reason": "Rule similarity of class, name, and shared canonical attributes."
+              },
+              {
+                "product_id": "ac80a359-f60f-485f-bb1d-5a0ca5876b2e",
+                "product_name": "MX-500",
+                "score": 0.7333333333333334,
+                "reason": "Rule similarity of class, name, and shared canonical attributes."
+              }
+            ],
+            "agent_logs": [
+              {
+                "execution_id": "f8142631-03a2-4031-b558-680fda6da895",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.884152+00:00"
+              },
+              {
+                "execution_id": "f8142631-03a2-4031-b558-680fda6da895",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.004047900030855089,
+                "timestamp": "2026-10-05T10:28:06.889216+00:00"
+              }
+            ],
+            "error_events": []
+          }
+        },
+        {
+          "ground_truth": {
+            "case_id": "product_002",
+            "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+            "source_document": "../documents/product_002.txt",
+            "product": {
+              "product_name": "DM-510",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "ABC Motors",
+                  "unit": null,
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_voltage": {
+                  "value": 24,
+                  "unit": "V",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_power": {
+                  "value": 510,
+                  "unit": "W",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "rated_speed": {
+                  "value": 3200,
+                  "unit": "rpm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                }
+              }
+            },
+            "relevant_duplicates": [
+              "DM-510"
+            ],
+            "source_text": "Product: DM-510\nClass: BLDCMotor\nManufacturer: ABC Motors\nRated voltage: 24 V\nRated power: 0.51 kW\nRated speed: 3200 rpm\n",
+            "source_sha256": "f291d8e64d883c00152e077c7604b3fa98ddf4464bc0e80d0d15aaf60a9a7ccb",
+            "ground_truth_sha256": "de58b2a7adcf9c48e7b422a1b6dc6fb8413073cd926e5cb9a2305f6231993fe3"
+          },
+          "outputs": {
+            "duplicate_candidates": [
+              {
+                "product_id": "9c66f6ff-f24b-4936-8687-0b85bbfa819e",
+                "product_name": "DM-510",
+                "score": 1.0,
+                "reason": "Rule similarity of class, name, and shared canonical attributes."
+              },
+              {
+                "product_id": "5016edea-4f28-454a-8f5f-ed65e94fbd88",
+                "product_name": "DM-500A",
+                "score": 0.7076923076923077,
+                "reason": "Rule similarity of class, name, and shared canonical attributes."
+              }
+            ],
+            "agent_logs": [
+              {
+                "execution_id": "8ee5bd96-2c3e-4060-9477-372fc3aa354e",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.893211+00:00"
+              },
+              {
+                "execution_id": "8ee5bd96-2c3e-4060-9477-372fc3aa354e",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.002847399970050901,
+                "timestamp": "2026-10-05T10:28:06.895414+00:00"
+              }
+            ],
+            "error_events": []
+          }
+        },
+        {
+          "ground_truth": {
+            "case_id": "product_003",
+            "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+            "source_document": "../documents/product_003.txt",
+            "product": {
+              "product_name": "BR-6201",
+              "product_class": "Bearing",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 10,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                },
+                "outer_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": null,
+                  "source_file": null,
+                  "page": null,
+                  "provenance": null
+                }
+              }
+            },
+            "relevant_duplicates": [],
+            "source_text": "Product: BR-6201\nClass: Bearing\nInner diameter: 10 mm\nOuter diameter: 20 mm\n",
+            "source_sha256": "f4ca69e018954eefe2c96e10c2c06fb03854e90b1810432851132044365e5a41",
+            "ground_truth_sha256": "4c9c6738391b3bed022bb8751d550c47a45fd51dfa16b10eaf5971418602a1eb"
+          },
+          "outputs": {
+            "duplicate_candidates": [],
+            "agent_logs": [
+              {
+                "execution_id": "99238cee-6e02-4f10-ad16-6cd90c52414a",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-05T10:28:06.896415+00:00"
+              },
+              {
+                "execution_id": "99238cee-6e02-4f10-ad16-6cd90c52414a",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0031589000136591494,
+                "timestamp": "2026-10-05T10:28:06.898789+00:00"
+              }
+            ],
+            "error_events": []
+          }
+        }
+      ],
+      "input_mode": "Canonical ground-truth query directly to the real SQLite DuplicateAgent; isolated seed catalog."
+    }
+  ]
+}

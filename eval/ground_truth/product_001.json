@@ -1,0 +1,29 @@
+{
+  "case_id": "product_001",
+  "description": "Authored synthetic teaching fixture; labels reviewed against the included source text.",
+  "source_document": "../documents/product_001.txt",
+  "product": {
+    "product_name": "DM-500",
+    "product_class": "BLDCMotor",
+    "attributes": {
+      "manufacturer": {
+        "value": "ABC Motors"
+      },
+      "rated_voltage": {
+        "value": 24,
+        "unit": "V"
+      },
+      "rated_power": {
+        "value": 500,
+        "unit": "W"
+      },
+      "rated_speed": {
+        "value": 3000,
+        "unit": "rpm"
+      }
+    }
+  },
+  "relevant_duplicates": [
+    "DM-500A"
+  ]
+}

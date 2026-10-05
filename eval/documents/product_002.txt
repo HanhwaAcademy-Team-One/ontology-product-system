@@ -1,0 +1,6 @@
+Product: DM-510
+Class: BLDCMotor
+Manufacturer: ABC Motors
+Rated voltage: 24 V
+Rated power: 0.51 kW
+Rated speed: 3200 rpm

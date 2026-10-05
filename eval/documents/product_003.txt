@@ -1,0 +1,4 @@
+Product: BR-6201
+Class: Bearing
+Inner diameter: 10 mm
+Outer diameter: 20 mm

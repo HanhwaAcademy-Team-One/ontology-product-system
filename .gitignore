@@ -1,0 +1,51 @@
+# Python environments and generated files
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.uv-cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+
+# Test and coverage output
+.pytest_cache/
+.pytest_tmp/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Build output
+build/
+dist/
+
+# Runtime uploads, checkpoints, exports, and local databases
+/runtime/
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.log
+
+# Secrets and machine-specific configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+.streamlit/secrets.toml
+.streamlit/secrets.*.toml
+/.aws/
+/.codex/
+/.agents/
+
+# Editor and operating system files
+/.idea/
+/.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini

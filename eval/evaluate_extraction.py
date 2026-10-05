@@ -1,0 +1,1 @@
+from ontoproduct.evaluation.metrics import evaluate_extraction

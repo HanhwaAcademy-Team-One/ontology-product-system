@@ -1,0 +1,39 @@
+[project]
+name = "ontology-product-system"
+version = "0.1.0"
+description = "OntoProduct ontology-driven manufacturing registration workflow"
+readme = "README.md"
+authors = [
+    { name = "isaac0424", email = "eodud3858@gmail.com" }
+]
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "langgraph==1.2.12",
+    "langgraph-checkpoint==4.2.0",
+    "langchain==1.4.3",
+    "langchain-core==1.6.6",
+    "pydantic==2.13.5",
+    "PyYAML==6.0.3",
+    "streamlit==1.64.0",
+    "langgraph-checkpoint-sqlite==3.1.1",
+]
+
+[dependency-groups]
+dev = ["pytest==9.1.1"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[project.scripts]
+ontology-product-system = "ontology_product_system:main"
+ontoproduct = "ontoproduct.cli:main"
+
+[tool.uv.build-backend]
+module-name = ["ontology_product_system", "ontoproduct"]
+source-include = ["app.py", ".streamlit/**", "scripts/**", "eval/**", "docs/**", "tests/**", "requirements.txt", "uv.lock", ".python-version"]
+source-exclude = ["/.uv-cache", "/runtime", "/.pytest_tmp", "/.pytest_cache"]
+
+[build-system]
+requires = ["uv_build>=0.12.17,<0.13.0"]
+build-backend = "uv_build"

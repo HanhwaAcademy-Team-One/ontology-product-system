@@ -1,0 +1,6 @@
+Product: DM-500
+Class: BLDCMotor
+Manufacturer: ABC Motors
+Rated voltage: 24 V
+Rated power: 0.5 kW
+Rated speed: 3000 rpm
