@@ -2,7 +2,10 @@
 
 대상 저장소는 `HanhwaAcademy-Team-One/ontology-product-system`이며, 검토 담당 계정은 `Isaac0424`입니다.
 
-**적용 상태:** 현재는 로컬 설정안입니다. GitHub 공개 전환·Ruleset 적용·main의 CODEOWNERS 업로드를 완료해야 실제로 동작합니다. 로컬 JSON과 CODEOWNERS 파일만으로 GitHub 권한이 바뀌지는 않습니다.
+**적용 상태:** 저장소를 Public으로 전환하고 아래 두 Ruleset을 GitHub에 Active로 저장했습니다. CODEOWNERS도 main에 반영되어 있습니다. `.github/rulesets/`의 JSON은 설정을 재현하기 위한 파일이며, 실제 권한은 GitHub에 저장된 규칙이 제어합니다.
+
+- [main 갱신·PR 검토 규칙](https://github.com/HanhwaAcademy-Team-One/ontology-product-system/settings/rules/24504444)
+- [main 삭제·강제 푸시 차단 규칙](https://github.com/HanhwaAcademy-Team-One/ontology-product-system/settings/rules/24504483)
 
 **목표 권한**
 
@@ -21,6 +24,8 @@ Isaac0424는 직접 푸시가 필요한 담당자이므로 첫 번째 규칙의 
 
 저장소나 조직의 설정 관리 권한을 가진 사람은 규칙 자체를 변경할 수 있습니다. 팀원에게는 보통 Write를 부여하고, 관리 권한을 별도로 주지 않아야 이 운영 방식이 유지됩니다.
 
+현재 조직의 기본 권한은 Read이며, 이 저장소에 직접 부여된 팀·개인 권한은 없습니다. 팀원이 저장소 안에 작업 브랜치를 푸시하려면 해당 팀·개인에게 Write를 부여해야 합니다. Read 권한으로도 공개 저장소를 Fork한 뒤 자신의 Fork에서 브랜치를 만들고 원본 main으로 PR을 보낼 수 있습니다.
+
 **팀원의 작업 순서**
 
 ```powershell
@@ -36,6 +41,8 @@ git push -u origin feature/parser
 위 add 명령은 해당 신규 파일을 만든 뒤 사용하는 예시입니다. 본인이 실제로 수정한 파일을 선택하세요. GitHub에서 `feature/parser → main` PR을 열고 변경 내용과 테스트 결과를 작성합니다. Isaac0424가 검토 의견을 남기면 같은 브랜치에서 수정·푸시합니다. 검토가 끝나면 Isaac0424가 병합합니다.
 
 **설정 후 확인할 동작**
+
+Public 전환, 두 규칙의 Active 상태, main만 대상인 점, Isaac0424 한 명의 갱신 예외, PR 승인 조건과 삭제·강제 푸시 차단 설정을 확인했습니다. 팀원 계정의 실제 푸시·PR·병합 동작은 아직 테스트하지 않았습니다.
 
 1. 저장소가 Public이며 두 Ruleset이 Active인지 확인합니다. 비공개 조직 Free 저장소에서는 규칙이 강제되지 않습니다.
 2. 첫 번째 규칙의 유일한 예외가 Isaac0424인지 확인합니다.
