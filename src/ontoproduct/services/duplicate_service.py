@@ -9,10 +9,8 @@ class DuplicateService:
 
     def find(self, product, *, top_k=3):
         candidates = []
-        for record in self.repository.list():
+        for record in self.repository.list(product_class=product["product_class"], limit=None):
             existing = record["product"]
-            if existing["product_class"] != product["product_class"]:
-                continue
             common = existing["attributes"].keys() & product["attributes"].keys()
             values = [(existing["attributes"][key], product["attributes"][key]) for key in common]
             values = [(a, b) for a, b in values if a["value"] is not None and b["value"] is not None]

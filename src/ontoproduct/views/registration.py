@@ -196,8 +196,12 @@ def render():
     elif snapshot.next or snapshot.tasks:
         st.warning("이전 실행이 완료되지 않았습니다. 저장된 실행을 이어갈 수 있습니다.")
         if st.button("실행 이어가기", key="continue_workflow"):
-            consume(runtime.continue_run(thread_id))
-            st.rerun()
+            try:
+                consume(runtime.continue_run(thread_id))
+            except (ValueError, OSError) as exc:
+                st.error(str(exc))
+            else:
+                st.rerun()
     with st.expander("원본 문서와 실행 이력"):
         st.dataframe([{"파일": d["name"], "크기 (bytes)": d["size"], "형식": d["mime_type"]}
                       for d in state.get("source_documents", [])], hide_index=True, width="stretch")

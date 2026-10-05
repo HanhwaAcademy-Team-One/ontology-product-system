@@ -35,10 +35,12 @@ class ProductRepository:
             return self._record(connection.execute("SELECT * FROM products WHERE product_id=?", (product_id,)).fetchone())
 
     def list(self, *, search="", limit=500, product_class=None, origin=None):
+        # Escape LIKE wildcards so the search text matches literally; LIMIT -1 means no limit in SQLite.
+        pattern = "%" + search.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_") + "%"
         with self.database.connect() as connection:
             rows = connection.execute(
-                "SELECT * FROM products WHERE COALESCE(product_name,'') LIKE ? AND (? IS NULL OR product_class=?) AND (? IS NULL OR origin=?) ORDER BY created_at DESC LIMIT ?",
-                (f"%{search}%", product_class, product_class, origin, origin, limit)).fetchall()
+                "SELECT * FROM products WHERE COALESCE(product_name,'') LIKE ? ESCAPE '\\' AND (? IS NULL OR product_class=?) AND (? IS NULL OR origin=?) ORDER BY created_at DESC LIMIT ?",
+                (pattern, product_class, product_class, origin, origin, -1 if limit is None else limit)).fetchall()
         return [self._record(row) for row in rows]
 
     def count(self):
