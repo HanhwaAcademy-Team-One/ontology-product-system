@@ -108,3 +108,5 @@ uv --cache-dir .uv-cache build --offline
 팀원이 Mock을 실제 문서·LLM 기능으로 교체할 때는 [팀 협업 가이드](docs/MOCK_REPLACEMENT_PLAN.md)에서 담당별 파일 위치, 입력·출력 예시, 교체 절차와 테스트 기준을 확인하세요.
 
 전체 처리 순서와 온톨로지의 상속·정규화·검증·승인·저장 역할은 [시스템 동작 설명](docs/SYSTEM_AND_ONTOLOGY.md)에 정리했습니다.
+
+팀원의 작업 브랜치·PR 제출과 Isaac0424의 검토·병합 방식, main 보호 설정은 [Git 협업 가이드](docs/GIT_WORKFLOW.md)를 참고하세요.
