@@ -1,5 +1,6 @@
 import json
 import re
+from collections.abc import Callable
 from copy import deepcopy
 from pathlib import Path
 from uuid import uuid4
@@ -7,43 +8,48 @@ from uuid import uuid4
 import pytest
 
 from ontoproduct.agents.parser_agent import ParserAgent
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.graph.execution import execute_agent
 from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
 from ontoproduct.schemas.product import ParsedDocument
 from ontoproduct.services.document_service import DocumentService
+from ontoproduct.services.ontology_service import OntologyService
 from ontoproduct.services.parser_service import ParserService
 
 FIXTURES = Path(__file__).parent / "fixtures" / "documents"
 
+# 샘플 파일 이름(과 바꿔 저장할 이름)을 받아 업로드한 FileReference를 돌려주는 함수
+Upload = Callable[..., dict]
+
 
 @pytest.fixture
-def workspace(tmp_path):
+def workspace(tmp_path: Path) -> Path:
     return tmp_path / "uploads"
 
 
 @pytest.fixture
-def upload(workspace):
+def upload(workspace: Path) -> Upload:
     documents, session = DocumentService(workspace), str(uuid4())
 
-    def save(fixture, name=None):
+    def save(fixture: str, name: str | None = None) -> dict:
         return documents.save(session, name or fixture, (FIXTURES / fixture).read_bytes())
     return save
 
 
 @pytest.fixture
-def parser(workspace):
+def parser(workspace: Path) -> ParserService:
     return ParserService(workspace)
 
 
-def assert_valid_output(parsed):
+def assert_valid_output(parsed: list[dict]) -> None:
     assert parsed
     for item in parsed:
         assert ParsedDocument.model_validate(item).model_dump(mode="json") == item
     json.dumps(parsed, allow_nan=False)
 
 
-def test_txt_returns_real_text_without_page(parser, upload):
+def test_txt_returns_real_text_without_page(parser: ParserService, upload: Upload) -> None:
     parsed = parser.parse([upload("motor_spec.txt")])
     assert_valid_output(parsed)
     assert len(parsed) == 1
@@ -53,13 +59,14 @@ def test_txt_returns_real_text_without_page(parser, upload):
 
 
 @pytest.mark.parametrize("fixture", ["motor_spec.txt", "motor_spec_cp949.txt"])
-def test_mixed_korean_english_text_is_not_broken(parser, upload, fixture):
+def test_mixed_korean_english_text_is_not_broken(
+        parser: ParserService, upload: Upload, fixture: str) -> None:
     text = parser.parse([upload(fixture)])[0]["text"]
     assert "비고: 한글 English 혼합 문서" in text
     assert "�" not in text
 
 
-def test_pdf_returns_one_item_per_page(parser, upload):
+def test_pdf_returns_one_item_per_page(parser: ParserService, upload: Upload) -> None:
     parsed = parser.parse([upload("two_page_spec.pdf")])
     assert_valid_output(parsed)
     assert [item["page"] for item in parsed] == [1, 2]
@@ -68,14 +75,14 @@ def test_pdf_returns_one_item_per_page(parser, upload):
     assert "Electrical Ratings" in parsed[1]["text"]
 
 
-def test_pdf_table_keeps_item_value_unit_relation(parser, upload):
+def test_pdf_table_keeps_item_value_unit_relation(parser: ParserService, upload: Upload) -> None:
     text = parser.parse([upload("two_page_spec.pdf")])[1]["text"]
     assert "Item | Value | Unit" in text
     assert "Power | 0.6 | kW" in text
     assert "Speed | 3200 | rpm" in text
 
 
-def test_xlsx_keeps_both_sheets_and_cell_positions(parser, upload):
+def test_xlsx_keeps_both_sheets_and_cell_positions(parser: ParserService, upload: Upload) -> None:
     parsed = parser.parse([upload("two_sheet_spec.xlsx")])
     assert_valid_output(parsed)
     assert all(item["page"] is None for item in parsed)
@@ -86,7 +93,8 @@ def test_xlsx_keeps_both_sheets_and_cell_positions(parser, upload):
     assert "[Sheet: Electrical, Row: 3] A3=Rated Speed | B3=3200 | C3=rpm" in electrical
 
 
-def test_multiple_documents_all_appear_with_distinct_sources(parser, upload):
+def test_multiple_documents_all_appear_with_distinct_sources(
+        parser: ParserService, upload: Upload) -> None:
     refs = [upload("motor_spec.txt"), upload("two_page_spec.pdf"), upload("two_sheet_spec.xlsx"),
             upload("motor_spec_cp949.txt", "motor_spec.txt")]
     parsed = parser.parse(refs)
@@ -96,7 +104,7 @@ def test_multiple_documents_all_appear_with_distinct_sources(parser, upload):
     assert sources == {"two_page_spec.pdf", "two_sheet_spec.xlsx"} | duplicate_labels
 
 
-def test_parse_does_not_mutate_references(parser, upload):
+def test_parse_does_not_mutate_references(parser: ParserService, upload: Upload) -> None:
     refs = [upload("motor_spec.txt")]
     before = deepcopy(refs)
     parser.parse(refs)
@@ -108,12 +116,14 @@ def test_parse_does_not_mutate_references(parser, upload):
     ("corrupt.xlsx", "corrupt.xlsx: 문서를 읽을 수 없습니다"),
     ("scanned.pdf", "scanned.pdf: 읽을 수 있는 텍스트가 없습니다 (스캔 PDF OCR 미지원)"),
 ])
-def test_unreadable_documents_raise_clear_errors(parser, upload, fixture, message):
+def test_unreadable_documents_raise_clear_errors(
+        parser: ParserService, upload: Upload, fixture: str, message: str) -> None:
     with pytest.raises(ValueError, match=re.escape(message)):
         parser.parse([upload(fixture)])
 
 
-def test_missing_or_outside_paths_are_rejected(parser, upload, tmp_path):
+def test_missing_or_outside_paths_are_rejected(
+        parser: ParserService, upload: Upload, tmp_path: Path) -> None:
     missing = upload("motor_spec.txt")
     Path(missing["path"]).unlink()
     outside = tmp_path / "outside.txt"
@@ -124,7 +134,8 @@ def test_missing_or_outside_paths_are_rejected(parser, upload, tmp_path):
             parser.parse(refs)
 
 
-def test_agent_satisfies_contract_through_wrapper(registry, parser, upload):
+def test_agent_satisfies_contract_through_wrapper(
+        registry: AgentRegistry, parser: ParserService, upload: Upload) -> None:
     agent = ParserAgent(parser)
     registry.register(agent, replace=True)
     inputs = {"source_documents": [upload("motor_spec.txt"), upload("two_page_spec.pdf")]}
@@ -140,7 +151,8 @@ def test_agent_satisfies_contract_through_wrapper(registry, parser, upload):
     assert [event["event"] for event in events] == ["agent_started", "agent_finished"]
 
 
-def test_wrapper_records_error_event_for_corrupt_document(registry, parser, upload):
+def test_wrapper_records_error_event_for_corrupt_document(
+        registry: AgentRegistry, parser: ParserService, upload: Upload) -> None:
     registry.register(ParserAgent(parser), replace=True)
     result = execute_agent(registry, "parser", {"source_documents": [upload("corrupt.pdf")]},
                            writer=lambda event: None)
@@ -151,7 +163,9 @@ def test_wrapper_records_error_event_for_corrupt_document(registry, parser, uplo
     assert error["message"].startswith("corrupt.pdf: 문서를 읽을 수 없습니다")
 
 
-def test_graph_carries_real_parsed_text(complete_registry, ontology, config, parser, upload):
+def test_graph_carries_real_parsed_text(
+        complete_registry: AgentRegistry, ontology: OntologyService, config: dict,
+        parser: ParserService, upload: Upload) -> None:
     complete_registry.register(ParserAgent(parser), replace=True)
     graph = build_workflow(complete_registry, ontology=ontology)
     graph.invoke(initial_state([upload("motor_spec.txt")]), config)

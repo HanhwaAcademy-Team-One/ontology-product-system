@@ -1,30 +1,31 @@
-"""Regenerate the parser fixtures: uv run python tests/fixtures/make_documents.py"""
-from datetime import datetime, timezone
+"""Parser 테스트용 샘플 문서를 다시 만든다: uv run python tests/fixtures/make_documents.py"""
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fpdf import FPDF
 from openpyxl import Workbook
 
 OUT = Path(__file__).parent / "documents"
-FIXED_TIME = datetime(2026, 1, 1, tzinfo=timezone.utc)
+FIXED_TIME = datetime(2026, 1, 1, tzinfo=UTC)
 MOTOR_TEXT = ("Product: DM-600\nClass: BLDCMotor\nManufacturer: XYZ Motors\n"
               "Rated Voltage: 24 V\nRated Power: 0.6 kW\nRated Speed: 3200 rpm\n"
               "비고: 한글 English 혼합 문서 ±5% Ω\n")
 
 
-def new_pdf():
+def new_pdf() -> FPDF:
+    """생성 시각을 고정한 PDF 객체를 만든다."""
     pdf = FPDF()
     pdf.set_creation_date(FIXED_TIME)
     pdf.set_font("Helvetica", size=12)
     return pdf
 
 
-def make_text():
+def make_text() -> None:
     (OUT / "motor_spec.txt").write_text(MOTOR_TEXT, encoding="utf-8")
     (OUT / "motor_spec_cp949.txt").write_bytes(MOTOR_TEXT.replace("±5% Ω", "").encode("cp949"))
 
 
-def make_pdf():
+def make_pdf() -> None:
     pdf = new_pdf()
     pdf.add_page()
     pdf.multi_cell(0, 8, "Product: DM-600\nClass: BLDCMotor\nManufacturer: XYZ Motors")
@@ -39,15 +40,15 @@ def make_pdf():
     pdf.output(OUT / "two_page_spec.pdf")
 
 
-def make_scanned_pdf():
-    # Vector shapes only: no extractable text, like a scanned page.
+def make_scanned_pdf() -> None:
+    # 도형만 있고 추출할 텍스트가 없어 스캔 페이지처럼 동작한다.
     pdf = new_pdf()
     pdf.add_page()
     pdf.rect(20, 20, 120, 40, style="F")
     pdf.output(OUT / "scanned.pdf")
 
 
-def make_xlsx():
+def make_xlsx() -> None:
     workbook = Workbook()
     spec = workbook.active
     spec.title = "Spec"
@@ -62,7 +63,8 @@ def make_xlsx():
     workbook.save(OUT / "two_sheet_spec.xlsx")
 
 
-def make_corrupt():
+def make_corrupt() -> None:
+    # 정상 파일의 앞 200바이트만 남겨 손상 파일을 만든다.
     (OUT / "corrupt.pdf").write_bytes((OUT / "two_page_spec.pdf").read_bytes()[:200])
     (OUT / "corrupt.xlsx").write_bytes((OUT / "two_sheet_spec.xlsx").read_bytes()[:200])
 
