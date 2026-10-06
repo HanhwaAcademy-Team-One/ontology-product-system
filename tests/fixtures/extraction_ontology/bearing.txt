@@ -1,0 +1,4 @@
+Product: BR-6201
+Class: Bearing
+Inner Diameter: 12 mm
+Outer Diameter: 32 mm

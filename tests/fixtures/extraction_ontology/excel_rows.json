@@ -1,0 +1,3 @@
+[
+  {"source_file": "motor_spec.xlsx", "page": null, "text": "[Sheet: Spec, Row: 1] A1=Product | B1=DM-600\n[Sheet: Spec, Row: 2] A2=Class | B2=BLDCMotor\n[Sheet: Spec, Row: 3] A3=Manufacturer | B3=XYZ Motors\n[Sheet: Spec, Row: 4] A4=Rated Voltage | B4=24 V\n[Sheet: Spec, Row: 5] A5=Rated Power | B5=0.6 kW\n[Sheet: Spec, Row: 6] A6=Rated Speed | B6=3200 rpm"}
+]
