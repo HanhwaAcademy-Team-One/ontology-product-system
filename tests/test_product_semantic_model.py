@@ -1,10 +1,10 @@
+import json
 from copy import deepcopy
 
 import pytest
 
 from ontoproduct.agents.ontology_agent import OntologyAgent
 from ontoproduct.services.agent_errors import OntologyClassificationError
-from ontoproduct.services.external_mapping_service import ExternalMappings
 from ontoproduct.services.mapping_service import UnitService
 from ontoproduct.services.ontology_service import OntologyService
 from ontoproduct.services.product_ontology_service import ProductOntology
@@ -19,9 +19,10 @@ def test_product_model_projects_existing_business_contract_and_drives_default_se
     assert service.get_parent("BLDCMotor") == "Motor"
     assert set(service.resolve_required_properties("BLDCMotor")) == {"manufacturer", "rated_voltage", "rated_power", "rated_speed"}
     assert set(service.resolve_properties("Motor")) == {"manufacturer"}
-    assert model.model.entity_classes["ManufacturedItem"].external_parents == ["physical_artifact", "individual_product"]
-    assert "organization" not in model.model.entity_classes["Manufacturer"].external_parents
-    assert model.model.entity_classes["ManufacturerOrganization"].parent == "Manufacturer"
+    assert model.model.entity_classes["ManufacturedItem"].parents == ["PhysicalArtifact"]
+    assert "Organization" not in model.entity_ancestors("Manufacturer")
+    assert set(model.entity_ancestors("ManufacturerOrganization")) == {"Manufacturer", "Organization", "BusinessEntity"}
+    assert "PhysicalArtifact" not in model.entity_ancestors("ProductModel")
 
 
 def test_agent_uses_editable_ontology_rules_not_a_separate_hardcoded_classifier():
@@ -53,7 +54,8 @@ def test_operational_and_rdf_normalization_share_injected_catalog():
         OntologyService(semantic_model=model, unit_service=UnitService(definition=data))
 
 
-@pytest.mark.parametrize("mutation", ["parent", "unit", "quantity", "domain", "refinement", "comparison", "entity_cycle", "duplicate"])
+@pytest.mark.parametrize("mutation", ["parent", "unit", "quantity", "domain", "refinement", "comparison", "entity_cycle", "duplicate",
+                                      "unknown_parent", "unknown_source", "source_id", "measurement_clash"])
 def test_invalid_semantics_cannot_silently_load(mutation):
     data = ProductOntology().model.model_dump(mode="json")
     if mutation == "parent":
@@ -69,18 +71,42 @@ def test_invalid_semantics_cannot_silently_load(mutation):
     elif mutation == "comparison":
         data["comparisons"][0]["right"] = "rated_power"
     elif mutation == "entity_cycle":
-        data["entity_classes"]["Manufacturer"]["parent"] = "ManufacturerOrganization"
+        data["entity_classes"]["BusinessEntity"]["parents"] = ["ManufacturerOrganization"]
+    elif mutation == "unknown_parent":
+        data["entity_classes"]["Manufacturer"]["parents"] = ["Missing"]
+    elif mutation == "unknown_source":
+        data["relations"]["hasManufacturer"]["sources"] = ["missing-1.0"]
+    elif mutation == "source_id":
+        data["sources"]["qudt"] = data["sources"].pop("qudt-3.5.2")
+    elif mutation == "measurement_clash":
+        data["measurement"]["numeric_value"]["name"] = "ratedPower"
     else:
         data["classes"]["Motor"]["item_class"] = "MotorModel"
     with pytest.raises(ValueError):
         ProductOntology(definition=data)
 
 
-def test_unverified_external_superclass_is_rejected():
-    references = ExternalMappings().catalog.model_dump(mode="json")
-    references["mappings"]["physical_artifact"]["status"] = "unverified"
-    with pytest.raises(ValueError, match="verified"):
-        ProductOntology(references=ExternalMappings(definition=references))
+@pytest.mark.parametrize("target", ["model", "units"])
+def test_operational_ontology_data_rejects_external_urls(target):
+    data = ProductOntology().model.model_dump(mode="json")
+    units = UnitService().catalog.model_dump(mode="json")
+    if target == "model":
+        data["entity_classes"]["ProductModel"]["description"] = "See http://purl.org/goodrelations/v1#ProductOrServiceModel"
+    else:
+        units["quantity_definitions"]["power"]["description"] = "http://qudt.org/vocab/quantitykind/Power"
+    with pytest.raises(ValueError, match="external URLs"):
+        ProductOntology(definition=data, units=UnitService(definition=units))
+
+
+def test_used_units_and_quantities_need_local_definitions():
+    units = UnitService().catalog.model_dump(mode="json")
+    units["units"]["kW"]["label"] = None
+    with pytest.raises(ValueError, match="label"):
+        ProductOntology(units=UnitService(definition=units))
+    units = UnitService().catalog.model_dump(mode="json")
+    units["quantity_definitions"]["mass"]["sources"] = ["unknown-1.0"]
+    with pytest.raises(ValueError, match="source"):
+        ProductOntology(units=UnitService(definition=units))
 
 
 def test_llm_gets_operational_semantics_and_context_cannot_mutate_model():
@@ -89,7 +115,10 @@ def test_llm_gets_operational_semantics_and_context_cannot_mutate_model():
     OntologyAgent(ontology, transport).run({"extracted_product": motor_response()})
     context = transport.calls[0]["payload"]["semantic_model"]
     assert context["record_kind"] == "product_model"
-    assert context["quantity_kinds"]["power"]["uri"].endswith("/Power")
+    assert context["quantity_kinds"]["power"]["label"] == "Power"
+    assert context["units"]["kW"] == {"label": "kilowatt", "quantity": "power", "canonical": "W", "multiplier": 1000.0}
+    assert context["measurement"]["quantity_value"]["name"] == "QuantityValue"
+    assert "://" not in json.dumps(context)
     assert context["properties"]["weight"]["quantity"] == "mass"
     before = deepcopy(ontology.semantic_model.model)
     context["classes"]["BLDCMotor"]["required"].clear()

@@ -1,7 +1,9 @@
 """RDF/OWL product modeling and offline SHACL validation.
 
 The workflow JSON remains a model specification. Physical items and identified
-organizations are added only when explicitly supplied by the caller.
+organizations are added only when explicitly supplied by the caller. Every business
+concept, quantity kind and unit is a local IRI; only standard RDF/RDFS/OWL/XSD/SHACL
+and Dublin Core terms come from outside the project namespace.
 """
 
 import json
@@ -21,19 +23,44 @@ from ontoproduct.services.product_ontology_service import ProductOntology
 class RdfOntologyService:
     def __init__(self, model=None):
         self.model = model if model is not None else ProductOntology()
-        self.op = Namespace(self.model.model.namespace)
+        namespace = self.model.model.namespace
+        self.op = Namespace(namespace)
+        self.qk = Namespace(namespace + "quantitykind/")
+        self.unit = Namespace(namespace + "unit/")
+        self.src = Namespace(namespace + "source/")
+        terms = self.model.model.measurement
+        self.quantity_value = self.op[terms.quantity_value.name]
+        self.quantity_kind_class = self.op[terms.quantity_kind.name]
+        self.unit_class = self.op[terms.unit.name]
+        self.numeric_value = self.op[terms.numeric_value.name]
+        self.has_unit = self.op[terms.has_unit.name]
+        self.has_quantity_kind = self.op[terms.has_quantity_kind.name]
 
-    def _reference(self, key):
-        return URIRef(self.model.reference_uri(key))
+    def unit_uri(self, symbol):
+        return URIRef(self.unit + quote(symbol, safe=""))
+
+    def quantity_uri(self, key):
+        return URIRef(self.qk + quote(key, safe=""))
+
+    def source_uri(self, key):
+        return URIRef(self.src + quote(key, safe=""))
+
+    def entity_types(self, name):
+        return [self.op[name], *(self.op[a] for a in self.model.entity_ancestors(name))]
 
     def _graph(self):
         graph = Graph()
-        for prefix, uri in {"op": self.op, "gr": "http://purl.org/goodrelations/v1#",
-                            "qudt": "http://qudt.org/schema/qudt/", "unit": "http://qudt.org/vocab/unit/",
-                            "qk": "http://qudt.org/vocab/quantitykind/", "sh": SH,
-                            "owl": OWL, "dcterms": DCTERMS}.items():
+        for prefix, uri in {"op": self.op, "opqk": self.qk, "opunit": self.unit, "opsrc": self.src,
+                            "sh": SH, "owl": OWL, "dcterms": DCTERMS}.items():
             graph.bind(prefix, uri)
         return graph
+
+    def _describe(self, graph, node, label, description, sources):
+        graph.add((node, RDFS.label, Literal(label)))
+        if description:
+            graph.add((node, RDFS.comment, Literal(description)))
+        for key in sources:
+            graph.add((node, DCTERMS.source, self.source_uri(key)))
 
     @staticmethod
     def _list(graph, values):
@@ -68,22 +95,25 @@ class RdfOntologyService:
         graph.add((URIRef(model.namespace), RDF.type, OWL.Ontology))
         graph.add((URIRef(model.namespace), OWL.versionInfo, Literal(model.version)))
         graph.add((URIRef(model.namespace), RDFS.label, Literal("OntoProduct manufacturing product ontology")))
-        for key, source in self.model.references.catalog.sources.items():
-            source_node = op[f"Source_{key}"]
-            graph.add((URIRef(model.namespace), DCTERMS.source, source_node))
-            graph.add((source_node, DCTERMS.source, URIRef(str(source.url))))
-            graph.add((source_node, DCTERMS.license, URIRef(str(source.license_url))))
-            graph.add((source_node, DCTERMS.creator, Literal(source.attribution)))
-            graph.add((source_node, OWL.versionInfo, Literal(source.version)))
+        # Provenance uses local source records; original URLs stay in documentation.
+        graph.add((op.SourceRecord, RDF.type, OWL.Class))
+        graph.add((op.SourceRecord, RDFS.label, Literal("Design source record")))
+        graph.add((op.SourceRecord, RDFS.comment, Literal("Local record of an outside work used as a design reference.")))
+        for key, source in model.sources.items():
+            node = self.source_uri(key)
+            graph.add((URIRef(model.namespace), DCTERMS.source, node))
+            graph.add((node, RDF.type, op.SourceRecord))
+            graph.add((node, DCTERMS.title, Literal(source.title)))
+            graph.add((node, OWL.versionInfo, Literal(source.version)))
+            graph.add((node, DCTERMS.license, Literal(source.license)))
+            graph.add((node, DCTERMS.creator, Literal(source.attribution)))
+            graph.add((node, RDFS.comment, Literal(source.usage)))
         for name, entity in model.entity_classes.items():
             cls = op[name]
             graph.add((cls, RDF.type, OWL.Class))
-            graph.add((cls, RDFS.label, Literal(entity.label)))
-            graph.add((cls, RDFS.comment, Literal(entity.description)))
-            if entity.parent:
-                graph.add((cls, RDFS.subClassOf, op[entity.parent]))
-            for external in entity.external_parents:
-                graph.add((cls, RDFS.subClassOf, self._reference(external)))
+            self._describe(graph, cls, entity.label, entity.description, entity.sources)
+            for parent in entity.parents:
+                graph.add((cls, RDFS.subClassOf, op[parent]))
         graph.add((op.ProductModel, OWL.disjointWith, op.ManufacturedItem))
         for code, profile in model.classes.items():
             for category, root in (("model_class", "ProductModel"), ("item_class", "ManufacturedItem")):
@@ -102,7 +132,9 @@ class RdfOntologyService:
             graph.add((predicate, RDFS.comment, Literal(relation.description)))
             graph.add((predicate, RDFS.domain, op[relation.domain]))
             graph.add((predicate, RDFS.range, op[relation.range]))
-            graph.add((predicate, RDFS.subPropertyOf, self._reference(relation.external_parent)))
+            for key in relation.sources:
+                graph.add((predicate, DCTERMS.source, self.source_uri(key)))
+        self._measurement_vocabulary(graph)
         for name, prop in model.properties.items():
             predicate = op[prop.predicate]
             graph.add((predicate, op.applicationField, Literal(name)))
@@ -112,18 +144,54 @@ class RdfOntologyService:
             graph.add((predicate, RDFS.label, Literal(prop.label)))
             graph.add((predicate, RDFS.comment, Literal(prop.description)))
             graph.add((predicate, RDFS.domain, op[prop.domain]))
-            graph.add((predicate, RDFS.range, self._reference("quantity_value")))
-            quantity = self.model.units.catalog.quantity_definitions[prop.quantity]
-            graph.add((predicate, op.quantityKind, self._reference(quantity.reference)))
-            graph.add((predicate, op.canonicalUnit, self._reference(prop.definition.canonical_unit)))
-            graph.add((predicate, op.siDimensions, Literal(json.dumps(quantity.dimension, sort_keys=True))))
+            graph.add((predicate, RDFS.range, self.quantity_value))
+            graph.add((predicate, op.quantityKind, self.quantity_uri(prop.quantity)))
+            graph.add((predicate, op.canonicalUnit, self.unit_uri(prop.definition.canonical_unit)))
             # Type restrictions express meanings; requiredness stays in SHACL.
             restriction = BNode()
             graph.add((op[prop.domain], RDFS.subClassOf, restriction))
             graph.add((restriction, RDF.type, OWL.Restriction))
             graph.add((restriction, OWL.onProperty, predicate))
-            graph.add((restriction, OWL.allValuesFrom, self._reference("quantity_value")))
+            graph.add((restriction, OWL.allValuesFrom, self.quantity_value))
         return graph
+
+    def _measurement_vocabulary(self, graph):
+        """Local quantity-value structure, quantity kinds and units."""
+        op, terms, catalog = self.op, self.model.model.measurement, self.model.units.catalog
+        for cls, term in ((self.quantity_value, terms.quantity_value), (self.quantity_kind_class, terms.quantity_kind),
+                          (self.unit_class, terms.unit)):
+            graph.add((cls, RDF.type, OWL.Class))
+            self._describe(graph, cls, term.label, term.description, terms.sources)
+        graph.add((self.numeric_value, RDF.type, OWL.DatatypeProperty))
+        graph.add((self.numeric_value, RDFS.domain, self.quantity_value))
+        self._describe(graph, self.numeric_value, terms.numeric_value.label, terms.numeric_value.description, terms.sources)
+        for predicate, term, target in ((self.has_unit, terms.has_unit, self.unit_class),
+                                        (self.has_quantity_kind, terms.has_quantity_kind, self.quantity_kind_class)):
+            graph.add((predicate, RDF.type, OWL.ObjectProperty))
+            graph.add((predicate, RDFS.domain, self.quantity_value))
+            graph.add((predicate, RDFS.range, target))
+            self._describe(graph, predicate, term.label, term.description, terms.sources)
+        # Unit metadata is descriptive; conversion is performed by the shared UnitService.
+        for name, kind, range_ in (("measuresQuantityKind", OWL.ObjectProperty, self.quantity_kind_class),
+                                   ("conversionTargetUnit", OWL.ObjectProperty, self.unit_class),
+                                   ("conversionMultiplier", OWL.DatatypeProperty, XSD.double),
+                                   ("symbol", OWL.DatatypeProperty, XSD.string)):
+            graph.add((op[name], RDF.type, kind))
+            graph.add((op[name], RDFS.domain, self.unit_class))
+            graph.add((op[name], RDFS.range, range_))
+        for key in sorted(self.model.used_quantities()):
+            quantity, node = catalog.quantity_definitions[key], self.quantity_uri(key)
+            graph.add((node, RDF.type, self.quantity_kind_class))
+            self._describe(graph, node, quantity.label, quantity.description, quantity.sources)
+            graph.add((node, op.siDimensions, Literal(json.dumps(quantity.dimension, sort_keys=True))))
+        for symbol in sorted(self.model.used_units()):
+            unit, node = catalog.units[symbol], self.unit_uri(symbol)
+            graph.add((node, RDF.type, self.unit_class))
+            self._describe(graph, node, unit.label, None, unit.sources)
+            graph.add((node, op.symbol, Literal(symbol)))
+            graph.add((node, op.measuresQuantityKind, self.quantity_uri(unit.quantity)))
+            graph.add((node, op.conversionTargetUnit, self.unit_uri(unit.canonical)))
+            graph.add((node, op.conversionMultiplier, Literal(float(unit.multiplier), datatype=XSD.double)))
 
     def _property_shape(self, graph, parent, path, *, required=False):
         shape = BNode()
@@ -162,11 +230,11 @@ class RdfOntologyService:
                     graph.add((field_shape, SH["class"], op[model.relations[prop.predicate].range]))
                     graph.add((field_shape, SH.node, manufacturer_shape))
                     continue
-                graph.add((field_shape, SH["class"], self._reference("quantity_value")))
+                graph.add((field_shape, SH["class"], self.quantity_value))
                 quantity_shape = BNode()
                 graph.add((field_shape, SH.node, quantity_shape))
                 graph.add((quantity_shape, RDF.type, SH.NodeShape))
-                value_shape = self._property_shape(graph, quantity_shape, self._reference("numeric_value"), required=True)
+                value_shape = self._property_shape(graph, quantity_shape, self.numeric_value, required=True)
                 datatypes = (XSD.integer,) if prop.definition.type == "integer" else (XSD.integer, XSD.decimal, XSD.double, XSD.float)
                 choices = []
                 for datatype in datatypes:
@@ -179,17 +247,16 @@ class RdfOntologyService:
                     graph.add((value_shape, SH.minInclusive, Literal(prop.definition.minimum)))
                 if prop.definition.maximum is not None:
                     graph.add((value_shape, SH.maxInclusive, Literal(prop.definition.maximum)))
-                unit_shape = self._property_shape(graph, quantity_shape, self._reference("quantity_unit"), required=True)
-                graph.add((unit_shape, SH.hasValue, self._reference(prop.definition.canonical_unit)))
-                kind_shape = self._property_shape(graph, quantity_shape, self._reference("quantity_kind"), required=True)
-                quantity = self.model.units.catalog.quantity_definitions[prop.quantity]
-                graph.add((kind_shape, SH.hasValue, self._reference(quantity.reference)))
+                unit_shape = self._property_shape(graph, quantity_shape, self.has_unit, required=True)
+                graph.add((unit_shape, SH.hasValue, self.unit_uri(prop.definition.canonical_unit)))
+                kind_shape = self._property_shape(graph, quantity_shape, self.has_quantity_kind, required=True)
+                graph.add((kind_shape, SH.hasValue, self.quantity_uri(prop.quantity)))
         for comparison in model.comparisons:
             shape = op[f"{comparison.product_class}Shape"]
             constraint = BNode()
             left = op[model.properties[comparison.left].predicate]
             right = op[model.properties[comparison.right].predicate]
-            numeric = self._reference("numeric_value")
+            numeric = self.numeric_value
             graph.add((shape, SH.sparql, constraint))
             graph.add((constraint, SH.message, Literal(f"{comparison.left} must be less than {comparison.right}")))
             graph.add((constraint, SH.select, Literal(
@@ -233,8 +300,8 @@ class RdfOntologyService:
         model = self.model.model
         for code in codes:
             graph.add((node, RDF.type, op[model.classes[code].model_class]))
-        graph.add((node, RDF.type, op.ProductModel))
-        graph.add((node, RDF.type, self._reference("product_model")))
+        for cls in self.entity_types("ProductModel"):
+            graph.add((node, RDF.type, cls))
         if product.product_name is not None:
             graph.add((node, RDFS.label, Literal(product.product_name)))
         required, optional = self._properties(product.product_class)
@@ -248,39 +315,32 @@ class RdfOntologyService:
             graph.add((node, op[prop.predicate], target))
             graph.add((target, op.attributeEvidence, evidence))
             if prop.kind == "entity":
-                graph.add((target, RDF.type, op.Manufacturer))
-                graph.add((target, RDF.type, self._reference("manufacturer_entity")))
+                entity = "ManufacturerOrganization" if manufacturer_is_organization else model.relations[prop.predicate].range
+                for cls in self.entity_types(entity):
+                    graph.add((target, RDF.type, cls))
                 graph.add((target, RDFS.label, Literal(attr.value)))
-                relation = model.relations[prop.predicate]
-                graph.add((node, self._reference(relation.external_parent), target))
-                if manufacturer_is_organization:
-                    graph.add((target, RDF.type, op.ManufacturerOrganization))
-                    graph.add((target, RDF.type, self._reference("organization")))
             else:
                 value, unit = attr.value, attr.unit
                 try:
                     value, unit = self.model.units.normalize(prop.definition, value, unit, property_name=key)
                 except ValueError:
                     pass  # Invalid types/units survive and fail validation.
-                graph.add((target, RDF.type, self._reference("quantity_value")))
-                graph.add((target, self._reference("numeric_value"), Literal(value)))
+                graph.add((target, RDF.type, self.quantity_value))
+                graph.add((target, self.numeric_value, Literal(value)))
                 if unit is not None:
-                    reference = self.model.references.catalog.mappings.get(unit)
-                    unit_node = self._reference(unit) if reference is not None and reference.status == "verified" and reference.relation == "unit" else Literal(unit)
-                    graph.add((target, self._reference("quantity_unit"), unit_node))
-                quantity = self.model.units.catalog.quantity_definitions[prop.quantity]
-                graph.add((target, self._reference("quantity_kind"), self._reference(quantity.reference)))
+                    # Unknown units stay literal so SHACL reports them instead of guessing an IRI.
+                    unit_node = self.unit_uri(unit) if unit in self.model.units.catalog.units else Literal(unit)
+                    graph.add((target, self.has_unit, unit_node))
+                graph.add((target, self.has_quantity_kind, self.quantity_uri(prop.quantity)))
         if item_id is not None:
             if not isinstance(item_id, str) or not item_id.strip():
                 raise ValueError("item_id must be a nonempty explicit identifier")
             item = URIRef("urn:ontoproduct:item:" + quote(item_id, safe=""))
             for code in codes:
                 graph.add((item, RDF.type, op[model.classes[code].item_class]))
-            graph.add((item, RDF.type, op.ManufacturedItem))
-            graph.add((item, RDF.type, self._reference("physical_artifact")))
-            graph.add((item, RDF.type, self._reference("individual_product")))
+            for cls in self.entity_types("ManufacturedItem"):
+                graph.add((item, RDF.type, cls))
             graph.add((item, op.hasMakeAndModel, node))
-            graph.add((item, self._reference("make_and_model"), node))
         return graph
 
     def validate_graph(self, graph):

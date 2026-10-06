@@ -10,7 +10,6 @@ from ontoproduct.mocks.agents import mock_registry
 from ontoproduct.schemas.product import ProductAttribute
 from ontoproduct.services.agent_errors import DocumentConflictError, OntologyClassificationError
 from ontoproduct.services.evidence_service import evidence_candidates, is_conflict, pack_evidence
-from ontoproduct.services.external_mapping_service import ExternalMappings
 from ontoproduct.services.normalization_service import apply_overrides
 from ontoproduct.services.ontology_service import OntologyService
 from ontoproduct.services.validation_service import validate_product
@@ -84,7 +83,8 @@ def test_llm_low_score_is_preserved_and_allowed_classes_are_explicit(ontology):
     payload = transport.calls[0]["payload"]
     assert "BLDCMotor" in payload["allowed_classes"] and "Product" not in payload["allowed_classes"]
     assert "untrusted data" in payload["instructions"]
-    assert payload["external_references"]["kW"]["uri"] == "http://qudt.org/vocab/unit/KiloW"
+    assert "external_references" not in payload
+    assert "://" not in json.dumps(payload)
 
 
 @pytest.mark.parametrize("selection", [
@@ -188,16 +188,11 @@ def test_orphaned_manual_value_cannot_resolve_outside_class_conflict(ontology):
         OntologyAgent(ontology).run({"extracted_product": conflicting_motor(), "manual_overrides": {"product_class": "Motor", "attributes.rated_speed": {"value": 3000, "unit": "rpm"}}})
 
 
-def test_external_references_are_verified_and_unknowns_excluded():
-    mappings = ExternalMappings()
-    assert len(mappings.verified()) == 23
-    definition = mappings.catalog.model_dump(mode="json")
-    definition["mappings"]["unverified"] = {"source": "iof", "relation": "reference", "status": "unverified", "uri": None, "note": "Unable to verify; excluded"}
-    assert "unverified" not in ExternalMappings(definition=definition).verified()
-    definition["mappings"]["unverified"]["status"] = "verified"
-    with pytest.raises(ValidationError):
-        ExternalMappings(definition=definition)
-    definition = mappings.catalog.model_dump(mode="json")
-    definition["mappings"]["manufacturer"]["relation"] = "equivalentProperty"
-    with pytest.raises(ValidationError):
-        ExternalMappings(definition=definition)
+def test_external_mapping_catalog_is_not_shipped_or_loaded():
+    import importlib.util
+    import inspect
+    from ontoproduct.services.mapping_service import DATA_DIR
+
+    assert not (DATA_DIR / "external_mappings.yaml").exists()
+    assert importlib.util.find_spec("ontoproduct.services.external_mapping_service") is None
+    assert "external_mappings" not in inspect.signature(OntologyAgent).parameters

@@ -1,19 +1,15 @@
-@prefix gr: <http://purl.org/goodrelations/v1#> .
 @prefix op: <urn:ontoproduct:ontology:> .
-@prefix qk: <http://qudt.org/vocab/quantitykind/> .
-@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix opqk: <urn:ontoproduct:ontology:quantitykind/> .
+@prefix opunit: <urn:ontoproduct:ontology:unit/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix unit: <http://qudt.org/vocab/unit/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<urn:ontoproduct:record:motor> a gr:ProductOrServiceModel,
-        op:BLDCMotorModel,
+<urn:ontoproduct:record:motor> a op:BLDCMotorModel,
         op:CatalogProductModel,
         op:ElectricalPartModel,
         op:MotorModel,
         op:ProductModel ;
     rdfs:label "DM-600" ;
-    gr:hasManufacturer <urn:ontoproduct:record:motor:value:manufacturer> ;
     op:attributeEvidence <urn:ontoproduct:record:motor:attribute:manufacturer>,
         <urn:ontoproduct:record:motor:attribute:rated_power>,
         <urn:ontoproduct:record:motor:attribute:rated_speed>,
@@ -25,29 +21,34 @@
     op:ratedSpeed <urn:ontoproduct:record:motor:value:rated_speed> ;
     op:ratedVoltage <urn:ontoproduct:record:motor:value:rated_voltage> .
 
-<urn:ontoproduct:record:motor:value:rated_power> a qudt:QuantityValue ;
-    qudt:hasQuantityKind qk:Power ;
-    qudt:hasUnit unit:W ;
-    qudt:numericValue 6e+02 ;
-    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_power> .
+<urn:ontoproduct:record:motor:value:manufacturer> a op:BusinessEntity,
+        op:Manufacturer ;
+    rdfs:label "XYZ Motors" ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:manufacturer> .
 
-<urn:ontoproduct:record:motor:value:rated_speed> a qudt:QuantityValue ;
-    qudt:hasQuantityKind qk:RotationalFrequency ;
-    qudt:hasUnit unit:REV-PER-MIN ;
-    qudt:numericValue 3200 ;
-    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_speed> .
+<urn:ontoproduct:record:motor:value:rated_power> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_power> ;
+    op:hasQuantityKind opqk:power ;
+    op:hasUnit opunit:W ;
+    op:numericValue 6e+02 .
 
-<urn:ontoproduct:record:motor:value:rated_voltage> a qudt:QuantityValue ;
-    qudt:hasQuantityKind qk:Voltage ;
-    qudt:hasUnit unit:V ;
-    qudt:numericValue 24 ;
-    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_voltage> .
+<urn:ontoproduct:record:motor:value:rated_speed> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_speed> ;
+    op:hasQuantityKind opqk:rotational_frequency ;
+    op:hasUnit opunit:rpm ;
+    op:numericValue 3200 .
 
-<urn:ontoproduct:record:motor:value:weight> a qudt:QuantityValue ;
-    qudt:hasQuantityKind qk:Mass ;
-    qudt:hasUnit unit:KiloGM ;
-    qudt:numericValue 7.5e-01 ;
-    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:weight> .
+<urn:ontoproduct:record:motor:value:rated_voltage> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_voltage> ;
+    op:hasQuantityKind opqk:electric_potential ;
+    op:hasUnit opunit:V ;
+    op:numericValue 24 .
+
+<urn:ontoproduct:record:motor:value:weight> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:weight> ;
+    op:hasQuantityKind opqk:mass ;
+    op:hasUnit opunit:kg ;
+    op:numericValue 7.5e-01 .
 
 <urn:ontoproduct:record:motor:attribute:manufacturer> op:applicationField "manufacturer" ;
     op:candidateEvidence [ op:confidence 8.5e-01 ;
@@ -102,9 +103,4 @@
             op:value 750 ] ;
     op:hasConflict false ;
     op:recordJSON "{\"value\": 750, \"unit\": \"g\", \"confidence\": 0.85, \"evidence\": \"Weight: 750 g\", \"source_file\": \"motor_spec.pdf (22222222)\", \"page\": 2, \"provenance\": \"AI\"}" .
-
-<urn:ontoproduct:record:motor:value:manufacturer> a gr:BusinessEntity,
-        op:Manufacturer ;
-    rdfs:label "XYZ Motors" ;
-    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:manufacturer> .
 

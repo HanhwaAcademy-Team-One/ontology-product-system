@@ -1,5 +1,6 @@
 """Internal ontology design schema, separate from workflow JSON contracts."""
 
+import re
 from typing import Literal
 
 from pydantic import Field, model_validator
@@ -7,12 +8,43 @@ from pydantic import Field, model_validator
 from .common import DomainModel
 from .ontology import PropertyDefinition
 
+SOURCE_ID = r"^[a-z][a-z0-9]*-[0-9][0-9A-Za-z.]*$"
+
+
+class SourceRecord(DomainModel):
+    """Local provenance record. Original URLs are kept in documentation only."""
+    title: str = Field(min_length=1)
+    version: str = Field(min_length=1)
+    license: str = Field(min_length=1)
+    attribution: str = Field(min_length=1)
+    usage: str = Field(min_length=1)
+
+
+class VocabularyTerm(DomainModel):
+    name: str = Field(min_length=1)
+    label: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+
+
+class MeasurementVocabulary(DomainModel):
+    sources: list[str] = Field(default_factory=list)
+    quantity_value: VocabularyTerm
+    quantity_kind: VocabularyTerm
+    unit: VocabularyTerm
+    numeric_value: VocabularyTerm
+    has_unit: VocabularyTerm
+    has_quantity_kind: VocabularyTerm
+
+    def terms(self):
+        return {key: getattr(self, key) for key in (
+            "quantity_value", "quantity_kind", "unit", "numeric_value", "has_unit", "has_quantity_kind")}
+
 
 class EntityClass(DomainModel):
     label: str = Field(min_length=1)
     description: str = Field(min_length=1)
-    parent: str | None = None
-    external_parents: list[str] = Field(default_factory=list)
+    parents: list[str] = Field(default_factory=list)
+    sources: list[str] = Field(default_factory=list)
 
 
 class SemanticRelation(DomainModel):
@@ -20,7 +52,7 @@ class SemanticRelation(DomainModel):
     description: str
     domain: str
     range: str
-    external_parent: str
+    sources: list[str] = Field(default_factory=list)
 
 
 class ProductProfile(DomainModel):
@@ -79,9 +111,18 @@ class PropertyComparison(DomainModel):
 class ProductSemanticDefinition(DomainModel):
     namespace: str = Field(pattern=r"^urn:ontoproduct:[A-Za-z0-9:._-]+:$")
     version: str
+    sources: dict[str, SourceRecord]
+    measurement: MeasurementVocabulary
     entity_classes: dict[str, EntityClass]
     relations: dict[str, SemanticRelation]
     classes: dict[str, ProductProfile]
     properties: dict[str, SemanticProperty]
     classification_rules: list[ClassificationRule]
     comparisons: list[PropertyComparison] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def source_ids(self):
+        for key in self.sources:
+            if not re.fullmatch(SOURCE_ID, key):
+                raise ValueError(f"Source id must look like <source>-<version>: {key}")
+        return self

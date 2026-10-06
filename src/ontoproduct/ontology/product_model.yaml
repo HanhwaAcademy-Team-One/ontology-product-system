@@ -1,38 +1,99 @@
 # Project-authored application ontology. Requiredness is a registration policy,
 # not an existential OWL claim about every motor or bearing in the world.
+# All concepts are defined here under the local namespace. External standards were
+# design references only; their URIs and URLs live in docs, never in this file.
 namespace: 'urn:ontoproduct:ontology:'
-version: '2.0.0'
+version: '3.0.0'
+sources:
+  iof-202603:
+    title: IOF Core ontology
+    version: '202603'
+    license: MIT
+    attribution: IOF Core Working Group / Industrial Ontologies Foundry / Open Applications Group
+    usage: Design reference for physical artifacts and organizations. Definitions here are project-authored.
+  goodrelations-1.0:
+    title: GoodRelations vocabulary
+    version: '1.0, release 2011-10-01'
+    license: CC-BY-3.0
+    attribution: Martin Hepp
+    usage: Design reference for product models, business entities and model-item links. Definitions here are project-authored.
+  qudt-3.5.2:
+    title: QUDT quantities, units and dimensions
+    version: '3.5.2'
+    license: CC-BY-4.0
+    attribution: QUDT.org
+    usage: Design reference for quantity values, quantity kinds and units. Definitions and conversion multipliers here are project-authored.
+measurement:
+  sources: [qudt-3.5.2]
+  quantity_value:
+    name: QuantityValue
+    label: Quantity value
+    description: A value node holding exactly one numeric magnitude together with its unit and quantity kind.
+  quantity_kind:
+    name: QuantityKind
+    label: Quantity kind
+    description: A kind of measurable physical quantity, such as power or length, described by its SI base dimensions.
+  unit:
+    name: Unit
+    label: Unit of measure
+    description: A unit in which one quantity kind is expressed, with a conversion multiplier to the project canonical unit.
+  numeric_value:
+    name: numericValue
+    label: Numeric value
+    description: The numeric magnitude of a quantity value, expressed in its stated unit.
+  has_unit:
+    name: hasUnit
+    label: Has unit
+    description: Connects a quantity value to the unit of its numeric magnitude.
+  has_quantity_kind:
+    name: hasQuantityKind
+    label: Has quantity kind
+    description: Connects a quantity value to the kind of physical quantity it measures.
 entity_classes:
+  PhysicalArtifact:
+    label: Physical artifact
+    description: A material object produced by intentional human activity. Upper concept for identified physical items.
+    sources: [iof-202603]
+  Organization:
+    label: Organization
+    description: An entity separately known to be an organized group with a shared purpose; never inferred from a name string.
+    sources: [iof-202603]
+  BusinessEntity:
+    label: Business entity
+    description: A party that makes, offers or supplies products or services. A name alone does not identify it globally.
+    sources: [goodrelations-1.0]
   ProductModel:
     label: Product model
     description: A catalog specification for a manufactured product model, not an individual physical item.
-    external_parents: [product_model]
+    sources: [goodrelations-1.0]
   ManufacturedItem:
     label: Manufactured physical item
-    description: An explicitly identified physical artifact; a catalog entry does not establish its existence.
-    external_parents: [physical_artifact, individual_product]
+    description: An explicitly identified individual physical artifact; a catalog entry does not establish its existence.
+    parents: [PhysicalArtifact]
+    sources: [iof-202603, goodrelations-1.0]
   Manufacturer:
     label: Manufacturer entity
     description: A business entity responsible for producing a model; a name alone does not identify it globally.
-    external_parents: [manufacturer_entity]
+    parents: [BusinessEntity]
+    sources: [goodrelations-1.0]
   ManufacturerOrganization:
     label: Manufacturer organization
     description: A manufacturer separately known to be an organization; never inferred from a name string.
-    parent: Manufacturer
-    external_parents: [organization]
+    parents: [Manufacturer, Organization]
+    sources: [iof-202603]
 relations:
   hasManufacturer:
     label: Has manufacturer
     description: Connects a product model to its scoped manufacturer entity.
     domain: ProductModel
     range: Manufacturer
-    external_parent: manufacturer
+    sources: [goodrelations-1.0]
   hasMakeAndModel:
     label: Has make and model
     description: Connects an explicitly identified manufactured item to its catalog model.
     domain: ManufacturedItem
     range: ProductModel
-    external_parent: make_and_model
+    sources: [goodrelations-1.0]
 classes:
   Product:
     label: Manufactured product model

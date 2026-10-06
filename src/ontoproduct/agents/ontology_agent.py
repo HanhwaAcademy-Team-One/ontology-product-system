@@ -9,7 +9,6 @@ from ontoproduct.schemas.product import ExtractedProduct, NormalizedProduct
 from ontoproduct.services.agent_errors import OntologyClassificationError
 from ontoproduct.services.attribute_merge import enforce_conflicts, merge_attributes
 from ontoproduct.services.evidence_service import is_conflict
-from ontoproduct.services.external_mapping_service import ExternalMappings
 from ontoproduct.services.llm_protocol import validated_response
 from ontoproduct.services.mapping_service import PropertyAliases
 from ontoproduct.services.normalization_service import normalize_attributes
@@ -26,13 +25,11 @@ class OntologyAgent(BaseAgent):
     version = VERSION
     is_mock = False
 
-    def __init__(self, ontology, llm_service=None, *, aliases=None, external_mappings=None):
+    def __init__(self, ontology, llm_service=None, *, aliases=None):
         required, optional, writes = CONTRACTS[self.name]
         self.required_reads, self.optional_reads, self.writes = set(required), set(optional), dict(writes)
         self.ontology, self.llm_service = ontology, llm_service
         self.aliases = aliases if aliases is not None else PropertyAliases()
-        self.external_mappings = (external_mappings if external_mappings is not None
-                                  else ontology.semantic_model.references if ontology.semantic_model is not None else ExternalMappings())
         if llm_service is not None:
             self.provider = "ontology-structured-llm-adapter"
 
@@ -67,7 +64,6 @@ class OntologyAgent(BaseAgent):
                 "extracted_product": extracted.model_dump(mode="json"),
                 "allowed_classes": allowed,
                 "class_definitions": {c: self.ontology.get_class(c).model_dump(mode="json") for c in allowed},
-                "external_references": self.external_mappings.verified(),
                 "semantic_model": (self.ontology.semantic_model.as_context(allowed)
                                    if self.ontology.semantic_model is not None else None),
             }, schema=ClassSelection)

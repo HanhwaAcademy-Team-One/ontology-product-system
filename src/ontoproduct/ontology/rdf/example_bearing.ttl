@@ -1,13 +1,10 @@
-@prefix gr: <http://purl.org/goodrelations/v1#> .
 @prefix op: <urn:ontoproduct:ontology:> .
-@prefix qk: <http://qudt.org/vocab/quantitykind/> .
-@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix opqk: <urn:ontoproduct:ontology:quantitykind/> .
+@prefix opunit: <urn:ontoproduct:ontology:unit/> .
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-@prefix unit: <http://qudt.org/vocab/unit/> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<urn:ontoproduct:record:bearing> a gr:ProductOrServiceModel,
-        op:BearingModel,
+<urn:ontoproduct:record:bearing> a op:BearingModel,
         op:CatalogProductModel,
         op:MechanicalPartModel,
         op:ProductModel ;
@@ -17,17 +14,17 @@
     op:innerDiameter <urn:ontoproduct:record:bearing:value:inner_diameter> ;
     op:outerDiameter <urn:ontoproduct:record:bearing:value:outer_diameter> .
 
-<urn:ontoproduct:record:bearing:value:inner_diameter> a qudt:QuantityValue ;
-    qudt:hasQuantityKind qk:Length ;
-    qudt:hasUnit unit:MilliM ;
-    qudt:numericValue 12 ;
-    op:attributeEvidence <urn:ontoproduct:record:bearing:attribute:inner_diameter> .
+<urn:ontoproduct:record:bearing:value:inner_diameter> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:bearing:attribute:inner_diameter> ;
+    op:hasQuantityKind opqk:length ;
+    op:hasUnit opunit:mm ;
+    op:numericValue 12 .
 
-<urn:ontoproduct:record:bearing:value:outer_diameter> a qudt:QuantityValue ;
-    qudt:hasQuantityKind qk:Length ;
-    qudt:hasUnit unit:MilliM ;
-    qudt:numericValue 32 ;
-    op:attributeEvidence <urn:ontoproduct:record:bearing:attribute:outer_diameter> .
+<urn:ontoproduct:record:bearing:value:outer_diameter> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:bearing:attribute:outer_diameter> ;
+    op:hasQuantityKind opqk:length ;
+    op:hasUnit opunit:mm ;
+    op:numericValue 32 .
 
 <urn:ontoproduct:record:bearing:attribute:inner_diameter> op:applicationField "inner_diameter" ;
     op:candidateEvidence [ op:confidence 8.5e-01 ;

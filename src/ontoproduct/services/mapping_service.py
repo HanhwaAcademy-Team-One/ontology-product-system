@@ -54,11 +54,15 @@ class UnitDefinition(DomainModel):
     quantity: str = Field(min_length=1)
     canonical: str = Field(min_length=1)
     multiplier: float = Field(gt=0)
+    label: str | None = Field(default=None, min_length=1)
+    sources: list[str] = Field(default_factory=list)
 
 
 class QuantityDefinition(DomainModel):
-    reference: str = Field(min_length=1)
+    label: str | None = Field(default=None, min_length=1)
+    description: str | None = Field(default=None, min_length=1)
     dimension: dict[Literal["mass", "length", "time", "current", "temperature", "amount", "luminosity"], int]
+    sources: list[str] = Field(default_factory=list)
 
 
 class UnitCatalog(DomainModel):

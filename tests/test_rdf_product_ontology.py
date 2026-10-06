@@ -24,40 +24,51 @@ def semantic_products():
     return json.loads((FIXTURES / "semantic_products.json").read_text(encoding="utf-8"))
 
 
-def test_actual_ontology_aligns_distinct_model_item_manufacturer_and_quantities(rdf_service):
+def test_actual_ontology_defines_distinct_model_item_manufacturer_and_quantities_locally(rdf_service):
     service, op = rdf_service, rdf_service.op
     graph = service.ontology_graph()
-    assert (op.ProductModel, RDFS.subClassOf, service._reference("product_model")) in graph
-    assert (op.ManufacturedItem, RDFS.subClassOf, service._reference("physical_artifact")) in graph
-    assert (op.ManufacturerOrganization, RDFS.subClassOf, service._reference("organization")) in graph
-    assert (op.hasManufacturer, RDFS.subPropertyOf, service._reference("manufacturer")) in graph
-    assert (op.ratedPower, RDFS.range, service._reference("quantity_value")) in graph
-    assert (op.ratedPower, op.quantityKind, service._reference("power_quantity")) in graph
-    assert not list(graph.triples((None, OWL.equivalentClass, None)))
-    assert not list(graph.triples((None, OWL.equivalentProperty, None)))
-    assert not list(graph.triples((None, OWL.imports, None)))
-    assert not list(graph.triples((None, OWL.minCardinality, None)))
+    assert (op.ManufacturedItem, RDFS.subClassOf, op.PhysicalArtifact) in graph
+    assert (op.Manufacturer, RDFS.subClassOf, op.BusinessEntity) in graph
+    assert (op.ManufacturerOrganization, RDFS.subClassOf, op.Manufacturer) in graph
+    assert (op.ManufacturerOrganization, RDFS.subClassOf, op.Organization) in graph
+    assert (op.ProductModel, OWL.disjointWith, op.ManufacturedItem) in graph
+    assert (op.hasManufacturer, RDFS.domain, op.ProductModel) in graph
+    assert (op.hasManufacturer, RDFS.range, op.Manufacturer) in graph
+    assert not list(graph.triples((op.hasManufacturer, RDFS.subPropertyOf, None)))
+    assert (op.ratedPower, RDFS.range, service.quantity_value) in graph
+    assert (op.ratedPower, op.quantityKind, service.quantity_uri("power")) in graph
+    assert (service.numeric_value, RDF.type, OWL.DatatypeProperty) in graph
+    assert (service.has_unit, RDFS.range, service.unit_class) in graph
+    assert (service.unit_uri("kW"), op.conversionTargetUnit, service.unit_uri("W")) in graph
+    assert graph.value(service.unit_uri("kW"), op.conversionMultiplier).toPython() == 1000.0
+    assert (service.unit_uri("rpm"), op.measuresQuantityKind, service.quantity_uri("rotational_frequency")) in graph
+    assert str(graph.value(service.quantity_uri("mass"), RDFS.label)) == "Mass"
+    for predicate in (OWL.equivalentClass, OWL.equivalentProperty, OWL.sameAs, OWL.imports, OWL.minCardinality):
+        assert not list(graph.triples((None, predicate, None)))
     rows = list(graph.query(f"SELECT ?ancestor WHERE {{ <{op.BLDCMotorModel}> <{RDFS.subClassOf}>+ ?ancestor . FILTER(isIRI(?ancestor)) }}"))
-    assert {op.MotorModel, op.ProductModel, service._reference("product_model")} <= {row.ancestor for row in rows}
+    ancestors = {row.ancestor for row in rows}
+    assert {op.MotorModel, op.ProductModel} <= ancestors
+    assert all(str(a).startswith(str(op)) for a in ancestors)
 
 
-def test_product_export_uses_real_entity_and_qudt_relationships_with_source_preserved(rdf_service, semantic_products):
+def test_product_export_uses_local_entity_and_quantity_relationships_with_source_preserved(rdf_service, semantic_products):
     service, op = rdf_service, rdf_service.op
     product = semantic_products["motor"]
     before = deepcopy(product)
     graph = service.product_graph(product, record_id="DM-600")
     root = service.record_uri("DM-600")
     power = graph.value(root, op.ratedPower)
-    manufacturer = graph.value(root, service._reference("manufacturer"))
-    assert (manufacturer, RDF.type, service._reference("manufacturer_entity")) in graph
+    manufacturer = graph.value(root, op.hasManufacturer)
+    assert {(manufacturer, RDF.type, op.Manufacturer), (manufacturer, RDF.type, op.BusinessEntity)} <= set(graph)
     assert graph.value(manufacturer, RDFS.label) == Literal("XYZ Motors")
-    assert graph.value(power, service._reference("numeric_value")).toPython() == 600
-    assert graph.value(power, service._reference("quantity_unit")) == service._reference("W")
-    assert graph.value(power, service._reference("quantity_kind")) == service._reference("power_quantity")
+    assert graph.value(power, service.numeric_value).toPython() == 600
+    assert graph.value(power, service.has_unit) == service.unit_uri("W")
+    assert graph.value(power, service.has_quantity_kind) == service.quantity_uri("power")
     mass = graph.value(root, op.mass)
-    assert graph.value(mass, service._reference("numeric_value")).toPython() == 0.75
+    assert graph.value(mass, service.numeric_value).toPython() == 0.75
+    assert graph.value(mass, service.has_unit) == service.unit_uri("kg")
     assert not list(graph.subjects(RDF.type, op.ManufacturedItem))
-    assert not list(graph.subjects(RDF.type, service._reference("organization")))
+    assert not list(graph.subjects(RDF.type, op.Organization))
     evidence = graph.value(power, op.attributeEvidence)
     recovered = json.loads(str(graph.value(evidence, op.recordJSON)))
     assert recovered == NormalizedProduct.model_validate(product).attributes["rated_power"].model_dump(mode="json")
@@ -77,8 +88,9 @@ def test_explicit_item_and_organization_are_separate_and_valid(rdf_service, sema
     graph = service.product_graph(semantic_products["motor"], record_id="motor", item_id="serial-001", manufacturer_is_organization=True)
     item = next(graph.subjects(RDF.type, op.ManufacturedItem))
     assert item != service.record_uri("motor")
-    assert graph.value(item, service._reference("make_and_model")) == service.record_uri("motor")
-    assert list(graph.subjects(RDF.type, service._reference("organization")))
+    assert graph.value(item, op.hasMakeAndModel) == service.record_uri("motor")
+    assert (item, RDF.type, op.PhysicalArtifact) in graph
+    assert list(graph.subjects(RDF.type, op.Organization))
     assert service.validate_graph(graph)["valid"]
     assert service.record_uri("a:b") != service.record_uri("a%3Ab")
 
@@ -128,7 +140,7 @@ def test_tampered_quantity_kind_and_model_item_conflation_fail(rdf_service, sema
     service, op = rdf_service, rdf_service.op
     graph = service.product_graph(semantic_products["motor"], record_id="motor")
     power = graph.value(service.record_uri("motor"), op.ratedPower)
-    graph.set((power, service._reference("quantity_kind"), service._reference("mass_quantity")))
+    graph.set((power, service.has_quantity_kind, service.quantity_uri("mass")))
     assert not service.validate_graph(graph)["valid"]
     graph = service.product_graph(semantic_products["motor"], record_id="motor")
     graph.add((service.record_uri("motor"), RDF.type, op.ManufacturedItem))
@@ -165,5 +177,5 @@ def test_graph_validation_is_offline_and_does_not_mutate_input(monkeypatch, rdf_
 def test_nonfinite_rdf_numeric_literals_fail_even_without_json_validation(rdf_service, semantic_products, value):
     graph = rdf_service.product_graph(semantic_products["motor"], record_id="motor")
     power = graph.value(rdf_service.record_uri("motor"), rdf_service.op.ratedPower)
-    graph.set((power, rdf_service._reference("numeric_value"), Literal(value)))
+    graph.set((power, rdf_service.numeric_value, Literal(value)))
     assert not rdf_service.validate_graph(graph)["valid"]
