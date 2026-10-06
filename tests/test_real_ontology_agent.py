@@ -190,7 +190,7 @@ def test_orphaned_manual_value_cannot_resolve_outside_class_conflict(ontology):
 
 def test_external_references_are_verified_and_unknowns_excluded():
     mappings = ExternalMappings()
-    assert len(mappings.verified()) == 12
+    assert len(mappings.verified()) == 23
     definition = mappings.catalog.model_dump(mode="json")
     definition["mappings"]["unverified"] = {"source": "iof", "relation": "reference", "status": "unverified", "uri": None, "note": "Unable to verify; excluded"}
     assert "unverified" not in ExternalMappings(definition=definition).verified()

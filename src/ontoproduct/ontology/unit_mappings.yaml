@@ -2,14 +2,30 @@ units:
   V: {quantity: electric_potential, canonical: V, multiplier: 1.0}
   W: {quantity: power, canonical: W, multiplier: 1.0}
   kW: {quantity: power, canonical: W, multiplier: 1000.0}
-  rpm: {quantity: angular_velocity, canonical: rpm, multiplier: 1.0}
+  rpm: {quantity: rotational_frequency, canonical: rpm, multiplier: 1.0}
   kg: {quantity: mass, canonical: kg, multiplier: 1.0}
   g: {quantity: mass, canonical: kg, multiplier: 0.001}
   mm: {quantity: length, canonical: mm, multiplier: 1.0}
 property_quantities:
   rated_voltage: electric_potential
   rated_power: power
-  rated_speed: angular_velocity
+  rated_speed: rotational_frequency
   weight: mass
   inner_diameter: length
   outer_diameter: length
+quantity_definitions:
+  electric_potential:
+    reference: voltage_quantity
+    dimension: {mass: 1, length: 2, time: -3, current: -1}
+  power:
+    reference: power_quantity
+    dimension: {mass: 1, length: 2, time: -3}
+  rotational_frequency:
+    reference: speed_quantity
+    dimension: {time: -1}
+  mass:
+    reference: mass_quantity
+    dimension: {mass: 1}
+  length:
+    reference: length_quantity
+    dimension: {length: 1}

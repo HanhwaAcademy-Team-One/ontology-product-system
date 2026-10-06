@@ -94,3 +94,69 @@ mappings:
     relation: unit
     status: verified
     note: Revolution per minute; kept locally, not converted to the QUDT radian-per-second reference.
+  individual_product:
+    source: goodrelations
+    uri: http://purl.org/goodrelations/v1#Individual
+    relation: reference
+    status: verified
+    note: An identified actual product instance; never inferred from a model catalog record.
+  make_and_model:
+    source: goodrelations
+    uri: http://purl.org/goodrelations/v1#hasMakeAndModel
+    relation: reference
+    status: verified
+    note: Links an explicitly identified physical item to its product model.
+  quantity_value:
+    source: qudt
+    uri: http://qudt.org/schema/qudt/QuantityValue
+    relation: reference
+    status: verified
+    note: Quantity node containing a numeric value and unit.
+  numeric_value:
+    source: qudt
+    uri: http://qudt.org/schema/qudt/numericValue
+    relation: reference
+    status: verified
+    note: Numeric magnitude of a quantity value.
+  quantity_kind:
+    source: qudt
+    uri: http://qudt.org/schema/qudt/hasQuantityKind
+    relation: reference
+    status: verified
+    note: Quantity value relationship to the kind of measured quantity.
+  quantity_unit:
+    source: qudt
+    uri: http://qudt.org/schema/qudt/hasUnit
+    relation: reference
+    status: verified
+    note: Current QUDT 3.5.2 unit relationship inherited by QuantityValue from Quantifiable; verified on the hasUnit page and official overview.
+  voltage_quantity:
+    source: qudt
+    uri: http://qudt.org/vocab/quantitykind/Voltage
+    relation: reference
+    status: verified
+    note: Quantity kind for rated voltage.
+  power_quantity:
+    source: qudt
+    uri: http://qudt.org/vocab/quantitykind/Power
+    relation: reference
+    status: verified
+    note: Quantity kind for rated power.
+  speed_quantity:
+    source: qudt
+    uri: http://qudt.org/vocab/quantitykind/RotationalFrequency
+    relation: reference
+    status: verified
+    note: Shaft revolutions per time; QUDT explicitly lists REV-PER-MIN as an applicable unit of RotationalFrequency. Not a radian-per-second value.
+  mass_quantity:
+    source: qudt
+    uri: http://qudt.org/vocab/quantitykind/Mass
+    relation: reference
+    status: verified
+    note: Quantity kind for the legacy weight field, whose meaning is product mass rather than force.
+  length_quantity:
+    source: qudt
+    uri: http://qudt.org/vocab/quantitykind/Length
+    relation: reference
+    status: verified
+    note: Quantity kind for bearing dimensions.

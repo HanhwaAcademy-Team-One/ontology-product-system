@@ -31,12 +31,15 @@ class OntologyAgent(BaseAgent):
         self.required_reads, self.optional_reads, self.writes = set(required), set(optional), dict(writes)
         self.ontology, self.llm_service = ontology, llm_service
         self.aliases = aliases if aliases is not None else PropertyAliases()
-        self.external_mappings = external_mappings if external_mappings is not None else ExternalMappings()
+        self.external_mappings = (external_mappings if external_mappings is not None
+                                  else ontology.semantic_model.references if ontology.semantic_model is not None else ExternalMappings())
         if llm_service is not None:
             self.provider = "ontology-structured-llm-adapter"
 
     def _rule_class(self, candidate, attributes):
         present = {k for k, a in attributes.items() if a.value is not None or is_conflict(a)}
+        if self.ontology.semantic_model is not None:
+            return self.ontology.semantic_model.classify(candidate, present)
         bearing = {"inner_diameter", "outer_diameter"} <= present
         motor_fields = {"rated_voltage", "rated_power", "rated_speed"} & present
         motor = "manufacturer" in present and len(motor_fields) >= 2
@@ -65,6 +68,8 @@ class OntologyAgent(BaseAgent):
                 "allowed_classes": allowed,
                 "class_definitions": {c: self.ontology.get_class(c).model_dump(mode="json") for c in allowed},
                 "external_references": self.external_mappings.verified(),
+                "semantic_model": (self.ontology.semantic_model.as_context(allowed)
+                                   if self.ontology.semantic_model is not None else None),
             }, schema=ClassSelection)
             cls, confidence = selection.product_class, selection.confidence
             if cls not in allowed:

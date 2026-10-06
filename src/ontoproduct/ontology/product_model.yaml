@@ -1,0 +1,146 @@
+# Project-authored application ontology. Requiredness is a registration policy,
+# not an existential OWL claim about every motor or bearing in the world.
+namespace: 'urn:ontoproduct:ontology:'
+version: '2.0.0'
+entity_classes:
+  ProductModel:
+    label: Product model
+    description: A catalog specification for a manufactured product model, not an individual physical item.
+    external_parents: [product_model]
+  ManufacturedItem:
+    label: Manufactured physical item
+    description: An explicitly identified physical artifact; a catalog entry does not establish its existence.
+    external_parents: [physical_artifact, individual_product]
+  Manufacturer:
+    label: Manufacturer entity
+    description: A business entity responsible for producing a model; a name alone does not identify it globally.
+    external_parents: [manufacturer_entity]
+  ManufacturerOrganization:
+    label: Manufacturer organization
+    description: A manufacturer separately known to be an organization; never inferred from a name string.
+    parent: Manufacturer
+    external_parents: [organization]
+relations:
+  hasManufacturer:
+    label: Has manufacturer
+    description: Connects a product model to its scoped manufacturer entity.
+    domain: ProductModel
+    range: Manufacturer
+    external_parent: manufacturer
+  hasMakeAndModel:
+    label: Has make and model
+    description: Connects an explicitly identified manufactured item to its catalog model.
+    domain: ManufacturedItem
+    range: ProductModel
+    external_parent: make_and_model
+classes:
+  Product:
+    label: Manufactured product model
+    description: Root application profile for catalog model registration.
+    model_class: CatalogProductModel
+    item_class: CatalogProductItem
+  ElectricalPart:
+    parent: Product
+    label: Electrical part model
+    description: Model of a component whose intended use involves electrical behavior.
+    model_class: ElectricalPartModel
+    item_class: ElectricalPartItem
+  Motor:
+    parent: ElectricalPart
+    label: Motor model
+    description: Model of an electrical component intended to convert electrical energy into mechanical motion.
+    model_class: MotorModel
+    item_class: MotorItem
+    required: [manufacturer]
+  BLDCMotor:
+    parent: Motor
+    label: Brushless DC motor model
+    description: Model of a brushless electronically commutated DC motor. Numeric specifications alone do not prove brushless construction.
+    model_class: BLDCMotorModel
+    item_class: BLDCMotorItem
+    required: [rated_voltage, rated_power, rated_speed]
+    optional: [weight]
+  MechanicalPart:
+    parent: Product
+    label: Mechanical part model
+    description: Model of a component whose intended use primarily involves mechanical behavior.
+    model_class: MechanicalPartModel
+    item_class: MechanicalPartItem
+  Bearing:
+    parent: MechanicalPart
+    label: Bearing model
+    description: Model of a mechanical component supporting relative motion, registered with inner and outer diameters.
+    model_class: BearingModel
+    item_class: BearingItem
+    required: [inner_diameter, outer_diameter]
+properties:
+  manufacturer:
+    label: Manufacturer
+    description: Legacy name string projected into a scoped Manufacturer entity, with no global identity assertion.
+    kind: entity
+    predicate: hasManufacturer
+    domain: ProductModel
+    definition: {type: string}
+  rated_voltage:
+    label: Rated voltage
+    description: Manufacturer-specified operating voltage for the model, expressed as a quantity value.
+    kind: quantity
+    predicate: ratedVoltage
+    domain: BLDCMotorModel
+    quantity: electric_potential
+    definition: {type: number, canonical_unit: V, units: [V], minimum: 0}
+  rated_power:
+    label: Rated power
+    description: Rated power specified in the source. Input versus shaft output power is not inferred without explicit evidence.
+    kind: quantity
+    predicate: ratedPower
+    domain: BLDCMotorModel
+    quantity: power
+    definition: {type: number, canonical_unit: W, units: [W, kW], minimum: 0}
+  rated_speed:
+    label: Rated shaft speed
+    description: Manufacturer-specified shaft revolutions per time, modeled as rotational frequency and kept in rpm locally.
+    kind: quantity
+    predicate: ratedSpeed
+    domain: BLDCMotorModel
+    quantity: rotational_frequency
+    definition: {type: number, canonical_unit: rpm, units: [rpm], minimum: 0}
+  weight:
+    label: Product mass
+    description: The legacy weight field means mass in kg, not gravitational force or weight in newtons.
+    kind: quantity
+    predicate: mass
+    domain: BLDCMotorModel
+    quantity: mass
+    definition: {type: number, canonical_unit: kg, units: [g, kg], minimum: 0}
+  inner_diameter:
+    label: Bearing inner diameter
+    description: Nominal diameter of the bearing bore.
+    kind: quantity
+    predicate: innerDiameter
+    domain: BearingModel
+    quantity: length
+    definition: {type: number, canonical_unit: mm, units: [mm], minimum: 0}
+  outer_diameter:
+    label: Bearing outer diameter
+    description: Nominal outside diameter, required to exceed the inner diameter for this registration profile.
+    kind: quantity
+    predicate: outerDiameter
+    domain: BearingModel
+    quantity: length
+    definition: {type: number, canonical_unit: mm, units: [mm], minimum: 0}
+classification_rules:
+  - product_class: Bearing
+    all_of: [inner_diameter, outer_diameter]
+    none_of: [rated_voltage, rated_power, rated_speed]
+  - product_class: Motor
+    all_of: [manufacturer]
+    any_of: [rated_voltage, rated_power, rated_speed]
+    minimum_matches: 2
+    none_of: [inner_diameter, outer_diameter]
+    candidate_refinements: {BLDCMotor: BLDCMotor}
+comparisons:
+  - product_class: Bearing
+    left: inner_diameter
+    right: outer_diameter
+    operator: less_than

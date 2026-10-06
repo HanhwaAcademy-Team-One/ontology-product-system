@@ -77,6 +77,8 @@ class ExtractionAgent(BaseAgent):
                 "requested_fields": sorted(requested) if requested is not None else None,
                 "locked_fields": sorted(locked),
                 "ontology_context": mapping.model_dump(mode="json") if mapping else None,
+                "semantic_model": (self.ontology.semantic_model.as_context()
+                                   if self.ontology.semantic_model is not None else None),
             }
             response = validated_response(self.llm_service, task="extraction", payload=payload, schema=ExtractionResponse)
             if not retry:

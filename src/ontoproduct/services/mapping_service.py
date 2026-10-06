@@ -2,6 +2,7 @@
 
 from math import isclose, isfinite
 from pathlib import Path
+from typing import Literal
 
 import yaml
 from pydantic import Field, model_validator
@@ -55,9 +56,15 @@ class UnitDefinition(DomainModel):
     multiplier: float = Field(gt=0)
 
 
+class QuantityDefinition(DomainModel):
+    reference: str = Field(min_length=1)
+    dimension: dict[Literal["mass", "length", "time", "current", "temperature", "amount", "luminosity"], int]
+
+
 class UnitCatalog(DomainModel):
     units: dict[str, UnitDefinition]
     property_quantities: dict[str, str]
+    quantity_definitions: dict[str, QuantityDefinition] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def coherent(self):
@@ -69,6 +76,8 @@ class UnitCatalog(DomainModel):
                 raise ValueError(f"Canonical multiplier must be one: {name}")
         if set(self.property_quantities.values()) - {u.quantity for u in self.units.values()}:
             raise ValueError("Unknown property quantity")
+        if self.quantity_definitions and {u.quantity for u in self.units.values()} - self.quantity_definitions.keys():
+            raise ValueError("Unit quantity lacks a dimension definition")
         return self
 
 
@@ -98,6 +107,9 @@ class UnitService:
         target = self.catalog.units.get(prop.canonical_unit)
         expected = self.catalog.property_quantities.get(property_name)
         if source and target:
+            dimensions = self.catalog.quantity_definitions
+            if dimensions and dimensions[source.quantity].dimension != dimensions[target.quantity].dimension:
+                raise ValueError("Incompatible SI dimensions")
             if source.quantity != target.quantity or (expected and source.quantity != expected):
                 raise ValueError("Incompatible quantity or dimension")
         elif unit != prop.canonical_unit:
