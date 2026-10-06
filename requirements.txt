@@ -7,9 +7,12 @@ pydantic==2.13.5
 PyYAML==6.0.3
 streamlit==1.64.0
 langgraph-checkpoint-sqlite==3.1.1
+pdfplumber==0.11.10
+openpyxl==3.1.5
 
-# Development and test dependency.
+# Development and test dependencies.
 pytest==9.1.1
+fpdf2==2.8.9
 
 # Install this src-layout project so app.py and CLI imports work.
 -e .
