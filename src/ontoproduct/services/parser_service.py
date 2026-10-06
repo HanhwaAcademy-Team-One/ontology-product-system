@@ -4,12 +4,17 @@ from pathlib import Path
 
 import openpyxl
 import pdfplumber
+from pdfplumber.page import Page
+from pdfplumber.table import Table
 
 from ontoproduct.schemas.product import FileReference, ParsedDocument
 from ontoproduct.services.document_service import DocumentService
 
 # (page, text) 한 쌍. TXT·XLSX는 page가 None, PDF는 1부터 시작하는 페이지 번호.
 ParsedPage = tuple[int | None, str]
+
+# 칸 구분선이 없는 PDF 표에서 이 간격(pt)보다 넓게 떨어진 단어는 다른 칸으로 본다.
+COLUMN_GAP = 15
 
 
 class ParserService:
@@ -77,8 +82,12 @@ def read_pdf(path: Path) -> list[ParsedPage]:
         for number, page in enumerate(pdf.pages, start=1):
             # extract_text는 표의 칸 구분을 잃으므로 표를 행 단위로 한 번 더 붙인다.
             blocks = [page.extract_text() or ""]
-            for index, table in enumerate(page.extract_tables(), start=1):
-                rows = [" | ".join((cell or "").strip() for cell in row) for row in table]
+            for index, table in enumerate(page.find_tables(), start=1):
+                cells = table.extract()
+                # 세로줄 없이 가로줄만 있는 표는 행 전체가 한 칸으로 읽히므로 글자 간격으로 나눈다.
+                if max(len(row) for row in cells) < 2:
+                    cells = split_columns_by_gap(page, table)
+                rows = [" | ".join((cell or "").strip() for cell in row) for row in cells]
                 blocks.append(f"[Table {index}]\n" + "\n".join(rows))
             text = "\n\n".join(block for block in blocks if block.strip())
             # 빈 페이지는 건너뛰지만 page에는 원본의 실제 페이지 번호를 그대로 쓴다.
@@ -87,6 +96,31 @@ def read_pdf(path: Path) -> list[ParsedPage]:
     if not pages:
         raise ValueError("읽을 수 있는 텍스트가 없습니다 (스캔 PDF OCR 미지원)")
     return pages
+
+
+def split_columns_by_gap(page: Page, table: Table) -> list[list[str]]:
+    """칸 구분선이 없는 표의 각 행을 단어 사이의 넓은 간격 기준으로 칸에 나눈다."""
+    word_rows = [page.crop(row.bbox).extract_words() for row in table.rows]
+    # 모든 행에서 넓은 간격 뒤에 시작하는 단어의 x좌표를 모아 열의 시작 위치로 삼는다.
+    # 같은 칸 안의 띄어쓰기(약 3pt)는 COLUMN_GAP보다 좁아 같은 칸으로 묶인다.
+    starts = []
+    for words in word_rows:
+        for previous, word in zip([None, *words], words, strict=False):
+            if previous is None or word["x0"] - previous["x1"] > COLUMN_GAP:
+                starts.append(word["x0"])
+    columns: list[float] = []
+    for x in sorted(starts):
+        if not columns or x - columns[-1] > COLUMN_GAP:
+            columns.append(x)
+    # 단어를 시작 위치가 가장 가까운 왼쪽 열에 넣어, 빈 칸이 있어도 열이 밀리지 않게 한다.
+    rows = []
+    for words in word_rows:
+        cells: list[list[str]] = [[] for _ in columns]
+        for word in words:
+            column = max(i for i, start in enumerate(columns) if start <= word["x0"] + 1)
+            cells[column].append(word["text"])
+        rows.append([" ".join(cell) for cell in cells])
+    return rows
 
 
 def read_xlsx(path: Path) -> list[ParsedPage]:

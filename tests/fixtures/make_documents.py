@@ -40,6 +40,24 @@ def make_pdf() -> None:
     pdf.output(OUT / "two_page_spec.pdf")
 
 
+def make_horizontal_lines_pdf() -> None:
+    # 실제 사양서처럼 행마다 전체 너비의 배경 사각형과 가로줄만 있고 칸 구분선은 없는 표.
+    # pdfplumber는 이런 표를 행 전체가 한 칸인 표로 인식한다.
+    pdf = new_pdf()
+    pdf.add_page()
+    pdf.set_fill_color(235, 240, 245)
+    rows = [("Item", "Value", "Unit"), ("Product", "DM-600", ""),
+            ("Rated Power", "0.6", "kW"), ("Rated Speed", "3200", "rpm")]
+    for index, row in enumerate(rows):
+        top = 30 + index * 12
+        pdf.rect(20, top, 160, 12, style="F")
+        pdf.line(20, top + 12, 180, top + 12)
+        for x, value in zip((22, 100, 150), row, strict=True):
+            if value:
+                pdf.text(x, top + 8, value)
+    pdf.output(OUT / "horizontal_lines_table.pdf")
+
+
 def make_scanned_pdf() -> None:
     # 도형만 있고 추출할 텍스트가 없어 스캔 페이지처럼 동작한다.
     pdf = new_pdf()
@@ -73,6 +91,7 @@ if __name__ == "__main__":
     OUT.mkdir(exist_ok=True)
     make_text()
     make_pdf()
+    make_horizontal_lines_pdf()
     make_scanned_pdf()
     make_xlsx()
     make_corrupt()

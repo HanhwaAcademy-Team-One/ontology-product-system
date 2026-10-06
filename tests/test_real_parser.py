@@ -82,6 +82,15 @@ def test_pdf_table_keeps_item_value_unit_relation(parser: ParserService, upload:
     assert "Speed | 3200 | rpm" in text
 
 
+def test_pdf_table_without_column_lines_is_split_by_gap(
+        parser: ParserService, upload: Upload) -> None:
+    text = parser.parse([upload("horizontal_lines_table.pdf")])[0]["text"]
+    assert "Item | Value | Unit" in text
+    assert "Product | DM-600 | \n" in text
+    assert "Rated Power | 0.6 | kW" in text
+    assert "Rated Speed | 3200 | rpm" in text
+
+
 def test_xlsx_keeps_both_sheets_and_cell_positions(parser: ParserService, upload: Upload) -> None:
     parsed = parser.parse([upload("two_sheet_spec.xlsx")])
     assert_valid_output(parsed)
