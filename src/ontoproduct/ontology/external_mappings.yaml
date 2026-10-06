@@ -1,0 +1,96 @@
+# URI references and project-authored notes, not copied ontology axioms.
+sources:
+  iof:
+    url: https://raw.githubusercontent.com/iofoundry/ontology/master/core/Core.rdf
+    version: "202603 (owl:versionIRI)"
+    license: MIT
+    license_url: https://github.com/iofoundry/ontology/blob/master/LICENSE
+    attribution: IOF Core Working Group / Industrial Ontologies Foundry / Open Applications Group
+    verified_on: "2026-10-07"
+  goodrelations:
+    url: https://www.heppnetz.de/ontologies/goodrelations/v1.html
+    version: "1.0, release 2011-10-01"
+    license: CC-BY-3.0
+    license_url: https://creativecommons.org/licenses/by/3.0/
+    attribution: Martin Hepp, GoodRelations ontology
+    verified_on: "2026-10-07"
+  qudt:
+    url: https://qudt.org/vocab/unit/
+    version: "3.5.2 (unit pages rdfs:isDefinedBy)"
+    license: CC-BY-4.0
+    license_url: https://github.com/qudt/qudt-public-repo/blob/main/LICENSE.md
+    attribution: QUDT.org
+    verified_on: "2026-10-07"
+mappings:
+  physical_artifact:
+    source: iof
+    uri: https://spec.industrialontologies.org/ontology/construct/MaterialArtifact
+    relation: reference
+    status: verified
+    note: Design reference for physical manufactured items; not equivalent to this system's product model records.
+  organization:
+    source: iof
+    uri: https://spec.industrialontologies.org/ontology/construct/Organization
+    relation: reference
+    status: verified
+    note: Design reference for organizations; no imported axioms or asserted equivalence.
+  product_model:
+    source: goodrelations
+    uri: http://purl.org/goodrelations/v1#ProductOrServiceModel
+    relation: reference
+    status: verified
+    note: Reference for model-level records, not physical individuals or a BLDCMotor definition.
+  manufacturer:
+    source: goodrelations
+    uri: http://purl.org/goodrelations/v1#hasManufacturer
+    relation: reference
+    status: verified
+    note: Relationship to a BusinessEntity; scalar manufacturer strings are not equivalent to this object property.
+  manufacturer_entity:
+    source: goodrelations
+    uri: http://purl.org/goodrelations/v1#BusinessEntity
+    relation: reference
+    status: verified
+    note: Reference for a manufacturer entity, not a direct mapping of its scalar name.
+  V:
+    source: qudt
+    uri: http://qudt.org/vocab/unit/V
+    relation: unit
+    status: verified
+    note: Volt; local electric_potential unit.
+  W:
+    source: qudt
+    uri: http://qudt.org/vocab/unit/W
+    relation: unit
+    status: verified
+    note: Watt; local power canonical unit.
+  kW:
+    source: qudt
+    uri: http://qudt.org/vocab/unit/KiloW
+    relation: unit
+    status: verified
+    note: Kilowatt; local multiplier to W is 1000.
+  kg:
+    source: qudt
+    uri: http://qudt.org/vocab/unit/KiloGM
+    relation: unit
+    status: verified
+    note: Kilogram; local mass canonical unit.
+  g:
+    source: qudt
+    uri: http://qudt.org/vocab/unit/GM
+    relation: unit
+    status: verified
+    note: Gram; local multiplier to kg is 0.001.
+  mm:
+    source: qudt
+    uri: http://qudt.org/vocab/unit/MilliM
+    relation: unit
+    status: verified
+    note: Millimetre; local canonical is mm, not the QUDT metre reference.
+  rpm:
+    source: qudt
+    uri: http://qudt.org/vocab/unit/REV-PER-MIN
+    relation: unit
+    status: verified
+    note: Revolution per minute; kept locally, not converted to the QUDT radian-per-second reference.
