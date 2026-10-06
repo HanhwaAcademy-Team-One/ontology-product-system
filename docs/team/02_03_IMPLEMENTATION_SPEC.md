@@ -196,6 +196,8 @@ OntologyMapping.confidence는 null을 허용하지 않는다.
 
 Motor/BLDCMotor/Bearing과 업무 전용 속성은 내부에서 정의한다. 필수 여부·허용 범위·등록 조건은 우리 업무 규칙이다. 외부 온톨로지가 이 제품군과 모든 업무 규칙을 정의한다고 가정하지 않는다. 전체 import, OWL 추론 엔진과 RDF 저장소는 이번 범위가 아니다.
 
+> 2026-10-07 내재화 요청으로 이 절의 외부 URI 실행 매핑은 대체되었다. `external_mappings.yaml`은 제거되었고 외부 URI는 [대응표](03_EXTERNAL_CONCORDANCE.md)에만 남는다. 운영 정의는 자체 개념을 사용한다. 아래는 내재화 이전 지시로 이력 보존용이다.
+
 `src/ontoproduct/ontology/external_mappings.yaml`을 별도로 관리한다.
 
 - URI의 실제 존재와 의미를 공식 자료에서 확인하고 버전 또는 커밋·출처를 기록한다.

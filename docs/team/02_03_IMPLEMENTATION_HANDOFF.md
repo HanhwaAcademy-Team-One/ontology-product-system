@@ -6,6 +6,8 @@
 
 추가 요청: IOF·GoodRelations·QUDT를 참고 URI 목록에 두는 수준에서 제품 의미 모델·RDF/OWL·SHACL 구축까지 확장했다. 5~7단계도 완료했다. 현재 제품군의 자체 온톨로지·RDF 변환·SHACL 실행은 완료했으며 산업 전체 모델링·외부 전체 공리 추론·RDF DB 연결까지 완료했다는 뜻은 아니다.
 
+**온톨로지 내재화 완료(I-1~I-4).** 운영 온톨로지·제품 RDF·SHACL·Agent context에서 IOF·GoodRelations·QUDT 업무 URI 연결을 제거하고 `urn:ontoproduct:ontology:` 아래 자체 정의로 바꿨다. 외부 → 내부 대응표는 [03_EXTERNAL_CONCORDANCE.md](03_EXTERNAL_CONCORDANCE.md), 라이선스 고지는 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)에 있다. 이 두 문서와 [외부 참고 기록](02_03_EXTERNAL_SOURCES.md)만 외부 URI를 담으며 운영 코드는 이들을 읽지 않는다. 운영 목업 교체 상태는 바뀌지 않았다.
+
 ## 진행 상태
 
 | 단계 | 상태 | 완료 증거 |
@@ -19,11 +21,53 @@
 | 6. RDF/OWL·제품 RDF·SHACL | 완료 | 의미 모델·RDF/SHACL·실제 Agent Graph·Extraction 81 passed; 사례 생성 성공 |
 | 7. 확장 회귀·패키징·인계 | 완료 | 최종 전체 313 passed; wheel/sdist 5 YAML·4 TTL 포함 및 독립 SHACL 확인 |
 
+### 온톨로지 내재화 (후속 요청)
+
+IOF·GoodRelations·QUDT 업무 URI 연결을 운영 온톨로지·제품 RDF·SHACL·Agent context에서 제거하고 자체 정의로 바꾸는 작업이다. 시작 기준: `temp/test_merge_branch` 깨끗한 작업 트리, 전체 313 passed.
+
+| 단계 | 상태 | 완료 증거 |
+| --- | --- | --- |
+| I-1. 의존성 조사·이관 설계 | 완료 | [대응표](03_EXTERNAL_CONCORDANCE.md)에 23개 참조 키의 내부 URI·의미·이관 위치·출처 정리. 단순 치환으로 부족한 7개 항목 식별 |
+| I-2. 내부 정의·공통 서비스 전환 | 완료 | RDF 2개 파일 제외 297 passed. 외부 자료 없이 의미 모델·단위·분류 로드 |
+| I-3. RDF/OWL·SHACL·Agent context 이관 | 완료 | RDF·의미 모델·Agent·Graph 81 passed, 내재화 테스트 10 passed. TTL 4개 재생성, 모터·베어링 SHACL conforms |
+| I-4. 검증·패키징·인계 | 완료 | 전체 329 passed. wheel/sdist 확인, 압축 해제 wheel의 네트워크 차단 로드·SHACL 확인 |
+
+I-1 조사 결과:
+- 외부 URI는 `ProductOntology.reference_uri()`를 통해 온톨로지 RDF(상위 클래스·관계, range, 물리량), SHACL(값 노드 클래스·수치·단위·물리량), 제품 RDF(외부 타입·중복 관계 triple), Agent context(`external_uri`, `uri`, `external_references` payload)로 퍼진다. 프롬프트 문구(ontology 2.0.0)에도 external URI 언급이 있다.
+- 테스트: `test_rdf_product_ontology.py`, `test_product_semantic_model.py`, `test_real_ontology_agent.py`가 외부 참조를 직접 확인한다. 빌드 스크립트는 서비스만 호출한다.
+- 앱 데이터(`runtime/`)에는 외부 URI를 담은 저장 RDF가 없다. 제품은 JSON으로 저장되고 RDF는 필요할 때 생성된다. 이관 대상은 저장소의 생성 TTL 4개뿐이며 생성 스크립트로 다시 만든다.
+- 결정: `external_mappings.yaml`과 `external_mapping_service.py`는 제거하고 내용은 대응표 문서로 옮긴다. 출처 메타데이터는 URL 없이 product_model.yaml `sources`에 둔다. 측정 구조(QuantityValue 등)는 product_model.yaml `measurement`, 물리량·단위 설명은 unit_mappings.yaml이 단일 원본이다.
+
+I-2 내부 정의·공통 서비스:
+- product_model.yaml(모델 버전 2.0.0 → 3.0.0): `sources`(로컬 출처 3개, URL 없음), `measurement`(QuantityValue·QuantityKind·Unit·numericValue·hasUnit·hasQuantityKind), 상위 개체 클래스 PhysicalArtifact·Organization·BusinessEntity를 추가했다. 개체 클래스의 `parent`/`external_parents`를 `parents` 목록(다중 상속)과 `sources`로, 관계의 `external_parent`를 `sources`로 바꿨다.
+- unit_mappings.yaml: 물리량 종류의 외부 참조 키(`reference`)를 label·description·sources로, 단위에 label·sources를 추가했다. 배율·차원·변환 정책은 바꾸지 않았다.
+- ProductOntology: 외부 참조 조회(`reference_uri`, `references`)를 제거했다. 다중 상속 DAG 순환, 알 수 없는 상위·출처, 측정 용어 이름 충돌, 사용 단위·물리량의 로컬 정의 누락, 정의 데이터 안의 외부 URL(`://`)을 로드 시 거부한다. `entity_ancestors()`, `used_units()`, `used_quantities()`를 추가했다.
+- OntologyAgent: `external_mappings` 생성자 인자와 payload `external_references`를 제거했다. 프롬프트 ontology 2.0.0 → 3.0.0(외부 URI 문구 제거). extraction 프롬프트 문구는 바뀌지 않아 2.0.0을 유지했다.
+- 검증: RDF 2개 파일을 제외한 `pytest` → **297 passed**.
+
+I-3 RDF/OWL·SHACL·Agent context:
+- RdfOntologyService: 외부 접두사(gr·qudt·unit·qk) 바인딩과 외부 subClassOf/subPropertyOf를 제거했다. 내부 IRI 규칙 `op:<이름>`, `op:quantitykind/<key>`, `op:unit/<기호>`, `op:source/<출처>-<버전>`을 적용했다. 측정 구조를 OWL 클래스·속성으로 정의하고 물리량 종류·단위 개체에 이름·설명·차원·기호·배율·표준 단위를 기록한다. 출처는 `op:SourceRecord`(제목·버전·SPDX 라이선스·귀속 문자열)로 기록한다.
+- 제품 RDF: 외부 타입과 중복 관계 triple(`gr:hasManufacturer`, `gr:hasMakeAndModel`)을 제거했다. 개체 노드에는 상위 개체 타입을 명시적으로 기록한다(제조사 → BusinessEntity, 조직 → Organization, 물리 제품 → PhysicalArtifact). 카탈로그 밖 단위는 문자열로 남겨 SHACL이 보고한다.
+- SHACL·베어링 SPARQL 제약은 내부 numericValue·hasUnit·hasQuantityKind를 사용한다. 필수·범위·유한성·표준 단위·물리량·모델/물리 제품 구분 제약은 그대로다.
+- `scripts/build_product_ontology.py` → 모터 94 triples·베어링 39 triples, SHACL conforms. TTL 4개를 다시 만들었다. 외부 IRI는 RDF·RDFS·OWL·XSD·SHACL·Dublin Core Terms만 남았다.
+- 새 테스트 `tests/test_ontology_internalization.py`(10개): src/ 패키지 파일·생성 그래프·저장 TTL의 외부 업무 URI 부재, 출처 기록, RDF 단위 정보와 UnitService 일치, 미지원 단위, 명시적 상위 타입, Agent payload, 네트워크 차단 로드, 대응표 누락 검사.
+
+I-4 검증·패키징:
+- 전체: `.venv/Scripts/python.exe -m pytest -q -W error::pytest.PytestCacheWarning` → **329 passed**, 기존 RDFLib JSON-LD DeprecationWarning 1개. 시작 기준 313 passed와 구분한다(내재화 테스트 10개와 변경 테스트가 늘었다).
+- `uv --cache-dir .uv-cache build --offline --out-dir .pytest_tmp/package-check-internalization` 성공. wheel에 ontology.yaml·product_model.yaml·property_aliases.yaml·unit_mappings.yaml과 TTL 4개 포함, external_mappings 없음, 패키지 파일의 외부 업무 URI 0건. sdist에 대응표·고지 문서 포함, .uv-cache/.pytest_tmp 미포함.
+- wheel을 별도 폴더에 풀고 `python -I`로 그 경로의 모듈만 가져와 소켓 연결을 막은 상태에서 정의 로드, 0.6 kW → 600 W, ontology 321 triples 생성, 베어링 SHACL 통과·내경≥외경 위반 판정을 확인했다.
+- 실제 LLM 호출은 하지 않았다. Agent payload 검사는 canned transport 기준이다.
+
+내재화 후 남은 사항:
+- **시각화 브랜치(`temp/test_visualization`) 후속 수정:** `ontology_visualization.py`의 접두사 표(gr·qudt·unit·qk·iof)를 op·opqk·opunit·opsrc로 바꾼다. `self.model.references`·`reference_uri`·`QuantityDefinition.reference`·`EntityClass.parent`/`external_parents`·`SemanticRelation.external_parent` 사용처를 `parents`·`sources`·`RdfOntologyService.unit_uri/quantity_uri/source_uri`로 바꾼다. 관계 그래프에서 IOF·GoodRelations 노드를 내부 상위 개념(PhysicalArtifact·Organization·BusinessEntity)으로 바꾼다. 외부 URI 다운로드·표시 테스트도 갱신한다. 이번 작업에서는 그 브랜치를 수정하지 않았다.
+- 외부 표준 데이터와의 상호운용은 기본 제공되지 않는다. 필요하면 대응표로 운영 RDF와 분리된 정렬 그래프를 만든다.
+- 이전 버전 RDF를 외부에 내보낸 적이 있다면 원본 제품 JSON에서 다시 생성한다. 앱 데이터에는 저장 RDF가 없어 이관 대상이 없다.
+
 ## 재개 지시
 
 1. 구현 명세와 이 문서를 읽는다.
 2. 브랜치·변경 사항·적용되는 로컬 지침과 의존 파일을 다시 확인한다.
-3. 추가 요청의 5~7단계 중 첫 미완료 단계부터 진행한다. 모두 완료되면 아래 통합 의존성과 품질 검증 항목을 확인한다.
+3. 1~7단계와 내재화 I-1~I-4는 완료했다. 다음은 운영 목업 교체(LLM adapter·Registry/runtime 연결)와 시각화 브랜치 후속 수정이다.
 4. 각 단계의 실제 변경·테스트·정책 결정·남은 작업을 이 문서에 갱신한다.
 
 ## 명세 작성 시 확인한 사실
@@ -40,14 +84,14 @@
 ## 구현 파일과 범위
 
 - 실제 Agent: `agents/extraction_agent.py`, `agents/ontology_agent.py`.
-- 버전 2.0.0 지침: `prompts/extraction.py`, `prompts/ontology.py`. 추가 의미 모델·물리 제품/제조사 구분·질량/회전수 의미를 전달한다.
+- 지침: `prompts/extraction.py` 2.0.0, `prompts/ontology.py` 3.0.0. 의미 모델·물리 제품/제조사 구분·질량/회전수 의미를 전달한다.
 - 공통 Protocol·오류: `services/llm_protocol.py`, `agent_errors.py`.
-- 동의어·공유 단위·근거·분할·병합·외부 매핑: `mapping_service.py`, `evidence_service.py`, `document_chunks.py`, `attribute_merge.py`, `external_mapping_service.py`.
+- 동의어·공유 단위·근거·분할·병합: `mapping_service.py`, `evidence_service.py`, `document_chunks.py`, `attribute_merge.py`. 의미 모델·RDF: `product_ontology_service.py`, `rdf_ontology_service.py`. 외부 매핑 서비스는 내재화로 제거했다.
 - `ontology_service.py`의 기존 normalize_unit 호출을 공유 UnitService에 위임했다. 기존 호출 형태와 회귀 동작을 유지했다.
-- 데이터: `ontology/property_aliases.yaml`, `unit_mappings.yaml`, `external_mappings.yaml`.
-- 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
+- 데이터: `ontology/product_model.yaml`, `ontology.yaml`, `property_aliases.yaml`, `unit_mappings.yaml`, `rdf/*.ttl`. `external_mappings.yaml`은 내재화로 제거했다.
+- 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`, `test_product_semantic_model.py`, `test_rdf_product_ontology.py`, `test_ontology_internalization.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
 - 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
-- commit·push·PR 생성은 수행하지 않았다. 현재 작업 브랜치의 미커밋 변경으로 남겼다.
+- 1~7단계 변경은 사용자 요청으로 `temp/test_merge_branch`에 커밋·push되었다. 내재화 변경은 commit·push·PR 없이 미커밋 상태로 남겼다.
 
 ## 다음 작업
 
@@ -73,7 +117,7 @@
 ```python
 ExtractionAgent(llm_service, *, ontology=None, aliases=None,
                 max_chars=12000, overlap_chars=128)
-OntologyAgent(ontology, llm_service=None, *, aliases=None, external_mappings=None)
+OntologyAgent(ontology, llm_service=None, *, aliases=None)
 OntologyService(path=None, *, definition=None, unit_service=None, semantic_model=None)
 ```
 
@@ -90,8 +134,8 @@ generate_structured(*, task: str, payload: dict, response_schema: type[T]) -> T
 - documents는 청크 단위 source_file/text/page다. 긴 Excel 행을 나누면 `location_prefix`가 payload 메타데이터에만 추가된다. Agent 출력에 새 필드는 없다.
 - requested_fields/locked_fields는 표준 속성 이름으로 정규화된다. retry가 아니면 requested_fields는 null이다. 잠금이 항상 우선하며 전부 잠기면 호출이 없다.
 - Ontology response_schema는 `ClassSelection(product_class: str | None, confidence: float)`이며 점수는 엄격한 유한 숫자 0~1이다.
-- Ontology payload: `instructions`, `prompt_version`, `extracted_product`, `allowed_classes`, `class_definitions`, `external_references`, `semantic_model`.
-- semantic_model은 기본 모델에서 2.0.0 의미 context다. 임의의 별도 ontology에 연결된 의미 모델이 없으면 null이다. adapter는 이 context를 신뢰된 업무 정의로 전달한다. 근거 문자열은 계속 비신뢰 입력이다.
+- Ontology payload: `instructions`, `prompt_version`, `extracted_product`, `allowed_classes`, `class_definitions`, `semantic_model`. 내재화로 `external_references`를 제거했다.
+- semantic_model은 기본 모델에서 3.0.0 의미 context다. 개체·관계·측정 구조·물리량 종류·단위·출처(제목·버전·라이선스)를 담으며 URI·URL이 없다. 임의의 별도 ontology에 연결된 의미 모델이 없으면 null이다. adapter는 이 context를 신뢰된 업무 정의로 전달한다. 근거 문자열은 계속 비신뢰 입력이다.
 - 추가 API: `OntologyService.to_rdf(product, *, record_id, item_id=None, manufacturer_is_organization=False)` → RDFLib Graph. `OntologyService.validate_semantics(product, *, record_id="validation")` → `{valid: bool, issues: list, report: str}`. Agent 출력 state에 RDF 객체를 넣지 않는다.
 - adapter는 instructions를 신뢰된 지침에, documents/evidence는 비신뢰 입력에 연결한다. 실제 모델·timeout·짧은 통신 retry와 공급자 메타데이터는 08 담당자가 설정한다.
 - 현재 health_check는 계약 수준이며 외부 모델 연결·권한·잔액 확인이 아니다.
@@ -133,11 +177,11 @@ generate_structured(*, task: str, payload: dict, response_schema: type[T]) -> T
 
 ## 외부 자료와 남은 통합 작업
 
-출처·검증 범위는 [외부 참고 기록](02_03_EXTERNAL_SOURCES.md)에, 실행 참조와 버전은 external_mappings.yaml에 있다. 현재 확인한 URI는 23개이며 이를 사용하는 자체 하위 클래스·관계·수치 구조를 구성했다. 외부 분류·등록 규칙 또는 equivalence 공리를 복사하지 않았다.
+출처·검증 범위는 [외부 참고 기록](02_03_EXTERNAL_SOURCES.md), 외부 → 내부 대응은 [대응표](03_EXTERNAL_CONCORDANCE.md), 라이선스는 [제3자 고지](../THIRD_PARTY_NOTICES.md)에 있다. 운영 정의는 외부 URI 없이 자체 개념으로 구성했다. 외부 분류·등록 규칙 또는 equivalence 공리를 복사하지 않았다.
 
 - 06 담당자: confidence 의미·현재 0.70 기준·필수 충돌 재추출 비용·최종 클래스 변경의 충돌 정책을 확인한다.
 - 08 담당자: 실제 Protocol adapter, Parser 결과, 실제 Registry/runtime 실행 모드를 연결한다. 오류 종류별 recoverable 정책과 수동 해결 UX 개선을 별도 검토한다.
 - SDK timeout/통신 retry는 adapter에서 설정하고 Graph의 업무 retry와 구분한다.
 - 실제 모델·프롬프트 품질과 문서 평가: 미실행. 실제 PDF/XLSX 바이너리 파싱: 미실행.
 - 운영 목업 교체: 미완료. 기본 mock_registry와 UI runtime을 변경하지 않았다.
-- 브랜치: `temp/test_merge_branch`. commit·push·PR 생성 없이 변경을 남겼다.
+- 브랜치: `temp/test_merge_branch`. 내재화 변경은 commit·push·PR 생성 없이 남겼다.

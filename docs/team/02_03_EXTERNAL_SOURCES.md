@@ -1,6 +1,10 @@
 # 02·03 외부 온톨로지 참고 기록
 
-확인일: 2026-10-07. 실행 참조는 [external_mappings.yaml](../../src/ontoproduct/ontology/external_mappings.yaml)에 있다. 사용자 추가 요청으로 URI 참고 목록에서 [제품 의미 모델](03_PRODUCT_ONTOLOGY.md)·자체 RDF/OWL·SHACL 구축까지 확장했다. 프로그램 실행 중 웹을 요청하지 않으며 확인된 참조만 로드한다.
+확인일: 2026-10-07.
+
+> **내재화 이후 상태(2026-10-07).** 아래 자료는 이제 **설계 참고**다. 운영 온톨로지·제품 RDF·SHACL·Agent context는 IOF·GoodRelations·QUDT URI를 쓰지 않고, 같은 개념을 `urn:ontoproduct:ontology:` 아래 자체 정의로 가진다. 이전 실행 파일 `external_mappings.yaml`은 제거했고 그 23개 URI는 [외부 개념 대응표](03_EXTERNAL_CONCORDANCE.md)로 옮겼다. 운영 RDF는 출처를 `op:source/<출처>-<버전>` 식별자로만 기록한다. 라이선스 고지는 [제3자 고지](../THIRD_PARTY_NOTICES.md)에 있다. 아래 확인 기록은 이력으로 유지한다.
+
+사용자 추가 요청으로 URI 참고 목록에서 [제품 의미 모델](03_PRODUCT_ONTOLOGY.md)·자체 RDF/OWL·SHACL 구축까지 확장했고, 이후 내재화했다. 프로그램 실행 중 웹을 요청하지 않는다.
 
 ## 자료와 검증 범위
 
@@ -32,4 +36,12 @@ SHACL 표현·제약은 [W3C 표준](https://www.w3.org/TR/shacl/), 실행은 [p
 
 ## 미확인 참조의 처리
 
-이번 실행 파일의 23개 URI는 확인했다. 외부 동치 관계는 자동으로 만들지 않았다. 추가 후보를 확인할 수 없으면 실행 파일에 넣지 않거나 status=unverified로 두고 문서에 이유를 남긴다. ExternalMappings.verified()는 unverified 항목을 제외한다. 새 자체 의미 모델이 요구하는 상위 개념·물리량·단위 참조가 미확인 상태라면 로드 오류로 처리한다. 임의의 사용자 정의 ontology에는 이 외부 연결을 강제하지 않는다.
+내재화 전 실행 파일의 23개 URI는 모두 확인했다. 외부 동치 관계는 만들지 않았다. 내재화 이후에는 운영 코드가 외부 URI를 로드하지 않으므로 "미확인 참조" 처리 경로(이전 `ExternalMappings.verified()`)도 제거했다. 앞으로 외부 표준과 다시 연결하려면 [대응표](03_EXTERNAL_CONCORDANCE.md)의 절차대로 운영 RDF와 분리된 정렬 그래프를 만들고, 그 시점의 공식 자료에서 URI·버전·라이선스를 다시 확인한다.
+
+## 내재화 시 재사용·수정 내용
+
+- 외부 원문 설명·공리를 복사하지 않았다. 내부 클래스·관계·물리량·단위의 정의 문장은 프로젝트가 새로 작성했다.
+- 별도 상위 클래스로 만든 개념: PhysicalArtifact(IOF MaterialArtifact), Organization(IOF Organization), BusinessEntity(GoodRelations BusinessEntity).
+- 내부 클래스에 흡수한 개념: ProductOrServiceModel → ProductModel, Individual → ManufacturedItem.
+- 물리량 표현 구조(QuantityValue·numericValue·hasUnit·hasQuantityKind)와 물리량 종류 5개·단위 7개를 내부 IRI로 정의하고 이름·설명·차원·배율을 로컬 RDF에 기록했다.
+- 각 내부 개념은 `dcterms:source`로 `op:source/iof-202603`, `op:source/goodrelations-1.0`, `op:source/qudt-3.5.2` 중 해당 출처를 가리킨다.
