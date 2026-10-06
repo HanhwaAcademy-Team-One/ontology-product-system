@@ -60,6 +60,7 @@ def test_complete_real_agents_graph_human_edit_and_approval(ontology, config):
     approved = graph.invoke(Command(resume={"action": "APPROVE"}), config)
     assert approved["case_status"] == "REGISTERED" and approved["final_product"]["attributes"]["rated_power"]["value"] == 800
     assert count_runs(approved, "extraction") == 1
+    assert ontology.validate_semantics(approved["final_product"])["valid"]
 
 
 def conflicted_graph(ontology, config):

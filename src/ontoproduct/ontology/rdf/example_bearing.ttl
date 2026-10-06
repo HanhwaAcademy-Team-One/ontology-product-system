@@ -1,0 +1,51 @@
+@prefix gr: <http://purl.org/goodrelations/v1#> .
+@prefix op: <urn:ontoproduct:ontology:> .
+@prefix qk: <http://qudt.org/vocab/quantitykind/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:ontoproduct:record:bearing> a gr:ProductOrServiceModel,
+        op:BearingModel,
+        op:CatalogProductModel,
+        op:MechanicalPartModel,
+        op:ProductModel ;
+    rdfs:label "BR-6201" ;
+    op:attributeEvidence <urn:ontoproduct:record:bearing:attribute:inner_diameter>,
+        <urn:ontoproduct:record:bearing:attribute:outer_diameter> ;
+    op:innerDiameter <urn:ontoproduct:record:bearing:value:inner_diameter> ;
+    op:outerDiameter <urn:ontoproduct:record:bearing:value:outer_diameter> .
+
+<urn:ontoproduct:record:bearing:value:inner_diameter> a qudt:QuantityValue ;
+    qudt:hasQuantityKind qk:Length ;
+    qudt:hasUnit unit:MilliM ;
+    qudt:numericValue 12 ;
+    op:attributeEvidence <urn:ontoproduct:record:bearing:attribute:inner_diameter> .
+
+<urn:ontoproduct:record:bearing:value:outer_diameter> a qudt:QuantityValue ;
+    qudt:hasQuantityKind qk:Length ;
+    qudt:hasUnit unit:MilliM ;
+    qudt:numericValue 32 ;
+    op:attributeEvidence <urn:ontoproduct:record:bearing:attribute:outer_diameter> .
+
+<urn:ontoproduct:record:bearing:attribute:inner_diameter> op:applicationField "inner_diameter" ;
+    op:candidateEvidence [ op:confidence 8.5e-01 ;
+            op:evidence "[Sheet: Spec, Row: 3] A3=Inner Diameter | B3=12 mm" ;
+            op:provenance "AI" ;
+            op:source_file "bearing.xlsx" ;
+            op:unit "mm" ;
+            op:value 12 ] ;
+    op:hasConflict false ;
+    op:recordJSON "{\"value\": 12, \"unit\": \"mm\", \"confidence\": 0.85, \"evidence\": \"[Sheet: Spec, Row: 3] A3=Inner Diameter | B3=12 mm\", \"source_file\": \"bearing.xlsx\", \"page\": null, \"provenance\": \"AI\"}" .
+
+<urn:ontoproduct:record:bearing:attribute:outer_diameter> op:applicationField "outer_diameter" ;
+    op:candidateEvidence [ op:confidence 8.5e-01 ;
+            op:evidence "[Sheet: Spec, Row: 4] A4=Outer Diameter | B4=32 mm" ;
+            op:provenance "AI" ;
+            op:source_file "bearing.xlsx" ;
+            op:unit "mm" ;
+            op:value 32 ] ;
+    op:hasConflict false ;
+    op:recordJSON "{\"value\": 32, \"unit\": \"mm\", \"confidence\": 0.85, \"evidence\": \"[Sheet: Spec, Row: 4] A4=Outer Diameter | B4=32 mm\", \"source_file\": \"bearing.xlsx\", \"page\": null, \"provenance\": \"AI\"}" .
+

@@ -1,0 +1,21 @@
+{
+  "motor": {
+    "product_name": "DM-600",
+    "product_class": "BLDCMotor",
+    "attributes": {
+      "manufacturer": {"value": "XYZ Motors", "evidence": "Manufacturer: XYZ Motors", "source_file": "motor_spec.pdf (22222222)", "page": 1, "provenance": "AI", "confidence": 0.85},
+      "rated_voltage": {"value": 24, "unit": "V", "evidence": "Rated Voltage: 24 V", "source_file": "motor_spec.pdf (22222222)", "page": 1, "provenance": "AI", "confidence": 0.85},
+      "rated_power": {"value": 0.6, "unit": "kW", "evidence": "Rated Power: 0.6 kW", "source_file": "motor_spec.pdf (22222222)", "page": 2, "provenance": "AI", "confidence": 0.85},
+      "rated_speed": {"value": 3200, "unit": "rpm", "evidence": "Rated Speed: 3200 rpm", "source_file": "motor_spec.pdf (22222222)", "page": 2, "provenance": "AI", "confidence": 0.85},
+      "weight": {"value": 750, "unit": "g", "evidence": "Weight: 750 g", "source_file": "motor_spec.pdf (22222222)", "page": 2, "provenance": "AI", "confidence": 0.85}
+    }
+  },
+  "bearing": {
+    "product_name": "BR-6201",
+    "product_class": "Bearing",
+    "attributes": {
+      "inner_diameter": {"value": 12, "unit": "mm", "evidence": "[Sheet: Spec, Row: 3] A3=Inner Diameter | B3=12 mm", "source_file": "bearing.xlsx", "provenance": "AI", "confidence": 0.85},
+      "outer_diameter": {"value": 32, "unit": "mm", "evidence": "[Sheet: Spec, Row: 4] A4=Outer Diameter | B4=32 mm", "source_file": "bearing.xlsx", "provenance": "AI", "confidence": 0.85}
+    }
+  }
+}

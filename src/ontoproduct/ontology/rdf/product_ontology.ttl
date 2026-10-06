@@ -1,0 +1,219 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix gr: <http://purl.org/goodrelations/v1#> .
+@prefix op: <urn:ontoproduct:ontology:> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix qk: <http://qudt.org/vocab/quantitykind/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+
+op: a owl:Ontology ;
+    rdfs:label "OntoProduct manufacturing product ontology" ;
+    dcterms:source op:Source_goodrelations,
+        op:Source_iof,
+        op:Source_qudt ;
+    owl:versionInfo "2.0.0" .
+
+op:BLDCMotorItem a owl:Class ;
+    rdfs:label "BLDCMotor physical item" ;
+    rdfs:comment "Physical item of the BLDCMotor category; its model specification is represented separately." ;
+    rdfs:subClassOf op:MotorItem ;
+    op:applicationClass "BLDCMotor" .
+
+op:BearingItem a owl:Class ;
+    rdfs:label "Bearing physical item" ;
+    rdfs:comment "Physical item of the Bearing category; its model specification is represented separately." ;
+    rdfs:subClassOf op:MechanicalPartItem ;
+    op:applicationClass "Bearing" .
+
+op:ManufacturerOrganization a owl:Class ;
+    rdfs:label "Manufacturer organization" ;
+    rdfs:comment "A manufacturer separately known to be an organization; never inferred from a name string." ;
+    rdfs:subClassOf <https://spec.industrialontologies.org/ontology/construct/Organization>,
+        op:Manufacturer .
+
+op:hasMakeAndModel a owl:ObjectProperty ;
+    rdfs:label "Has make and model" ;
+    rdfs:comment "Connects an explicitly identified manufactured item to its catalog model." ;
+    rdfs:domain op:ManufacturedItem ;
+    rdfs:range op:ProductModel ;
+    rdfs:subPropertyOf gr:hasMakeAndModel .
+
+op:hasManufacturer a owl:ObjectProperty ;
+    rdfs:label "Has manufacturer" ;
+    rdfs:comment "Connects a product model to its scoped manufacturer entity." ;
+    rdfs:domain op:ProductModel ;
+    rdfs:range op:Manufacturer ;
+    rdfs:subPropertyOf gr:hasManufacturer ;
+    op:applicationField "manufacturer" .
+
+op:ElectricalPartItem a owl:Class ;
+    rdfs:label "ElectricalPart physical item" ;
+    rdfs:comment "Physical item of the ElectricalPart category; its model specification is represented separately." ;
+    rdfs:subClassOf op:CatalogProductItem ;
+    op:applicationClass "ElectricalPart" .
+
+op:ElectricalPartModel a owl:Class ;
+    rdfs:label "Electrical part model" ;
+    rdfs:comment "Model of a component whose intended use involves electrical behavior." ;
+    rdfs:subClassOf op:CatalogProductModel ;
+    op:applicationClass "ElectricalPart" .
+
+op:MechanicalPartItem a owl:Class ;
+    rdfs:label "MechanicalPart physical item" ;
+    rdfs:comment "Physical item of the MechanicalPart category; its model specification is represented separately." ;
+    rdfs:subClassOf op:CatalogProductItem ;
+    op:applicationClass "MechanicalPart" .
+
+op:MechanicalPartModel a owl:Class ;
+    rdfs:label "Mechanical part model" ;
+    rdfs:comment "Model of a component whose intended use primarily involves mechanical behavior." ;
+    rdfs:subClassOf op:CatalogProductModel ;
+    op:applicationClass "MechanicalPart" .
+
+op:MotorItem a owl:Class ;
+    rdfs:label "Motor physical item" ;
+    rdfs:comment "Physical item of the Motor category; its model specification is represented separately." ;
+    rdfs:subClassOf op:ElectricalPartItem ;
+    op:applicationClass "Motor" .
+
+op:MotorModel a owl:Class ;
+    rdfs:label "Motor model" ;
+    rdfs:comment "Model of an electrical component intended to convert electrical energy into mechanical motion." ;
+    rdfs:subClassOf op:ElectricalPartModel ;
+    op:applicationClass "Motor" .
+
+op:Source_goodrelations dcterms:creator "Martin Hepp, GoodRelations ontology" ;
+    dcterms:license <https://creativecommons.org/licenses/by/3.0/> ;
+    dcterms:source <https://www.heppnetz.de/ontologies/goodrelations/v1.html> ;
+    owl:versionInfo "1.0, release 2011-10-01" .
+
+op:Source_iof dcterms:creator "IOF Core Working Group / Industrial Ontologies Foundry / Open Applications Group" ;
+    dcterms:license <https://github.com/iofoundry/ontology/blob/master/LICENSE> ;
+    dcterms:source <https://raw.githubusercontent.com/iofoundry/ontology/master/core/Core.rdf> ;
+    owl:versionInfo "202603 (owl:versionIRI)" .
+
+op:Source_qudt dcterms:creator "QUDT.org" ;
+    dcterms:license <https://github.com/qudt/qudt-public-repo/blob/main/LICENSE.md> ;
+    dcterms:source <https://qudt.org/vocab/unit/> ;
+    owl:versionInfo "3.5.2 (unit pages rdfs:isDefinedBy)" .
+
+op:innerDiameter a owl:ObjectProperty ;
+    rdfs:label "Bearing inner diameter" ;
+    rdfs:comment "Nominal diameter of the bearing bore." ;
+    rdfs:domain op:BearingModel ;
+    rdfs:range qudt:QuantityValue ;
+    op:applicationField "inner_diameter" ;
+    op:canonicalUnit unit:MilliM ;
+    op:quantityKind qk:Length ;
+    op:siDimensions "{\"length\": 1}" .
+
+op:mass a owl:ObjectProperty ;
+    rdfs:label "Product mass" ;
+    rdfs:comment "The legacy weight field means mass in kg, not gravitational force or weight in newtons." ;
+    rdfs:domain op:BLDCMotorModel ;
+    rdfs:range qudt:QuantityValue ;
+    op:applicationField "weight" ;
+    op:canonicalUnit unit:KiloGM ;
+    op:quantityKind qk:Mass ;
+    op:siDimensions "{\"mass\": 1}" .
+
+op:outerDiameter a owl:ObjectProperty ;
+    rdfs:label "Bearing outer diameter" ;
+    rdfs:comment "Nominal outside diameter, required to exceed the inner diameter for this registration profile." ;
+    rdfs:domain op:BearingModel ;
+    rdfs:range qudt:QuantityValue ;
+    op:applicationField "outer_diameter" ;
+    op:canonicalUnit unit:MilliM ;
+    op:quantityKind qk:Length ;
+    op:siDimensions "{\"length\": 1}" .
+
+op:ratedPower a owl:ObjectProperty ;
+    rdfs:label "Rated power" ;
+    rdfs:comment "Rated power specified in the source. Input versus shaft output power is not inferred without explicit evidence." ;
+    rdfs:domain op:BLDCMotorModel ;
+    rdfs:range qudt:QuantityValue ;
+    op:applicationField "rated_power" ;
+    op:canonicalUnit unit:W ;
+    op:quantityKind qk:Power ;
+    op:siDimensions "{\"length\": 2, \"mass\": 1, \"time\": -3}" .
+
+op:ratedSpeed a owl:ObjectProperty ;
+    rdfs:label "Rated shaft speed" ;
+    rdfs:comment "Manufacturer-specified shaft revolutions per time, modeled as rotational frequency and kept in rpm locally." ;
+    rdfs:domain op:BLDCMotorModel ;
+    rdfs:range qudt:QuantityValue ;
+    op:applicationField "rated_speed" ;
+    op:canonicalUnit unit:REV-PER-MIN ;
+    op:quantityKind qk:RotationalFrequency ;
+    op:siDimensions "{\"time\": -1}" .
+
+op:ratedVoltage a owl:ObjectProperty ;
+    rdfs:label "Rated voltage" ;
+    rdfs:comment "Manufacturer-specified operating voltage for the model, expressed as a quantity value." ;
+    rdfs:domain op:BLDCMotorModel ;
+    rdfs:range qudt:QuantityValue ;
+    op:applicationField "rated_voltage" ;
+    op:canonicalUnit unit:V ;
+    op:quantityKind qk:Voltage ;
+    op:siDimensions "{\"current\": -1, \"length\": 2, \"mass\": 1, \"time\": -3}" .
+
+op:BearingModel a owl:Class ;
+    rdfs:label "Bearing model" ;
+    rdfs:comment "Model of a mechanical component supporting relative motion, registered with inner and outer diameters." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom qudt:QuantityValue ;
+            owl:onProperty op:innerDiameter ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom qudt:QuantityValue ;
+            owl:onProperty op:outerDiameter ],
+        op:MechanicalPartModel ;
+    op:applicationClass "Bearing" .
+
+op:CatalogProductItem a owl:Class ;
+    rdfs:label "Product physical item" ;
+    rdfs:comment "Physical item of the Product category; its model specification is represented separately." ;
+    rdfs:subClassOf op:ManufacturedItem ;
+    op:applicationClass "Product" .
+
+op:CatalogProductModel a owl:Class ;
+    rdfs:label "Manufactured product model" ;
+    rdfs:comment "Root application profile for catalog model registration." ;
+    rdfs:subClassOf op:ProductModel ;
+    op:applicationClass "Product" .
+
+op:Manufacturer a owl:Class ;
+    rdfs:label "Manufacturer entity" ;
+    rdfs:comment "A business entity responsible for producing a model; a name alone does not identify it globally." ;
+    rdfs:subClassOf gr:BusinessEntity .
+
+op:ManufacturedItem a owl:Class ;
+    rdfs:label "Manufactured physical item" ;
+    rdfs:comment "An explicitly identified physical artifact; a catalog entry does not establish its existence." ;
+    rdfs:subClassOf gr:Individual,
+        <https://spec.industrialontologies.org/ontology/construct/MaterialArtifact> .
+
+op:ProductModel a owl:Class ;
+    rdfs:label "Product model" ;
+    rdfs:comment "A catalog specification for a manufactured product model, not an individual physical item." ;
+    rdfs:subClassOf gr:ProductOrServiceModel ;
+    owl:disjointWith op:ManufacturedItem .
+
+op:BLDCMotorModel a owl:Class ;
+    rdfs:label "Brushless DC motor model" ;
+    rdfs:comment "Model of a brushless electronically commutated DC motor. Numeric specifications alone do not prove brushless construction." ;
+    rdfs:subClassOf [ a owl:Restriction ;
+            owl:allValuesFrom qudt:QuantityValue ;
+            owl:onProperty op:ratedSpeed ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom qudt:QuantityValue ;
+            owl:onProperty op:ratedVoltage ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom qudt:QuantityValue ;
+            owl:onProperty op:ratedPower ],
+        [ a owl:Restriction ;
+            owl:allValuesFrom qudt:QuantityValue ;
+            owl:onProperty op:mass ],
+        op:MotorModel ;
+    op:applicationClass "BLDCMotor" .
+
