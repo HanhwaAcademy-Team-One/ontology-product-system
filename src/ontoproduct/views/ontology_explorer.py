@@ -1,13 +1,12 @@
 import streamlit as st
 
-from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.views.presentation import CLASS_LABELS, LABELS, parse_value
-from ontoproduct.views.resources import get_runtime
+from ontoproduct.views.resources import current_runtime
 from ontoproduct.views.ontology_graphs import render as render_graphs
 
 
 def render():
-    runtime = get_runtime(str(ApplicationPaths.from_environment().root))
+    runtime = current_runtime()
     ontology = runtime.ontology
     st.title("온톨로지 탐색")
     st.caption("클래스 상속과 필수·선택 속성, 허용 단위 및 범위를 확인하세요.")

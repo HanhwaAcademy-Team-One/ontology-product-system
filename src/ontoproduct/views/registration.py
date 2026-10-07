@@ -1,7 +1,7 @@
 import streamlit as st
 
 from ontoproduct.schemas.product import ProductAttribute
-from ontoproduct.services.application_paths import ApplicationPaths
+from ontoproduct.services.settings import Settings
 from ontoproduct.views.presentation import (
     CLASS_LABELS,
     LABELS,
@@ -9,7 +9,7 @@ from ontoproduct.views.presentation import (
     attribute_rows,
     parse_value,
 )
-from ontoproduct.views.resources import get_runtime
+from ontoproduct.views.resources import current_runtime
 from ontoproduct.views.streaming import consume
 
 
@@ -59,7 +59,21 @@ def _start(runtime, uploads, *, demo=False):
     st.rerun()
 
 
-def _upload_form(runtime):
+def _mode_caption(settings):
+    if settings.mode == "mock":
+        return "Mock 추출 모드 · 업로드 파일은 보관되며, 현재 추출 결과는 DM-500 예제 데이터를 사용합니다."
+    models = settings.models
+    if len(set(models.values())) == 1:
+        model = next(iter(models.values()))
+    else:
+        model = f"추출 {models['extraction']} · 분류 {models['ontology']}"
+    return (
+        "실제 문서 분석 (Parser·Extraction·Ontology 실제, 이후 단계 Mock)"
+        f" · 모델: {settings.provider}/{model}"
+    )
+
+
+def _upload_form(runtime, *, demo):
     st.subheader("등록할 제품의 문서를 추가하세요")
     st.write("한 작업에 여러 문서를 올릴 수 있습니다. 등록 대상 제품은 하나입니다.")
     uploads = st.file_uploader(
@@ -96,7 +110,7 @@ def _upload_form(runtime):
         width="stretch",
     ):
         _start(runtime, uploads)
-    if right.button("Mock 예제로 시작", key="start_demo", width="stretch"):
+    if demo and right.button("Mock 예제로 시작", key="start_demo", width="stretch"):
         _start(runtime, [], demo=True)
 
 
@@ -270,14 +284,14 @@ def _error_review(runtime, thread_id, payload):
 
 
 def render():
-    runtime = get_runtime(str(ApplicationPaths.from_environment().root))
+    runtime = current_runtime()
+    # current_runtime() already validated the settings or stopped the page.
+    settings = Settings.from_environment()
     st.title("제품 등록")
-    st.caption(
-        "Mock 추출 모드 · 업로드 파일은 보관되며, 현재 추출 결과는 DM-500 예제 데이터를 사용합니다."
-    )
+    st.caption(_mode_caption(settings))
     thread_id = st.session_state.get("thread_id")
     if not thread_id:
-        _upload_form(runtime)
+        _upload_form(runtime, demo=settings.mode == "mock")
         return
     snapshot = runtime.snapshot(thread_id)
     state = snapshot.values

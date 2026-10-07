@@ -1,13 +1,12 @@
 import streamlit as st
 
-from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.services.seed_service import seed_products
 from ontoproduct.views.presentation import CLASS_LABELS
-from ontoproduct.views.resources import get_runtime
+from ontoproduct.views.resources import current_runtime
 
 
 def render():
-    runtime = get_runtime(str(ApplicationPaths.from_environment().root))
+    runtime = current_runtime()
     st.title("제품 데이터베이스")
     st.caption("등록 승인으로 저장한 제품과 중복 검토용 예제 제품을 확인하세요.")
     if st.button("중복 검토용 예제 제품 추가", key="seed_database"):

@@ -2,13 +2,12 @@ from pathlib import Path
 import streamlit as st
 
 from ontoproduct.services.analytics_service import AnalyticsService
-from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.views.presentation import CLASS_LABELS, STATUS_LABELS
-from ontoproduct.views.resources import get_runtime
+from ontoproduct.views.resources import current_runtime
 
 
 def render():
-    runtime = get_runtime(str(ApplicationPaths.from_environment().root))
+    runtime = current_runtime()
     overview = AnalyticsService(runtime).overview()
     st.title("대시보드")
     st.caption(

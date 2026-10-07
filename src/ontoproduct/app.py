@@ -3,8 +3,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from ontoproduct.services.application_paths import ApplicationPaths
-from ontoproduct.views.resources import get_runtime
+from ontoproduct.views.resources import current_runtime
 
 
 def main():
@@ -13,7 +12,7 @@ def main():
     )
     st.session_state.setdefault("session_id", str(uuid4()))
     st.session_state.setdefault("upload_generation", 0)
-    runtime = get_runtime(str(ApplicationPaths.from_environment().root))
+    runtime = current_runtime()
     if not st.session_state.get("thread_id") and st.query_params.get("case"):
         candidate = st.query_params["case"]
         if runtime.cases.get(candidate):

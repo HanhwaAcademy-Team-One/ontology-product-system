@@ -1,13 +1,12 @@
 import streamlit as st
 
 from ontoproduct.services.analytics_service import AnalyticsService
-from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.views.presentation import AGENT_LABELS
-from ontoproduct.views.resources import get_runtime
+from ontoproduct.views.resources import current_runtime
 
 
 def render():
-    runtime = get_runtime(str(ApplicationPaths.from_environment().root))
+    runtime = current_runtime()
     st.title("Agent 모니터")
     st.caption(
         "Registry 메타데이터와 저장된 실행 이력입니다. Health는 Agent health_check 응답이며 외부 모델 연결 검사가 아닙니다."
