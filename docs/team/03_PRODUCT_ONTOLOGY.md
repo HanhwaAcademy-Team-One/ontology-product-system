@@ -159,6 +159,10 @@ graph = ontology.to_rdf(normalized_product, record_id="catalog-001",
                         item_id="serial-001", manufacturer_is_organization=True)
 ```
 
+## 기존 데이터 이관
+
+앱 데이터(`runtime/`)에는 RDF가 저장되어 있지 않다. 제품은 JSON으로 저장되고 RDF는 필요할 때 생성되므로 사용자 데이터 이관은 필요 없다. 저장소의 TTL 4개는 생성 스크립트로 다시 만들었다. 외부에서 이전 버전 RDF를 받아 둔 경우, 위 대응표로 외부 IRI를 내부 IRI로 바꿀 수 있지만 단위·물리량 노드 구조가 바뀌었으므로 원본 제품 JSON에서 다시 생성하는 것을 권장한다.
+
 ## 그래프로 보기
 
 ```powershell

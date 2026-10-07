@@ -6,6 +6,8 @@
 
 추가 요청: IOF·GoodRelations·QUDT를 참고 URI 목록에 두는 수준에서 제품 의미 모델·RDF/OWL·SHACL 구축까지 확장했다. 5~7단계도 완료했다. 현재 제품군의 자체 온톨로지·RDF 변환·SHACL 실행은 완료했으며 산업 전체 모델링·외부 전체 공리 추론·RDF DB 연결까지 완료했다는 뜻은 아니다.
 
+후속 요청으로 온톨로지 탐색 UI에 의미 관계·제품 RDF 시각화를 추가했다. 구현·검증 내용은 아래 시각화 기록을 따른다. 운영 Extraction/Ontology 목업 교체와 Graph Validation 노드의 SHACL 자동 연결은 여전히 미완료다.
+
 **온톨로지 내재화 완료(I-1~I-4).** 운영 온톨로지·제품 RDF·SHACL·Agent context에서 IOF·GoodRelations·QUDT 업무 URI 연결을 제거하고 `urn:ontoproduct:ontology:` 아래 자체 정의로 바꿨다. 외부 → 내부 대응표는 [03_EXTERNAL_CONCORDANCE.md](03_EXTERNAL_CONCORDANCE.md), 라이선스 고지는 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)에 있다. 이 두 문서와 [외부 참고 기록](02_03_EXTERNAL_SOURCES.md)만 외부 URI를 담으며 운영 코드는 이들을 읽지 않는다. 운영 목업 교체 상태는 바뀌지 않았다.
 
 ## 진행 상태
@@ -88,6 +90,10 @@ I-4 검증·패키징:
 - 공통 Protocol·오류: `services/llm_protocol.py`, `agent_errors.py`.
 - 동의어·공유 단위·근거·분할·병합: `mapping_service.py`, `evidence_service.py`, `document_chunks.py`, `attribute_merge.py`. 의미 모델·RDF: `product_ontology_service.py`, `rdf_ontology_service.py`. 외부 매핑 서비스는 내재화로 제거했다.
 - `ontology_service.py`의 기존 normalize_unit 호출을 공유 UnitService에 위임했다. 기존 호출 형태와 회귀 동작을 유지했다.
+- 데이터: `ontology/property_aliases.yaml`, `unit_mappings.yaml`, `external_mappings.yaml`.
+- 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
+- 1~7단계에서 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 후속 시각화 요청에서 온톨로지 탐색 UI를 확장했다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
+- commit·push·PR 생성은 수행하지 않았다. 현재 작업 브랜치의 미커밋 변경으로 남겼다.
 - 데이터: `ontology/product_model.yaml`, `ontology.yaml`, `property_aliases.yaml`, `unit_mappings.yaml`, `rdf/*.ttl`. `external_mappings.yaml`은 내재화로 제거했다.
 - 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`, `test_product_semantic_model.py`, `test_rdf_product_ontology.py`, `test_ontology_internalization.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
 - 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
