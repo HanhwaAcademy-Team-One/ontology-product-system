@@ -62,7 +62,36 @@ class LlmService:
 
 현재 Agent writes에는 토큰 수나 원본 SDK 응답이 없습니다. 필요하면 서버 측 별도 기록 service에 보관하거나 정식 schema/계약 변경을 합의합니다. 임의로 Agent 반환 키를 추가하지 않습니다.
 
-환경 변수 이름 제안은 AGENT_MODE, LLM_PROVIDER, LLM_MODEL, LLM_API_KEY입니다. 아직 이 프로젝트가 읽는 이름은 아니므로 settings.py에서 구현해야 합니다. .env 파일도 현재 자동으로 읽는 기능이 없습니다. settings에서 명시적으로 로드하거나 프로세스 환경 변수로 전달하는 방식을 정하세요.
+실행 설정은 [services/settings.py](../../src/ontoproduct/services/settings.py)의 `Settings.from_environment()`가 읽습니다. 팀 기본값은 [config/llm.yaml](../../src/ontoproduct/config/llm.yaml)에 두고, 아래 환경 변수가 있으면 파일 값보다 우선합니다. Agent별 모델은 환경 변수 Agent별 값 → 환경 변수 LLM_MODEL → 파일 models.<agent> → 파일 models.default 순으로 정합니다. AGENT_MODE는 환경 변수로만 정하며, `.env` 파일은 자동으로 읽지 않습니다. llm.yaml에 API Key 등 지원하지 않는 항목을 넣으면 설정 오류입니다.
+
+| 환경 변수 | 의미 | 기본값 |
+| --- | --- | --- |
+| AGENT_MODE | `mock` 또는 `real` | `mock` |
+| LLM_PROVIDER | 모델 공급자. 현재 `openai`만 지원. real에서 필수 | `openai` (llm.yaml) |
+| LLM_MODEL | LLM을 쓰는 Agent의 공통 모델. 아래 Agent별 값이 없으면 사용 | 없음 |
+| LLM_MODEL_EXTRACTION / LLM_MODEL_ONTOLOGY | Agent별 모델. 지정하면 LLM_MODEL보다 우선 | 없음 |
+| LLM_TIMEOUT_SECONDS | 모델 호출 timeout(초) | 250 (llm.yaml) |
+| LLM_MAX_RETRIES | 짧은 통신 retry 횟수. Graph 업무 retry와 별개 | 2 |
+
+LLM을 쓰는 Agent는 생성자가 `llm_service`를 받는 Extraction(필수)과 Ontology(선택, 없으면 규칙 분류) 두 개입니다. 다른 Agent 이름으로 `LLM_MODEL_*`를 지정하면 설정 오류입니다. real 모드에서 공급자나 모델이 빠져도 Mock으로 되돌리지 않고 설정 오류를 냅니다. API Key는 Settings에 담지 않습니다.
+
+### 실행 방법과 현재 연결 상태 (01~03)
+
+```powershell
+$env:AGENT_MODE = "real"
+$env:OPENAI_API_KEY = "<발급한 키>"   # 저장소·.env 커밋·로그에 남기지 않습니다
+.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+- OpenAI adapter: [services/llm_service.py](../../src/ontoproduct/services/llm_service.py)의 `OpenAiLlmService`가 LlmService를 구현합니다. openai SDK 3.26.0의 Responses API(`client.responses.create`)에 strict JSON schema 형식으로 요청합니다. payload의 `instructions`는 `instructions`(신뢰된 지침)로, 나머지는 user 메시지(JSON)로 보냅니다.
+- 스키마 호환: strict 모드는 키가 자유로운 맵(`dict[str, X]`, 예: Extraction의 attributes)을 표현하지 못하므로, adapter가 `[{key, value}]` 배열로 요청한 뒤 맵으로 복원하고 원래 Pydantic 스키마로 다시 검증합니다. 숫자 범위·기본값은 모델 스키마에서 빼고 로컬 검증으로 확인합니다. 프로젝트 schema 파일은 바꾸지 않았습니다.
+- 거부·미완료(max_output_tokens 등)·빈 응답·JSON 오류·스키마 불일치는 원문을 담지 않은 `LlmResponseError`가 되어 Graph 오류 경로로 갑니다. 통신 timeout·재시도는 Settings 값을 SDK client에 전달하며 Graph 업무 재시도와 별개입니다.
+- `create_llm_services(settings)`가 Agent별 모델로 서비스를 만듭니다. 기본 팀 설정은 llm.yaml의 openai/gpt-5이며 Extraction·Ontology가 공유합니다.
+- [agents/real_registry.py](../../src/ontoproduct/agents/real_registry.py)의 `build_document_registry`가 parser·extraction·ontology만 실제 Agent로 바꿉니다. validation·reviewer는 Mock, duplicate·registration은 runtime의 실제 DB Agent입니다.
+- [views/resources.py](../../src/ontoproduct/views/resources.py)의 `current_runtime()`을 app.py와 모든 화면이 사용합니다. real 모드 설정은 `get_runtime` cache key에 포함됩니다(API Key 제외). 설정 오류는 화면에 표시하고 페이지를 멈추며 Mock으로 되돌리지 않습니다. real 모드에서는 Mock 데모 버튼을 숨기고 등록 화면에 모델을 표시합니다.
+- 실제 호출 검증: `ONTOPRODUCT_LIVE_LLM=1`일 때만 실행되는 [tests/test_live_llm.py](../../tests/test_live_llm.py)가 llm.yaml 또는 LLM_* 환경 변수의 모델로 motor_spec.txt와 two_page_spec.pdf를 처리합니다. 기본 pytest는 이 테스트를 건너뜁니다.
+  - OpenAI gpt-5: DM-600, BLDCMotor, 0.6 kW → 600 W, 원문 근거·페이지를 확인했습니다(2 passed, 약 78초, timeout 60초 설정 당시).
+- 업로드 문서 원문은 OpenAI API로 전송됩니다. 사내 문서를 다룰 때는 전송 허용 여부를 먼저 확인합니다.
 
 ## 5. 먼저 하나씩 교체하기
 
@@ -79,7 +108,7 @@ from ontoproduct.services.workflow_runtime import WorkflowRuntime
 
 with TemporaryDirectory(prefix="ontoproduct-parser-runtime-") as directory:
     paths = ApplicationPaths(Path(directory))
-    parser_service = ParserService()
+    parser_service = ParserService(paths.uploads)
 
     def parser_registry(ontology):
         registry = mock_registry(ontology)
@@ -95,7 +124,7 @@ with TemporaryDirectory(prefix="ontoproduct-parser-runtime-") as directory:
         runtime.close()
 ```
 
-이 예시는 신규 ParserService/ParserAgent 구현 후 실행합니다. `ParserService()` 생성자는 §01의 제안과 같습니다. 생성자에 업로드 경로 설정을 추가했다면 이 호출도 맞추세요. 임시 데이터 폴더는 종료 시 삭제되며, UI 연결에서는 실제 storage_root로 ApplicationPaths를 만들고 cached runtime의 수명에 맞춰 관리합니다. 이렇게 하면 Parser만 실제 구현이고 나머지 문서 Agent는 기존 Mock입니다. UI runtime의 Duplicate/Registration은 기존처럼 실제 DB Agent입니다. 화면에 부분 교체 상태를 표시하세요.
+ParserService는 업로드 폴더를 생성자 인자로 받으므로 같은 ApplicationPaths의 uploads를 전달합니다. 임시 데이터 폴더는 종료 시 삭제되며, UI 연결에서는 실제 storage_root로 ApplicationPaths를 만들고 cached runtime의 수명에 맞춰 관리합니다. 이렇게 하면 Parser만 실제 구현이고 나머지 문서 Agent는 기존 Mock입니다. UI runtime의 Duplicate/Registration은 기존처럼 실제 DB Agent입니다. 화면에 부분 교체 상태를 표시하세요.
 
 이 과정을 Extraction, Ontology 순서로 진행하면 어느 단계에서 문제가 생겼는지 쉽게 찾습니다.
 

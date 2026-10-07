@@ -13,6 +13,23 @@ uv --cache-dir .uv-cache sync --locked
 
 uv 대신 pip를 사용하려면 Python 3.12 환경에서 `python -m pip install -r requirements.txt`를 실행하세요. 의존성과 이 프로젝트 패키지를 함께 설치합니다.
 
+### 실행 모드
+
+| 모드 | 설정 | 동작 |
+| --- | --- | --- |
+| Mock (기본) | 환경 변수 없음 | 기존 데모. 문서 내용 대신 DM-500 Mock fixture를 사용하며 API Key가 필요 없습니다. |
+| Real (01~03) | `AGENT_MODE=real`, `OPENAI_API_KEY` | 실제 Parser가 문서를 읽고, Extraction·Ontology가 OpenAI 모델(기본 gpt-5)을 사용합니다. Validation·Reviewer는 아직 Mock입니다. |
+
+```powershell
+$env:AGENT_MODE = "real"
+$env:OPENAI_API_KEY = "<발급한 키>"
+.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8502
+```
+
+- 모델·공급자·timeout 기본값은 `src/ontoproduct/config/llm.yaml`에 있고 `LLM_MODEL`, `LLM_MODEL_EXTRACTION`, `LLM_MODEL_ONTOLOGY` 등 환경 변수가 우선합니다. 자세한 내용은 [통합 문서](docs/team/08_INTEGRATION.md)를 참고하세요.
+- 지원 문서: 텍스트 PDF, XLSX, TXT(UTF-8·CP949). **OCR은 지원하지 않아** 스캔 PDF는 오류가 됩니다.
+- **Real 모드에서는 업로드한 문서 원문이 OpenAI API로 전송됩니다.** API Key를 저장소나 로그에 남기지 마세요. 설정이 빠지면 Mock으로 바꾸지 않고 화면에 설정 오류를 표시합니다.
+
 [앱 열기](http://127.0.0.1:8502). 이미 서버가 실행 중이면 링크로 접속하세요. 다른 포트를 쓰려면 실행 명령의 포트 번호를 바꾸세요.
 
 | 화면 | 기능 | 주소 |
@@ -32,7 +49,7 @@ uv 대신 pip를 사용하려면 Python 3.12 환경에서 `python -m pip install
 4. 검증 통과 후 **등록 승인**을 누르면 SQLite 저장과 JSON Export가 실행됩니다.
 5. JSON 다운로드 및 제품 데이터베이스 화면에서 결과를 확인합니다.
 
-파일당 최대 20 MB이며 여러 문서를 한 제품의 자료로 업로드할 수 있습니다. 원본 파일은 실제로 보관하지만 **Parser/Extraction은 문서 내용 대신 DM-500 Mock fixture를 사용합니다**. 실제 PDF/Excel 파싱이나 LLM 추출 기능은 구현되지 않았습니다. 화면에도 Mock 모드를 표시하며 API Key는 필요하지 않습니다.
+파일당 최대 20 MB이며 여러 문서를 한 제품의 자료로 업로드할 수 있습니다. 위 데모는 Mock 모드 기준입니다. 원본 파일은 실제로 보관하지만 **Mock 모드의 Parser/Extraction은 문서 내용 대신 DM-500 Mock fixture를 사용합니다**. 실제 문서 파싱과 LLM 추출은 Real 모드(`AGENT_MODE=real`)에서 동작하며, 이때는 Mock 예제 버튼이 보이지 않습니다. 화면에 현재 모드를 표시합니다.
 
 중복 후보는 실제 SQLite 기존 제품의 분류·공통 속성·제품명으로 계산한 규칙 기반 결과입니다. LLM 의미 검색 결과가 아닙니다.
 
@@ -103,7 +120,7 @@ uv --cache-dir .uv-cache build --offline
 
 [실제 compiled graph](docs/workflow.mmd), [PHASE 1 보고서](docs/PHASE1_REPORT.md), [PHASE 2 보고서](docs/PHASE2_REPORT.md), [PHASE 3 완료 보고서](docs/PHASE3_REPORT.md)를 참고하세요. 앞 단계 보고서는 당시 상태를 기록한 문서입니다.
 
-현재 앱은 로컬 교육용이며 인증 없이 최근 작업을 조회합니다. 실제 문서 파싱, 실제 LLM Agent, 운영 인증 및 대규모 DB 성능은 추가 구현 범위입니다.
+현재 앱은 로컬 교육용이며 인증 없이 최근 작업을 조회합니다. 실제 문서 파싱과 LLM 기반 Extraction·Ontology는 Real 모드로 연결했습니다. 실제 Validation·Reviewer Agent, 운영 인증 및 대규모 DB 성능은 추가 구현 범위입니다.
 
 팀원이 Mock을 실제 문서·LLM 기능으로 교체할 때는 [팀 협업 가이드](docs/MOCK_REPLACEMENT_PLAN.md)에서 담당별 파일 위치, 입력·출력 예시, 교체 절차와 테스트 기준을 확인하세요.
 
