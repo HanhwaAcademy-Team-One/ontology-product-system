@@ -14,18 +14,41 @@ class RecordingTransport:
         self.calls = []
 
     def generate_structured(self, *, task, payload, response_schema):
-        self.calls.append({"task": task, "payload": deepcopy(payload), "response_schema": response_schema})
+        self.calls.append(
+            {
+                "task": task,
+                "payload": deepcopy(payload),
+                "response_schema": response_schema,
+            }
+        )
         result = self.handler(task, payload)
-        return response_schema.model_validate(result) if isinstance(result, dict) else result
+        return (
+            response_schema.model_validate(result)
+            if isinstance(result, dict)
+            else result
+        )
 
 
 def document(name="motor.txt", *, source_file=None, page=None):
-    return {"source_file": source_file or name, "page": page, "text": (FIXTURES / name).read_text(encoding="utf-8")}
+    return {
+        "source_file": source_file or name,
+        "page": page,
+        "text": (FIXTURES / name).read_text(encoding="utf-8"),
+    }
 
 
-def attribute(value, unit=None, *, evidence, source_file="motor.txt", page=None, confidence=0.9):
-    return {"value": value, "unit": unit, "evidence": evidence,
-            "source_file": source_file, "page": page, "confidence": confidence, "provenance": "AI"}
+def attribute(
+    value, unit=None, *, evidence, source_file="motor.txt", page=None, confidence=0.9
+):
+    return {
+        "value": value,
+        "unit": unit,
+        "evidence": evidence,
+        "source_file": source_file,
+        "page": page,
+        "confidence": confidence,
+        "provenance": "AI",
+    }
 
 
 def motor_response(*, source_file="motor.txt", page=None):
@@ -36,9 +59,14 @@ def motor_response(*, source_file="motor.txt", page=None):
         "rated_speed": (3200, "rpm", "Rated Speed: 3200 rpm"),
         "weight": (750, "g", "Weight: 750 g"),
     }
-    return {"product_name": "DM-600", "candidate_class": "BLDCMotor", "attributes": {
-        key: attribute(v, u, evidence=e, source_file=source_file, page=page) for key, (v, u, e) in definitions.items()
-    }}
+    return {
+        "product_name": "DM-600",
+        "candidate_class": "BLDCMotor",
+        "attributes": {
+            key: attribute(v, u, evidence=e, source_file=source_file, page=page)
+            for key, (v, u, e) in definitions.items()
+        },
+    }
 
 
 def constant_transport(response):

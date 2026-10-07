@@ -13,6 +13,7 @@ SOURCE_ID = r"^[a-z][a-z0-9]*-[0-9][0-9A-Za-z.]*$"
 
 class SourceRecord(DomainModel):
     """Local provenance record. Original URLs are kept in documentation only."""
+
     title: str = Field(min_length=1)
     version: str = Field(min_length=1)
     license: str = Field(min_length=1)
@@ -36,8 +37,17 @@ class MeasurementVocabulary(DomainModel):
     has_quantity_kind: VocabularyTerm
 
     def terms(self):
-        return {key: getattr(self, key) for key in (
-            "quantity_value", "quantity_kind", "unit", "numeric_value", "has_unit", "has_quantity_kind")}
+        return {
+            key: getattr(self, key)
+            for key in (
+                "quantity_value",
+                "quantity_kind",
+                "unit",
+                "numeric_value",
+                "has_unit",
+                "has_quantity_kind",
+            )
+        }
 
 
 class EntityClass(DomainModel):
@@ -77,9 +87,19 @@ class SemanticProperty(DomainModel):
     @model_validator(mode="after")
     def coherent(self):
         if self.kind == "quantity":
-            if not self.quantity or self.definition.type not in ("number", "integer") or not self.definition.canonical_unit:
-                raise ValueError("Quantity properties require a numeric type, quantity kind and unit")
-        elif self.quantity or self.definition.type != "string" or self.definition.canonical_unit:
+            if (
+                not self.quantity
+                or self.definition.type not in ("number", "integer")
+                or not self.definition.canonical_unit
+            ):
+                raise ValueError(
+                    "Quantity properties require a numeric type, quantity kind and unit"
+                )
+        elif (
+            self.quantity
+            or self.definition.type != "string"
+            or self.definition.canonical_unit
+        ):
             raise ValueError("Manufacturer name projection must be a unitless string")
         return self
 

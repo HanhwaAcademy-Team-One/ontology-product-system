@@ -28,28 +28,43 @@ class WorkflowRuntime:
         self.cases = RegistrationRepository(database)
         self.documents = DocumentService(paths.uploads)
         self.ontology = OntologyService()
-        self.registration = RegistrationService(self.products, self.ontology, paths.exports)
+        self.registration = RegistrationService(
+            self.products, self.ontology, paths.exports
+        )
         paths.checkpoint_db.parent.mkdir(parents=True, exist_ok=True)
-        self.connection = sqlite3.connect(paths.checkpoint_db, check_same_thread=False, timeout=30)
+        self.connection = sqlite3.connect(
+            paths.checkpoint_db, check_same_thread=False, timeout=30
+        )
         self.connection.execute("PRAGMA journal_mode=WAL")
-        self.checkpointer = SqliteSaver(self.connection, serde=JsonPlusSerializer(allowed_msgpack_modules=[]))
+        self.checkpointer = SqliteSaver(
+            self.connection, serde=JsonPlusSerializer(allowed_msgpack_modules=[])
+        )
         self.registry_factory = registry_factory or mock_registry
         self._graphs, self._locks, self._registries = {}, {}, {}
         self._guard = Lock()
 
     @staticmethod
     def config(thread_id):
-        return {"configurable": {"thread_id": str(UUID(thread_id))}, "recursion_limit": 150}
+        return {
+            "configurable": {"thread_id": str(UUID(thread_id))},
+            "recursion_limit": 150,
+        }
 
     def graph(self, thread_id):
         thread_id = str(UUID(thread_id))
         with self._guard:
             if thread_id not in self._graphs:
                 registry = self.registry_factory(self.ontology)
-                registry.register(RegistrationAgent(thread_id, self.registration), replace=True)
-                registry.register(DuplicateAgent(DuplicateService(self.products)), replace=True)
+                registry.register(
+                    RegistrationAgent(thread_id, self.registration), replace=True
+                )
+                registry.register(
+                    DuplicateAgent(DuplicateService(self.products)), replace=True
+                )
                 self._registries[thread_id] = registry
-                self._graphs[thread_id] = build_workflow(registry, ontology=self.ontology, checkpointer=self.checkpointer)
+                self._graphs[thread_id] = build_workflow(
+                    registry, ontology=self.ontology, checkpointer=self.checkpointer
+                )
                 self._locks[thread_id] = Lock()
             return self._graphs[thread_id]
 
@@ -62,13 +77,19 @@ class WorkflowRuntime:
     def snapshot(self, thread_id):
         return self.graph(thread_id).get_state(self.config(thread_id))
 
-    def start(self, thread_id, references, *, max_extraction_retries=1, max_ontology_retries=1):
+    def start(
+        self, thread_id, references, *, max_extraction_retries=1, max_ontology_retries=1
+    ):
         self.documents.validate_references(references)
         case = self.cases.get(thread_id)
         if not case:
             raise ValueError("Unknown registration case")
-        state = initial_state(references, case_id=thread_id, max_extraction_retries=max_extraction_retries,
-                              max_ontology_retries=max_ontology_retries)
+        state = initial_state(
+            references,
+            case_id=thread_id,
+            max_extraction_retries=max_extraction_retries,
+            max_ontology_retries=max_ontology_retries,
+        )
         state["session_id"] = case["session_id"]
         yield from self._stream(thread_id, state, starting=True)
 
@@ -86,22 +107,42 @@ class WorkflowRuntime:
         try:
             snapshot = graph.get_state(self.config(thread_id))
             if starting and snapshot.values:
-                raise ValueError("This case has already started; resume the saved checkpoint")
+                raise ValueError(
+                    "This case has already started; resume the saved checkpoint"
+                )
             interrupted = any(task.interrupts for task in snapshot.tasks)
             if continuing:
                 if interrupted or not (snapshot.next or snapshot.tasks):
-                    raise ValueError("This case has no unfinished execution to continue")
+                    raise ValueError(
+                        "This case has no unfinished execution to continue"
+                    )
             elif not starting and not interrupted:
                 if snapshot.values.get("case_status") == "REGISTERED":
-                    yield "custom", {"event": "case_already_registered", "status": "ALREADY_REGISTERED"}
+                    yield (
+                        "custom",
+                        {
+                            "event": "case_already_registered",
+                            "status": "ALREADY_REGISTERED",
+                        },
+                    )
                     return
                 raise ValueError("This case is not waiting for a review command")
-            yield from graph.stream(request, self.config(thread_id), stream_mode=["custom", "updates"])
+            yield from graph.stream(
+                request, self.config(thread_id), stream_mode=["custom", "updates"]
+            )
         finally:
             try:
                 snapshot = graph.get_state(self.config(thread_id))
                 if snapshot.values:
-                    status = "ERROR" if any(i.value.get("kind") == "error" for t in snapshot.tasks for i in t.interrupts) else snapshot.values["case_status"]
+                    status = (
+                        "ERROR"
+                        if any(
+                            i.value.get("kind") == "error"
+                            for t in snapshot.tasks
+                            for i in t.interrupts
+                        )
+                        else snapshot.values["case_status"]
+                    )
                     self.cases.update_status(thread_id, status)
             finally:
                 lock.release()
@@ -111,7 +152,9 @@ class WorkflowRuntime:
             self.graph(thread_id)
             return self._registries[thread_id].metadata()
         registry = self.registry_factory(self.ontology)
-        registry.register(RegistrationAgent("metadata", self.registration), replace=True)
+        registry.register(
+            RegistrationAgent("metadata", self.registration), replace=True
+        )
         registry.register(DuplicateAgent(DuplicateService(self.products)), replace=True)
         return registry.metadata()
 

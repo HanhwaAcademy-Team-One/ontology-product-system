@@ -9,7 +9,9 @@ def validate_product(product, mapping):
     issues = []
 
     def issue(field, code, message, severity="error"):
-        issues.append(ValidationIssue(field=field, code=code, message=message, severity=severity))
+        issues.append(
+            ValidationIssue(field=field, code=code, message=message, severity=severity)
+        )
 
     if product.product_class != mapping.product_class:
         issue("product_class", "CLASS", "Product class differs from ontology mapping")
@@ -21,12 +23,20 @@ def validate_product(product, mapping):
             if key in mapping.required_properties:
                 issue(field, "MISSING_REQUIRED", f"Required property {key} is missing")
             else:
-                issue(field, "MISSING_OPTIONAL", f"Optional property {key} is missing", "warning")
+                issue(
+                    field,
+                    "MISSING_OPTIONAL",
+                    f"Optional property {key} is missing",
+                    "warning",
+                )
             continue
         value = attr.value
-        valid_type = {"string": isinstance(value, str) and bool(value.strip()),
-                      "number": type(value) in (int, float), "integer": type(value) is int,
-                      "boolean": type(value) is bool}[prop.type]
+        valid_type = {
+            "string": isinstance(value, str) and bool(value.strip()),
+            "number": type(value) in (int, float),
+            "integer": type(value) is int,
+            "boolean": type(value) is bool,
+        }[prop.type]
         if not valid_type:
             issue(field, "TYPE", f"Expected {prop.type}")
             continue
@@ -38,5 +48,12 @@ def validate_product(product, mapping):
             if prop.maximum is not None and value > prop.maximum:
                 issue(field, "RANGE", f"Value exceeds {prop.maximum}")
     for key in product.attributes.keys() - props.keys():
-        issue(f"attributes.{key}", "UNKNOWN_PROPERTY", "Property is outside this ontology class", "warning")
-    return ValidationResult(valid=not any(i.severity == "error" for i in issues), issues=issues).model_dump(mode="json")
+        issue(
+            f"attributes.{key}",
+            "UNKNOWN_PROPERTY",
+            "Property is outside this ontology class",
+            "warning",
+        )
+    return ValidationResult(
+        valid=not any(i.severity == "error" for i in issues), issues=issues
+    ).model_dump(mode="json")

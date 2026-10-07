@@ -18,7 +18,11 @@ class PropertyDefinition(DomainModel):
             raise ValueError("canonical_unit must be an allowed unit")
         if self.units and not self.canonical_unit:
             raise ValueError("units require canonical_unit")
-        if self.minimum is not None and self.maximum is not None and self.minimum > self.maximum:
+        if (
+            self.minimum is not None
+            and self.maximum is not None
+            and self.minimum > self.maximum
+        ):
             raise ValueError("minimum exceeds maximum")
         return self
 

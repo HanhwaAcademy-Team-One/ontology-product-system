@@ -2,7 +2,13 @@ import streamlit as st
 
 from ontoproduct.schemas.product import ProductAttribute
 from ontoproduct.services.application_paths import ApplicationPaths
-from ontoproduct.views.presentation import CLASS_LABELS, LABELS, STATUS_LABELS, attribute_rows, parse_value
+from ontoproduct.views.presentation import (
+    CLASS_LABELS,
+    LABELS,
+    STATUS_LABELS,
+    attribute_rows,
+    parse_value,
+)
 from ontoproduct.views.resources import get_runtime
 from ontoproduct.views.streaming import consume
 
@@ -20,15 +26,33 @@ def _start(runtime, uploads, *, demo=False):
     try:
         session_id = st.session_state.session_id
         if demo:
-            references = [runtime.documents.save(session_id, "demo_motor_spec.txt", b"MOCK DM-500 BLDC Motor specification")]
+            references = [
+                runtime.documents.save(
+                    session_id,
+                    "demo_motor_spec.txt",
+                    b"MOCK DM-500 BLDC Motor specification",
+                )
+            ]
         else:
-            references = [runtime.documents.save(session_id, upload.name, upload.getvalue()) for upload in uploads]
+            references = [
+                runtime.documents.save(session_id, upload.name, upload.getvalue())
+                for upload in uploads
+            ]
         thread_id = runtime.create_case(session_id)
         st.session_state.thread_id = thread_id
         st.query_params["case"] = thread_id
-        consume(runtime.start(thread_id, references,
-                              max_extraction_retries=int(st.session_state.get("max_extraction_retries", 1)),
-                              max_ontology_retries=int(st.session_state.get("max_ontology_retries", 1))))
+        consume(
+            runtime.start(
+                thread_id,
+                references,
+                max_extraction_retries=int(
+                    st.session_state.get("max_extraction_retries", 1)
+                ),
+                max_ontology_retries=int(
+                    st.session_state.get("max_ontology_retries", 1)
+                ),
+            )
+        )
     except (ValueError, OSError) as exc:
         st.error(str(exc))
         return
@@ -38,18 +62,39 @@ def _start(runtime, uploads, *, demo=False):
 def _upload_form(runtime):
     st.subheader("등록할 제품의 문서를 추가하세요")
     st.write("한 작업에 여러 문서를 올릴 수 있습니다. 등록 대상 제품은 하나입니다.")
-    uploads = st.file_uploader("제품 사양서 · 데이터시트 · BOM · 시험 결과",
-                               type=["pdf", "xlsx", "txt"], accept_multiple_files=True,
-                               key=f"source_uploads_{st.session_state.upload_generation}",
-                               help="파일당 최대 20 MB. 업로드한 원본은 작업 폴더에 보관됩니다.")
+    uploads = st.file_uploader(
+        "제품 사양서 · 데이터시트 · BOM · 시험 결과",
+        type=["pdf", "xlsx", "txt"],
+        accept_multiple_files=True,
+        key=f"source_uploads_{st.session_state.upload_generation}",
+        help="파일당 최대 20 MB. 업로드한 원본은 작업 폴더에 보관됩니다.",
+    )
     with st.expander("자동 재시도 설정"):
         left, right = st.columns(2)
-        left.number_input("정보 추출 추가 시도", min_value=0, max_value=3, value=1, step=1,
-                          key="max_extraction_retries")
-        right.number_input("분류 매핑 추가 시도", min_value=0, max_value=3, value=1, step=1,
-                           key="max_ontology_retries")
+        left.number_input(
+            "정보 추출 추가 시도",
+            min_value=0,
+            max_value=3,
+            value=1,
+            step=1,
+            key="max_extraction_retries",
+        )
+        right.number_input(
+            "분류 매핑 추가 시도",
+            min_value=0,
+            max_value=3,
+            value=1,
+            step=1,
+            key="max_ontology_retries",
+        )
     left, right = st.columns(2)
-    if left.button("업로드 문서로 시작", disabled=not uploads, type="primary", key="start_upload", width="stretch"):
+    if left.button(
+        "업로드 문서로 시작",
+        disabled=not uploads,
+        type="primary",
+        key="start_upload",
+        width="stretch",
+    ):
         _start(runtime, uploads)
     if right.button("Mock 예제로 시작", key="start_demo", width="stretch"):
         _start(runtime, [], demo=True)
@@ -58,15 +103,26 @@ def _upload_form(runtime):
 def _edit_form(runtime, thread_id, state):
     product = state["normalized_product"]
     revision = len(state.get("agent_logs", []))
-    with st.expander("제품 정보 수정", expanded=not state["review_result"]["can_register"]):
-        selected_class = st.selectbox("제품 분류", options=list(runtime.ontology.definition.classes),
-                                      index=list(runtime.ontology.definition.classes).index(product["product_class"]),
-                                      format_func=lambda name: CLASS_LABELS.get(name, name),
-                                      key=f"edit_class_{thread_id}_{revision}")
+    with st.expander(
+        "제품 정보 수정", expanded=not state["review_result"]["can_register"]
+    ):
+        selected_class = st.selectbox(
+            "제품 분류",
+            options=list(runtime.ontology.definition.classes),
+            index=list(runtime.ontology.definition.classes).index(
+                product["product_class"]
+            ),
+            format_func=lambda name: CLASS_LABELS.get(name, name),
+            key=f"edit_class_{thread_id}_{revision}",
+        )
         properties = runtime.ontology.resolve_properties(selected_class)
         required = runtime.ontology.resolve_required_properties(selected_class)
         with st.form(f"edit_product_{thread_id}"):
-            name = st.text_input("제품명", value=product.get("product_name") or "", key=f"edit_name_{thread_id}_{revision}")
+            name = st.text_input(
+                "제품명",
+                value=product.get("product_name") or "",
+                key=f"edit_name_{thread_id}_{revision}",
+            )
             inputs = {}
             for key, prop in properties.items():
                 attr = product["attributes"].get(key, {})
@@ -76,18 +132,35 @@ def _edit_form(runtime, thread_id, state):
                 if prop.type == "boolean":
                     choices = ["", "예", "아니오"]
                     initial = "" if value is None else ("예" if value else "아니오")
-                    text = left.selectbox(label, choices, index=choices.index(initial),
-                                          key=f"edit_value_{thread_id}_{revision}_{selected_class}_{key}")
+                    text = left.selectbox(
+                        label,
+                        choices,
+                        index=choices.index(initial),
+                        key=f"edit_value_{thread_id}_{revision}_{selected_class}_{key}",
+                    )
                 else:
-                    text = left.text_input(label, value="" if value is None else str(value),
-                                           key=f"edit_value_{thread_id}_{revision}_{selected_class}_{key}")
+                    text = left.text_input(
+                        label,
+                        value="" if value is None else str(value),
+                        key=f"edit_value_{thread_id}_{revision}_{selected_class}_{key}",
+                    )
                 unit = None
                 if prop.units:
-                    current_unit = attr.get("unit") if attr.get("unit") in prop.units else prop.canonical_unit
-                    unit = right.selectbox("단위", prop.units, index=prop.units.index(current_unit),
-                                           key=f"edit_unit_{thread_id}_{revision}_{selected_class}_{key}")
+                    current_unit = (
+                        attr.get("unit")
+                        if attr.get("unit") in prop.units
+                        else prop.canonical_unit
+                    )
+                    unit = right.selectbox(
+                        "단위",
+                        prop.units,
+                        index=prop.units.index(current_unit),
+                        key=f"edit_unit_{thread_id}_{revision}_{selected_class}_{key}",
+                    )
                 inputs[key] = (text, unit, prop.type)
-            submitted = st.form_submit_button("수정 후 재검증", type="primary", key="submit_edit")
+            submitted = st.form_submit_button(
+                "수정 후 재검증", type="primary", key="submit_edit"
+            )
         if submitted:
             try:
                 edits = {}
@@ -98,13 +171,29 @@ def _edit_form(runtime, thread_id, state):
                 for key, (text, unit, property_type) in inputs.items():
                     value = parse_value(text, property_type)
                     old = product["attributes"].get(key, {})
-                    if value != old.get("value") or (value is not None and unit != old.get("unit")):
-                        edits[f"attributes.{key}"] = ProductAttribute(value=value, unit=unit).model_dump(mode="json")
-                changed_class = selected_class if selected_class != product["product_class"] else None
+                    if value != old.get("value") or (
+                        value is not None and unit != old.get("unit")
+                    ):
+                        edits[f"attributes.{key}"] = ProductAttribute(
+                            value=value, unit=unit
+                        ).model_dump(mode="json")
+                changed_class = (
+                    selected_class
+                    if selected_class != product["product_class"]
+                    else None
+                )
                 if not edits and not changed_class:
                     st.info("변경된 값이 없습니다.")
                 else:
-                    _resume(runtime, thread_id, {"action": "EDIT", "edits": edits or None, "changed_class": changed_class})
+                    _resume(
+                        runtime,
+                        thread_id,
+                        {
+                            "action": "EDIT",
+                            "edits": edits or None,
+                            "changed_class": changed_class,
+                        },
+                    )
             except (ValueError, KeyError) as exc:
                 st.error(f"입력값을 확인하세요: {exc}")
 
@@ -120,28 +209,55 @@ def _review(runtime, thread_id, state, payload):
     issues = state.get("validation_result", {}).get("issues", [])
     if issues:
         with st.expander("검증 결과", expanded=not review["can_register"]):
-            st.dataframe([{"항목": LABELS.get(i["field"].removeprefix("attributes."), i["field"]),
-                           "수준": i["severity"], "내용": i["message"]} for i in issues],
-                         hide_index=True, width="stretch")
+            st.dataframe(
+                [
+                    {
+                        "항목": LABELS.get(
+                            i["field"].removeprefix("attributes."), i["field"]
+                        ),
+                        "수준": i["severity"],
+                        "내용": i["message"],
+                    }
+                    for i in issues
+                ],
+                hide_index=True,
+                width="stretch",
+            )
     candidates = state.get("duplicate_candidates", [])
     if candidates:
         st.info("유사한 기존 제품이 있습니다. 후보를 확인한 뒤 등록 여부를 결정하세요.")
-        st.dataframe([{"제품명": c["product_name"], "규칙 기반 유사도": f"{c['score']:.0%}"}
-                      for c in candidates], hide_index=True, width="stretch")
+        st.dataframe(
+            [
+                {"제품명": c["product_name"], "규칙 기반 유사도": f"{c['score']:.0%}"}
+                for c in candidates
+            ],
+            hide_index=True,
+            width="stretch",
+        )
     orphaned = state.get("orphaned_overrides", {})
     if orphaned:
-        st.warning("현재 제품 분류에서 사용할 수 없는 수동 수정값을 보관했습니다. 분류를 되돌리면 복원됩니다.")
+        st.warning(
+            "현재 제품 분류에서 사용할 수 없는 수동 수정값을 보관했습니다. 분류를 되돌리면 복원됩니다."
+        )
         st.json(orphaned, expanded=False)
     _edit_form(runtime, thread_id, state)
     left, right = st.columns(2)
-    if left.button("등록 승인", type="primary", disabled=not review["can_register"], key="approve_case", width="stretch"):
+    if left.button(
+        "등록 승인",
+        type="primary",
+        disabled=not review["can_register"],
+        key="approve_case",
+        width="stretch",
+    ):
         _resume(runtime, thread_id, {"action": "APPROVE"})
     if right.button("등록 거절", key="reject_case", width="stretch"):
         _resume(runtime, thread_id, {"action": "REJECT"})
 
 
 def _error_review(runtime, thread_id, payload):
-    st.error("Agent 실행 중 오류가 발생했습니다. 원인을 확인하고 재시도하거나 작업을 중단하세요.")
+    st.error(
+        "Agent 실행 중 오류가 발생했습니다. 원인을 확인하고 재시도하거나 작업을 중단하세요."
+    )
     for error in payload["errors"]:
         st.write(f"**{error['stage']}** · {error['message']}")
     if payload.get("feedback"):
@@ -156,7 +272,9 @@ def _error_review(runtime, thread_id, payload):
 def render():
     runtime = get_runtime(str(ApplicationPaths.from_environment().root))
     st.title("제품 등록")
-    st.caption("Mock 추출 모드 · 업로드 파일은 보관되며, 현재 추출 결과는 DM-500 예제 데이터를 사용합니다.")
+    st.caption(
+        "Mock 추출 모드 · 업로드 파일은 보관되며, 현재 추출 결과는 DM-500 예제 데이터를 사용합니다."
+    )
     thread_id = st.session_state.get("thread_id")
     if not thread_id:
         _upload_form(runtime)
@@ -167,15 +285,25 @@ def render():
         st.info("아직 실행되지 않은 작업입니다. 새 등록 작업을 시작하세요.")
         return
     pending = [i.value for task in snapshot.tasks for i in task.interrupts]
-    status = "ERROR" if pending and pending[0]["kind"] == "error" else state["case_status"]
+    status = (
+        "ERROR" if pending and pending[0]["kind"] == "error" else state["case_status"]
+    )
     left, middle, right = st.columns(3)
     left.metric("작업 상태", STATUS_LABELS.get(status, status))
-    middle.metric("추출 재시도", f"{state['extraction_retry_count']} / {state['max_extraction_retries']}")
-    right.metric("분류 재시도", f"{state['ontology_retry_count']} / {state['max_ontology_retries']}")
+    middle.metric(
+        "추출 재시도",
+        f"{state['extraction_retry_count']} / {state['max_extraction_retries']}",
+    )
+    right.metric(
+        "분류 재시도",
+        f"{state['ontology_retry_count']} / {state['max_ontology_retries']}",
+    )
     st.caption(f"작업 ID: {thread_id}")
     if "normalized_product" in state:
         product = state["normalized_product"]
-        st.subheader(f"{product.get('product_name') or '이름 없는 제품'} · {CLASS_LABELS.get(product['product_class'], product['product_class'])}")
+        st.subheader(
+            f"{product.get('product_name') or '이름 없는 제품'} · {CLASS_LABELS.get(product['product_class'], product['product_class'])}"
+        )
         st.dataframe(attribute_rows(state), hide_index=True, width="stretch")
     if pending:
         if pending[0]["kind"] == "error":
@@ -186,13 +314,20 @@ def render():
         record = runtime.products.get_by_case(thread_id)
         st.success("제품이 SQLite에 등록되었습니다.")
         if record:
-            st.download_button("제품 JSON 다운로드", runtime.registration.json_bytes(record),
-                               file_name=f"{record['product_id']}.json", mime="application/json",
-                               on_click="ignore", key="download_registered")
+            st.download_button(
+                "제품 JSON 다운로드",
+                runtime.registration.json_bytes(record),
+                file_name=f"{record['product_id']}.json",
+                mime="application/json",
+                on_click="ignore",
+                key="download_registered",
+            )
         else:
             st.error("등록된 제품 레코드를 찾을 수 없습니다.")
     elif status in {"REJECTED", "STOPPED"}:
-        st.info("작업이 종료되었습니다. 새 등록 작업으로 다른 제품을 등록할 수 있습니다.")
+        st.info(
+            "작업이 종료되었습니다. 새 등록 작업으로 다른 제품을 등록할 수 있습니다."
+        )
     elif snapshot.next or snapshot.tasks:
         st.warning("이전 실행이 완료되지 않았습니다. 저장된 실행을 이어갈 수 있습니다.")
         if st.button("실행 이어가기", key="continue_workflow"):
@@ -203,11 +338,28 @@ def render():
             else:
                 st.rerun()
     with st.expander("원본 문서와 실행 이력"):
-        st.dataframe([{"파일": d["name"], "크기 (bytes)": d["size"], "형식": d["mime_type"]}
-                      for d in state.get("source_documents", [])], hide_index=True, width="stretch")
-        st.dataframe([{"Agent": log["agent"], "상태": log["status"], "시도": log["attempt"],
-                       "실행 시간 (초)": log["execution_time"]} for log in state.get("agent_logs", [])
-                      if log["status"] != "running"], hide_index=True, width="stretch")
+        st.dataframe(
+            [
+                {"파일": d["name"], "크기 (bytes)": d["size"], "형식": d["mime_type"]}
+                for d in state.get("source_documents", [])
+            ],
+            hide_index=True,
+            width="stretch",
+        )
+        st.dataframe(
+            [
+                {
+                    "Agent": log["agent"],
+                    "상태": log["status"],
+                    "시도": log["attempt"],
+                    "실행 시간 (초)": log["execution_time"],
+                }
+                for log in state.get("agent_logs", [])
+                if log["status"] != "running"
+            ],
+            hide_index=True,
+            width="stretch",
+        )
         if state.get("error_events"):
             st.dataframe(state["error_events"], hide_index=True, width="stretch")
 

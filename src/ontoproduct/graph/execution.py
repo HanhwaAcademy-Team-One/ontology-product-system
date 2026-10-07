@@ -22,11 +22,20 @@ def execute_agent(registry, name, state, *, writer=None):
             writer = get_stream_writer()
         except RuntimeError:
             writer = lambda event: None
-    attempt = 1 + sum(log["agent"] == name and log["status"] != "running" for log in state.get("agent_logs", []))
+    attempt = 1 + sum(
+        log["agent"] == name and log["status"] != "running"
+        for log in state.get("agent_logs", [])
+    )
     execution_id = str(uuid4())
-    running = AgentExecution(execution_id=execution_id, agent=name, status="running",
-                             message="Agent started", attempt=attempt, execution_time=None,
-                             timestamp=timestamp()).model_dump(mode="json")
+    running = AgentExecution(
+        execution_id=execution_id,
+        agent=name,
+        status="running",
+        message="Agent started",
+        attempt=attempt,
+        execution_time=None,
+        timestamp=timestamp(),
+    ).model_dump(mode="json")
     writer(CustomStreamEvent(**running, event="agent_started").model_dump(mode="json"))
     started = perf_counter()
     errors, result = [], {}
@@ -35,7 +44,11 @@ def execute_agent(registry, name, state, *, writer=None):
         missing = agent.required_reads - state.keys()
         if missing:
             raise AgentContractError(f"Missing required reads: {sorted(missing)}")
-        inputs = {key: deepcopy(state[key]) for key in agent.required_reads | agent.optional_reads if key in state}
+        inputs = {
+            key: deepcopy(state[key])
+            for key in agent.required_reads | agent.optional_reads
+            if key in state
+        }
         json.dumps(inputs, allow_nan=False)
         before = deepcopy(inputs)
         output = agent.run(inputs)
@@ -51,18 +64,42 @@ def execute_agent(registry, name, state, *, writer=None):
         json.dumps(result, allow_nan=False)
         for error in unresolved_errors(state.get("error_events", [])):
             if error["stage"] == name:
-                errors.append(WorkflowErrorEvent(**{
-                    **error, "status": "RESOLVED", "message": "Agent retry succeeded.",
-                    "timestamp": timestamp()}).model_dump(mode="json"))
+                errors.append(
+                    WorkflowErrorEvent(
+                        **{
+                            **error,
+                            "status": "RESOLVED",
+                            "message": "Agent retry succeeded.",
+                            "timestamp": timestamp(),
+                        }
+                    ).model_dump(mode="json")
+                )
         status, message = "success", "Agent completed"
     except Exception as exc:
         result = {}
         status, message = "error", str(exc)
-        errors.append(WorkflowErrorEvent(error_id=f"ERR-{uuid4()}", stage=name, attempt=attempt,
-                      status="OPEN", message=message, recoverable=True, exception_type=type(exc).__name__,
-                      timestamp=timestamp()).model_dump(mode="json"))
-    finished = AgentExecution(execution_id=execution_id, agent=name, status=status, message=message,
-                              attempt=attempt, execution_time=perf_counter()-started,
-                              timestamp=timestamp()).model_dump(mode="json")
-    writer(CustomStreamEvent(**finished, event="agent_finished").model_dump(mode="json"))
+        errors.append(
+            WorkflowErrorEvent(
+                error_id=f"ERR-{uuid4()}",
+                stage=name,
+                attempt=attempt,
+                status="OPEN",
+                message=message,
+                recoverable=True,
+                exception_type=type(exc).__name__,
+                timestamp=timestamp(),
+            ).model_dump(mode="json")
+        )
+    finished = AgentExecution(
+        execution_id=execution_id,
+        agent=name,
+        status=status,
+        message=message,
+        attempt=attempt,
+        execution_time=perf_counter() - started,
+        timestamp=timestamp(),
+    ).model_dump(mode="json")
+    writer(
+        CustomStreamEvent(**finished, event="agent_finished").model_dump(mode="json")
+    )
     return {**result, "agent_logs": [running, finished], "error_events": errors}

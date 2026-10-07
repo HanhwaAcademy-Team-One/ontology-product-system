@@ -13,8 +13,14 @@ from ontoproduct.services.rdf_ontology_service import RdfOntologyService
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", type=Path, default=Path("src/ontoproduct/ontology/rdf"))
-    parser.add_argument("--examples", type=Path, default=Path("tests/fixtures/extraction_ontology/semantic_products.json"))
+    parser.add_argument(
+        "--output", type=Path, default=Path("src/ontoproduct/ontology/rdf")
+    )
+    parser.add_argument(
+        "--examples",
+        type=Path,
+        default=Path("tests/fixtures/extraction_ontology/semantic_products.json"),
+    )
     args = parser.parse_args()
     service = RdfOntologyService()
     service.write_artifacts(args.output)
@@ -24,7 +30,11 @@ def main():
         result = service.validate_graph(graph)
         if not result["valid"]:
             raise ValueError(f"Example {code} fails SHACL: {result['report']}")
-        graph.serialize(destination=str(args.output / f"example_{code}.ttl"), format="turtle", encoding="utf-8")
+        graph.serialize(
+            destination=str(args.output / f"example_{code}.ttl"),
+            format="turtle",
+            encoding="utf-8",
+        )
         print(f"{code}: {len(graph)} RDF triples, SHACL conforms")
     print(f"Ontology and shapes written to {args.output}")
 

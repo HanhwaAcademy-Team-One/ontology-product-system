@@ -15,9 +15,15 @@ class LlmService(Protocol):
         ...
 
 
-def validated_response(service: LlmService, *, task: str, payload: dict, schema: type[T]) -> T:
-    response = service.generate_structured(task=task, payload=payload, response_schema=schema)
+def validated_response(
+    service: LlmService, *, task: str, payload: dict, schema: type[T]
+) -> T:
+    response = service.generate_structured(
+        task=task, payload=payload, response_schema=schema
+    )
     if not isinstance(response, schema):
-        raise ValueError(f"{task}: LLM adapter must return {schema.__name__}, not {type(response).__name__}")
+        raise ValueError(
+            f"{task}: LLM adapter must return {schema.__name__}, not {type(response).__name__}"
+        )
     # Revalidate even models constructed without validation by an adapter.
     return schema.model_validate(response.model_dump(mode="python"))

@@ -20,14 +20,23 @@ from conftest import count_runs, fail_once
 def create_case(runtime):
     session = str(uuid4())
     thread = runtime.create_case(session)
-    references = [runtime.documents.save(session, "motor_spec.pdf", b"%PDF mock"),
-                  runtime.documents.save(session, "bom.xlsx", b"mock bom")]
+    references = [
+        runtime.documents.save(session, "motor_spec.pdf", b"%PDF mock"),
+        runtime.documents.save(session, "bom.xlsx", b"mock bom"),
+    ]
     return thread, references
 
 
 def edit_speed(runtime, thread):
-    list(runtime.resume(thread, {"action": "EDIT", "edits": {
-        "attributes.rated_speed": {"value": 3000, "unit": "rpm"}}}))
+    list(
+        runtime.resume(
+            thread,
+            {
+                "action": "EDIT",
+                "edits": {"attributes.rated_speed": {"value": 3000, "unit": "rpm"}},
+            },
+        )
+    )
 
 
 @pytest.fixture
@@ -44,7 +53,10 @@ def test_sqlite_checkpoint_reopens_before_edit_and_before_approve(tmp_path):
     events = list(runtime.start(thread, references))
     assert runtime.snapshot(thread).values["case_status"] == "NEEDS_FIX"
     assert runtime.products.count() == 0
-    assert any(mode == "custom" and event.get("event") == "agent_started" for mode, event in events)
+    assert any(
+        mode == "custom" and event.get("event") == "agent_started"
+        for mode, event in events
+    )
     runtime.close()
     runtime = WorkflowRuntime(paths)
     edit_speed(runtime, thread)
@@ -58,8 +70,14 @@ def test_sqlite_checkpoint_reopens_before_edit_and_before_approve(tmp_path):
     assert runtime.cases.get(thread)["status"] == "REGISTERED"
     record = runtime.products.get_by_case(thread)
     assert record["product"] == state["final_product"]
-    assert json.loads((paths.exports / f"{record['product_id']}.json").read_text()) == state["final_product"]
-    assert list(runtime.resume(thread, {"action": "APPROVE"}))[0][1]["status"] == "ALREADY_REGISTERED"
+    assert (
+        json.loads((paths.exports / f"{record['product_id']}.json").read_text())
+        == state["final_product"]
+    )
+    assert (
+        list(runtime.resume(thread, {"action": "APPROVE"}))[0][1]["status"]
+        == "ALREADY_REGISTERED"
+    )
     assert runtime.products.count() == 1
     assert all(Path(ref["path"]).is_file() for ref in state["source_documents"])
     json.dumps(state)
@@ -78,12 +96,15 @@ def test_export_error_after_db_commit_retries_without_duplicate(runtime):
         if len(attempts) == 1:
             raise OSError("Injected export failure")
         return original(record)
+
     runtime.registration.export = export
     list(runtime.resume(thread, {"action": "APPROVE"}))
     snapshot = runtime.snapshot(thread)
     assert snapshot.tasks[0].interrupts[0].value["kind"] == "error"
     assert runtime.products.count() == 1
-    assert unresolved_errors(snapshot.values["error_events"])[0]["stage"] == "registration"
+    assert (
+        unresolved_errors(snapshot.values["error_events"])[0]["stage"] == "registration"
+    )
     list(runtime.resume(thread, {"action": "RETRY"}))
     state = runtime.snapshot(thread).values
     assert state["case_status"] == "REGISTERED"
@@ -97,7 +118,10 @@ def test_parallel_error_retry_with_sqlite_join(tmp_path):
         registry = mock_registry(ontology)
         fail_once(registry.get("validation"))
         return registry
-    runtime = WorkflowRuntime(ApplicationPaths(tmp_path), registry_factory=registry_factory)
+
+    runtime = WorkflowRuntime(
+        ApplicationPaths(tmp_path), registry_factory=registry_factory
+    )
     thread, references = create_case(runtime)
     list(runtime.start(thread, references))
     assert runtime.cases.get(thread)["status"] == "ERROR"
@@ -118,6 +142,7 @@ def test_simultaneous_cases_do_not_mix_state_or_records(runtime):
         edit_speed(runtime, thread)
         list(runtime.resume(thread, {"action": "APPROVE"}))
         return runtime.snapshot(thread).values
+
     with ThreadPoolExecutor(max_workers=2) as executor:
         states = list(executor.map(run, cases))
     assert {s["registration_case_id"] for s in states} == {case[0] for case in cases}
@@ -140,7 +165,10 @@ def test_case_graph_is_reused_and_adapters_obey_frozen_contract(runtime):
     assert runtime.graph(thread) is runtime.graph(thread)
     validate_contract(RegistrationAgent(thread, runtime.registration))
     validate_contract(DuplicateAgent(DuplicateService(runtime.products)))
-    assert "registration_case_id" not in RegistrationAgent(thread, runtime.registration).required_reads
+    assert (
+        "registration_case_id"
+        not in RegistrationAgent(thread, runtime.registration).required_reads
+    )
 
 
 def test_seed_candidates_appear_in_sqlite_workflow(runtime):

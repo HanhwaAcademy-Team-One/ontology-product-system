@@ -27,6 +27,13 @@ dev = ["pytest==9.1.1"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 
+[tool.ruff]
+indent-width = 4
+extend-exclude = [".pytest_tmp", ".uv-cache", "runtime"]
+
+[tool.ruff.format]
+indent-style = "space"
+
 [project.scripts]
 ontology-product-system = "ontology_product_system:main"
 ontoproduct = "ontoproduct.cli:main"

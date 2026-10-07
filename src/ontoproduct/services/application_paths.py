@@ -9,7 +9,11 @@ class ApplicationPaths:
 
     @classmethod
     def from_environment(cls):
-        return cls(Path(os.environ.get("ONTOPRODUCT_DATA_DIR", str(Path.cwd() / "runtime"))).resolve())
+        return cls(
+            Path(
+                os.environ.get("ONTOPRODUCT_DATA_DIR", str(Path.cwd() / "runtime"))
+            ).resolve()
+        )
 
     @property
     def product_db(self):

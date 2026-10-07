@@ -15,7 +15,11 @@ DATA_DIR = Path(__file__).parents[1] / "ontology"
 
 
 def read_mapping(filename: str, path: str | Path | None = None):
-    return yaml.safe_load((Path(path) if path is not None else DATA_DIR / filename).read_text(encoding="utf-8"))
+    return yaml.safe_load(
+        (Path(path) if path is not None else DATA_DIR / filename).read_text(
+            encoding="utf-8"
+        )
+    )
 
 
 def alias_key(value: str) -> str:
@@ -29,7 +33,9 @@ class AliasDefinition(DomainModel):
 class PropertyAliases:
     def __init__(self, path=None, *, definition=None):
         model = AliasDefinition.model_validate(
-            read_mapping("property_aliases.yaml", path) if definition is None else definition
+            read_mapping("property_aliases.yaml", path)
+            if definition is None
+            else definition
         )
         self._lookup = {}
         for canonical, aliases in model.aliases.items():
@@ -61,7 +67,12 @@ class UnitDefinition(DomainModel):
 class QuantityDefinition(DomainModel):
     label: str | None = Field(default=None, min_length=1)
     description: str | None = Field(default=None, min_length=1)
-    dimension: dict[Literal["mass", "length", "time", "current", "temperature", "amount", "luminosity"], int]
+    dimension: dict[
+        Literal[
+            "mass", "length", "time", "current", "temperature", "amount", "luminosity"
+        ],
+        int,
+    ]
     sources: list[str] = Field(default_factory=list)
 
 
@@ -78,9 +89,15 @@ class UnitCatalog(DomainModel):
                 raise ValueError(f"Missing or incompatible canonical unit for {name}")
             if base.canonical != unit.canonical or base.multiplier != 1:
                 raise ValueError(f"Canonical multiplier must be one: {name}")
-        if set(self.property_quantities.values()) - {u.quantity for u in self.units.values()}:
+        if set(self.property_quantities.values()) - {
+            u.quantity for u in self.units.values()
+        }:
             raise ValueError("Unknown property quantity")
-        if self.quantity_definitions and {u.quantity for u in self.units.values()} - self.quantity_definitions.keys():
+        if (
+            self.quantity_definitions
+            and {u.quantity for u in self.units.values()}
+            - self.quantity_definitions.keys()
+        ):
             raise ValueError("Unit quantity lacks a dimension definition")
         return self
 
@@ -88,7 +105,9 @@ class UnitCatalog(DomainModel):
 class UnitService:
     def __init__(self, path=None, *, definition=None):
         self.catalog = UnitCatalog.model_validate(
-            read_mapping("unit_mappings.yaml", path) if definition is None else definition
+            read_mapping("unit_mappings.yaml", path)
+            if definition is None
+            else definition
         )
 
     @staticmethod
@@ -99,7 +118,9 @@ class UnitService:
             raise ValueError("Unit conversion requires a finite value")
 
     def normalize(self, prop, value, unit, *, property_name=None):
-        prop = PropertyDefinition.model_validate(prop) if isinstance(prop, dict) else prop
+        prop = (
+            PropertyDefinition.model_validate(prop) if isinstance(prop, dict) else prop
+        )
         if prop.canonical_unit is None:
             if unit is not None:
                 raise ValueError(f"Unit {unit} is not allowed for a unitless property")
@@ -112,9 +133,15 @@ class UnitService:
         expected = self.catalog.property_quantities.get(property_name)
         if source and target:
             dimensions = self.catalog.quantity_definitions
-            if dimensions and dimensions[source.quantity].dimension != dimensions[target.quantity].dimension:
+            if (
+                dimensions
+                and dimensions[source.quantity].dimension
+                != dimensions[target.quantity].dimension
+            ):
                 raise ValueError("Incompatible SI dimensions")
-            if source.quantity != target.quantity or (expected and source.quantity != expected):
+            if source.quantity != target.quantity or (
+                expected and source.quantity != expected
+            ):
                 raise ValueError("Incompatible quantity or dimension")
         elif unit != prop.canonical_unit:
             raise ValueError(f"No conversion from {unit} to {prop.canonical_unit}")
@@ -128,7 +155,9 @@ class UnitService:
             raise ValueError("Unit conversion overflow")
         return converted, prop.canonical_unit
 
-    def equal(self, name: str, left: ProductAttribute, right: ProductAttribute, prop=None) -> bool:
+    def equal(
+        self, name: str, left: ProductAttribute, right: ProductAttribute, prop=None
+    ) -> bool:
         a, b = left.value, right.value
         if a is None or b is None:
             return a is None and b is None and left.unit == right.unit
@@ -139,10 +168,16 @@ class UnitService:
         if left.unit != right.unit:
             if prop is None:
                 quantity = self.catalog.property_quantities.get(name)
-                units = [k for k, u in self.catalog.units.items() if u.quantity == quantity]
+                units = [
+                    k for k, u in self.catalog.units.items() if u.quantity == quantity
+                ]
                 if not units:
                     return False
-                prop = PropertyDefinition(type="number", canonical_unit=self.catalog.units[units[0]].canonical, units=units)
+                prop = PropertyDefinition(
+                    type="number",
+                    canonical_unit=self.catalog.units[units[0]].canonical,
+                    units=units,
+                )
             try:
                 a, _ = self.normalize(prop, a, left.unit, property_name=name)
                 b, _ = self.normalize(prop, b, right.unit, property_name=name)

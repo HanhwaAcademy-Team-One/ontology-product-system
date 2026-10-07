@@ -46,7 +46,12 @@ def config():
 @pytest.fixture
 def complete_registry(registry):
     attrs = deepcopy(registry.get("extraction").attributes)
-    attrs["rated_speed"] = {"value": 3000, "unit": "rpm", "confidence": 0.95, "provenance": "AI"}
+    attrs["rated_speed"] = {
+        "value": 3000,
+        "unit": "rpm",
+        "confidence": 0.95,
+        "provenance": "AI",
+    }
     registry.register(ExtractionMock(attributes=attrs), replace=True)
     return registry
 
@@ -59,7 +64,10 @@ def paused_state(complete_registry, ontology, config):
 
 
 def count_runs(state, agent):
-    return sum(log["agent"] == agent and log["status"] != "running" for log in state["agent_logs"])
+    return sum(
+        log["agent"] == agent and log["status"] != "running"
+        for log in state["agent_logs"]
+    )
 
 
 def fail_once(agent):
@@ -71,5 +79,6 @@ def fail_once(agent):
         if len(calls) == 1:
             raise RuntimeError("Injected one-time failure")
         return original(state)
+
     agent.run = run
     return calls

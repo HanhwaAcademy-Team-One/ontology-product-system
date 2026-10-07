@@ -22,9 +22,20 @@ def consume(iterator):
             if agent not in placeholders:
                 continue
             status = event["status"]
-            label = {"running": "🔵 RUNNING", "success": "🟢 SUCCESS",
-                     "warning": "🟡 WARNING", "error": "🔴 ERROR"}[status]
-            placeholders[agent].markdown(f"**{AGENT_LABELS[agent]}** · {label}  \n시도 {event['attempt']}")
+            label = {
+                "running": "🔵 RUNNING",
+                "success": "🟢 SUCCESS",
+                "warning": "🟡 WARNING",
+                "error": "🔴 ERROR",
+            }[status]
+            placeholders[agent].markdown(
+                f"**{AGENT_LABELS[agent]}** · {label}  \n시도 {event['attempt']}"
+            )
             has_error |= status == "error"
-        progress.update(label="오류 확인이 필요합니다" if has_error else "실행 완료 · 결과를 확인하세요",
-                        state="error" if has_error else "complete", expanded=has_error)
+        progress.update(
+            label="오류 확인이 필요합니다"
+            if has_error
+            else "실행 완료 · 결과를 확인하세요",
+            state="error" if has_error else "complete",
+            expanded=has_error,
+        )

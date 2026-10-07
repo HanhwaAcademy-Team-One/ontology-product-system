@@ -7,7 +7,15 @@ from .common import DomainModel
 
 class ValidationIssue(DomainModel):
     field: str
-    code: Literal["MISSING_REQUIRED", "MISSING_OPTIONAL", "TYPE", "UNIT", "RANGE", "UNKNOWN_PROPERTY", "CLASS"]
+    code: Literal[
+        "MISSING_REQUIRED",
+        "MISSING_OPTIONAL",
+        "TYPE",
+        "UNIT",
+        "RANGE",
+        "UNKNOWN_PROPERTY",
+        "CLASS",
+    ]
     message: str
     severity: Literal["error", "warning"] = "error"
 

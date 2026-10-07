@@ -18,9 +18,18 @@ class RegistrationService:
             raise ValueError("Registration requires human approval")
         product = NormalizedProduct.model_validate(product).model_dump(mode="json")
         cls = product["product_class"]
-        mapping = {"product_class": cls, "confidence": 1,
-                   "required_properties": {k: p.model_dump(mode="json") for k, p in self.ontology.resolve_required_properties(cls).items()},
-                   "optional_properties": {k: p.model_dump(mode="json") for k, p in self.ontology.resolve_optional_properties(cls).items()}}
+        mapping = {
+            "product_class": cls,
+            "confidence": 1,
+            "required_properties": {
+                k: p.model_dump(mode="json")
+                for k, p in self.ontology.resolve_required_properties(cls).items()
+            },
+            "optional_properties": {
+                k: p.model_dump(mode="json")
+                for k, p in self.ontology.resolve_optional_properties(cls).items()
+            },
+        }
         if not validate_product(product, mapping)["valid"]:
             raise ValueError("Product failed deterministic validation")
         result = self.repository.save(case_id, product)
@@ -42,4 +51,6 @@ class RegistrationService:
 
     @staticmethod
     def json_bytes(record):
-        return json.dumps(record["product"], ensure_ascii=False, allow_nan=False, indent=2).encode("utf-8")
+        return json.dumps(
+            record["product"], ensure_ascii=False, allow_nan=False, indent=2
+        ).encode("utf-8")

@@ -18,7 +18,9 @@ class HumanReviewCommand(DomainModel):
 
     @model_validator(mode="after")
     def edits_only_on_edit(self):
-        if self.action != HumanAction.EDIT and (self.edits is not None or self.changed_class is not None):
+        if self.action != HumanAction.EDIT and (
+            self.edits is not None or self.changed_class is not None
+        ):
             raise ValueError("edits and changed_class are only allowed with EDIT")
         return self
 

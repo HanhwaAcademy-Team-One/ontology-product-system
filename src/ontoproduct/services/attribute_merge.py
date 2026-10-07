@@ -2,15 +2,25 @@
 
 from ontoproduct.schemas.product import ProductAttribute
 from ontoproduct.services.agent_errors import DocumentConflictError
-from ontoproduct.services.evidence_service import evidence_candidates, is_conflict, pack_evidence
+from ontoproduct.services.evidence_service import (
+    evidence_candidates,
+    is_conflict,
+    pack_evidence,
+)
 
 
 def merge_attributes(batches, aliases, units, properties=None):
     grouped = {}
     for attributes in batches:
         for key, value in attributes.items():
-            attr = ProductAttribute.model_validate(value) if isinstance(value, dict) else value.model_copy(deep=True)
-            grouped.setdefault(aliases.resolve(key), []).extend(evidence_candidates(attr))
+            attr = (
+                ProductAttribute.model_validate(value)
+                if isinstance(value, dict)
+                else value.model_copy(deep=True)
+            )
+            grouped.setdefault(aliases.resolve(key), []).extend(
+                evidence_candidates(attr)
+            )
     merged = {}
     for key, candidates in grouped.items():
         present = [a for a in candidates if a.value is not None]
@@ -58,7 +68,11 @@ def enforce_conflicts(attributes, required, optional, *, overrides=None, units=N
     for key, attr in attributes.items():
         if not is_conflict(attr):
             continue
-        if overrides is not None and valid_human_resolution(key, overrides, properties, units):
+        if overrides is not None and valid_human_resolution(
+            key, overrides, properties, units
+        ):
             continue
         if key not in required:
-            raise DocumentConflictError(f"Unresolved CONFLICT for optional or outside-class property {key}: {attr.evidence}")
+            raise DocumentConflictError(
+                f"Unresolved CONFLICT for optional or outside-class property {key}: {attr.evidence}"
+            )
