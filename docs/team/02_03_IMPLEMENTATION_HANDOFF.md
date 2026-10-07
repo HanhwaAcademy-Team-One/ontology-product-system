@@ -90,14 +90,10 @@ I-4 검증·패키징:
 - 공통 Protocol·오류: `services/llm_protocol.py`, `agent_errors.py`.
 - 동의어·공유 단위·근거·분할·병합: `mapping_service.py`, `evidence_service.py`, `document_chunks.py`, `attribute_merge.py`. 의미 모델·RDF: `product_ontology_service.py`, `rdf_ontology_service.py`. 외부 매핑 서비스는 내재화로 제거했다.
 - `ontology_service.py`의 기존 normalize_unit 호출을 공유 UnitService에 위임했다. 기존 호출 형태와 회귀 동작을 유지했다.
-- 데이터: `ontology/property_aliases.yaml`, `unit_mappings.yaml`, `external_mappings.yaml`.
-- 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
-- 1~7단계에서 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 후속 시각화 요청에서 온톨로지 탐색 UI를 확장했다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
-- commit·push·PR 생성은 수행하지 않았다. 현재 작업 브랜치의 미커밋 변경으로 남겼다.
 - 데이터: `ontology/product_model.yaml`, `ontology.yaml`, `property_aliases.yaml`, `unit_mappings.yaml`, `rdf/*.ttl`. `external_mappings.yaml`은 내재화로 제거했다.
 - 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`, `test_product_semantic_model.py`, `test_rdf_product_ontology.py`, `test_ontology_internalization.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
-- 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
-- 1~7단계 변경은 사용자 요청으로 `temp/test_merge_branch`에 커밋·push되었다. 내재화 변경은 commit·push·PR 없이 미커밋 상태로 남겼다.
+- 1~7단계에서 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 후속 시각화 요청에서 온톨로지 탐색 UI를 확장했다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
+- 1~7단계 변경은 사용자 요청으로 `temp/test_merge_branch`에 커밋·push되었다. 이후 내재화 변경(`606a269`, `d086f96`, `c27f4f3`)과 시각화 변경(`5998633`, `76a0220`)도 커밋되어 현재 브랜치에 병합되었다.
 
 ## 다음 작업
 
