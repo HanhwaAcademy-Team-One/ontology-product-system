@@ -43,7 +43,7 @@ def _graph_details(viewer, graph, diagram, *, key, filename):
 def render(runtime, selected_class):
     model = runtime.ontology.semantic_model
     if model is None:
-        st.info("이 온톨로지에는 외부 개념과 연결된 의미 모델이 없습니다.")
+        st.info("이 온톨로지에는 시각화할 의미 모델이 없습니다.")
         return
     viewer = OntologyVisualization(model)
     st.subheader("개념 관계와 제품 데이터")
@@ -62,7 +62,7 @@ def render(runtime, selected_class):
             product_class=selected_class if scope == "선택 제품군" else None,
         )
         st.caption(
-            "보라색: 자체 개념 · 회색: 외부 온톨로지 · 초록색: 단위. 화살표의 이름은 실제 RDF 관계입니다."
+            "보라색: 자체 개념·내부 출처 · 분홍색: 물리량 종류 · 초록색: 단위 · 회색: XSD 데이터 타입. 화살표의 이름은 실제 RDF 관계입니다."
         )
         _graph_details(
             viewer, graph, diagram, key="ontology_graph", filename="product_ontology"
@@ -126,7 +126,7 @@ def render(runtime, selected_class):
             graph, kind="product", include_evidence=include_evidence
         )
         st.caption(
-            "파란색: 제품 모델 · 노란색: 제조사 · 보라색: 물리량 값 · 초록색: 단위 · 주황색: 숫자값"
+            "파란색: 제품 모델 · 노란색: 제조사 · 청록색: 물리량 값 · 주황색: 값 · 초록색: 단위 · 분홍색: 물리량 종류 · 보라색: 자체 개념·내부 출처"
         )
         _graph_details(viewer, graph, diagram, key="product_graph", filename=filename)
         st.dataframe(viewer.attribute_rows(graph), hide_index=True, width="stretch")

@@ -5,7 +5,7 @@ import html
 import json
 
 from rdflib import BNode, Graph, Literal, URIRef
-from rdflib.namespace import OWL, RDF, RDFS
+from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SH, XSD
 
 from ontoproduct.schemas.product import ProductAttribute
 from ontoproduct.services.mapping_service import DATA_DIR
@@ -24,15 +24,16 @@ class OntologyVisualization:
             return "_:" + str(term)
         value = str(term)
         prefixes = {
+            "opqk": str(self.rdf.qk),
+            "opunit": str(self.rdf.unit),
+            "opsrc": str(self.rdf.src),
             "op": str(self.op),
-            "gr": "http://purl.org/goodrelations/v1#",
-            "qudt": "http://qudt.org/schema/qudt/",
-            "unit": "http://qudt.org/vocab/unit/",
-            "qk": "http://qudt.org/vocab/quantitykind/",
-            "iof": "https://spec.industrialontologies.org/ontology/construct/",
             "rdf": str(RDF),
             "rdfs": str(RDFS),
             "owl": str(OWL),
+            "xsd": str(XSD),
+            "sh": str(SH),
+            "dcterms": str(DCTERMS),
         }
         for prefix, namespace in prefixes.items():
             if value.startswith(namespace):
@@ -47,11 +48,15 @@ class OntologyVisualization:
         value = " ".join(str(value).split())
         if len(value) > 90:
             value = value[:87] + "…"
+        # Mermaid entities use #name; / #number; rather than HTML's & prefix.
+        # Quoted labels already allow brackets and pipes; escaping them displays
+        # entity codes with Streamlit's SVG text labels. Protect source hashes.
         return (
-            html.escape(value, quote=True)
-            .replace("[", "&#91;")
-            .replace("]", "&#93;")
-            .replace("|", "&#124;")
+            html.escape(value, quote=False)
+            .replace("#", "#35;")
+            .replace("&", "#")
+            .replace('"', "#quot;")
+            .replace("'", "#39;")
         )
 
     def _node(self, graph, term):
@@ -59,22 +64,41 @@ class OntologyVisualization:
         if isinstance(term, Literal):
             label, group = str(term), "value"
         else:
-            label = str(graph.value(term, RDFS.label) or self.term_label(term))
+            rdf_label = graph.value(term, RDFS.label)
+            label = str(rdf_label if rdf_label is not None else self.term_label(term))
             if (term, RDF.type, self.op.ProductModel) in graph:
                 group = "product"
             elif (term, RDF.type, self.op.Manufacturer) in graph:
                 group = "entity"
-            elif (term, RDF.type, self.rdf._reference("quantity_value")) in graph:
+            elif (term, RDF.type, self.rdf.quantity_value) in graph:
                 group = "quantity"
                 names = [
                     self.model.model.properties[key].label
                     for key, prop in self.model.model.properties.items()
                     if list(graph.subjects(self.op[prop.predicate], term))
                 ]
-                label = names[0] if names else "Quantity value"
-            elif str(term).startswith("http://qudt.org/vocab/unit/"):
+                if rdf_label is None:
+                    label = names[0] if names else "Quantity value"
+            elif (
+                str(term).startswith(str(self.rdf.unit))
+                or (term, RDF.type, self.rdf.unit_class) in graph
+            ):
                 group = "unit"
-            elif str(term).startswith(str(self.op)):
+            elif (
+                str(term).startswith(str(self.rdf.qk))
+                or (term, RDF.type, self.rdf.quantity_kind_class) in graph
+            ):
+                group = "quantity_kind"
+            elif str(term).startswith(str(XSD)):
+                group = "datatype"
+            elif (
+                str(term).startswith(str(self.rdf.src))
+                or (term, RDF.type, self.op.SourceRecord) in graph
+            ):
+                group = "local"
+            elif isinstance(term, BNode) or str(term).startswith(
+                (str(self.op), "urn:ontoproduct:")
+            ):
                 group = "local"
         return {
             "id": "n" + hashlib.sha256(term.n3().encode()).hexdigest()[:16],
@@ -118,19 +142,11 @@ class OntologyVisualization:
                 triples = [t for t in triples if t[0] in subjects]
         else:
             predicates = {
-                self.rdf._reference(key)
-                for key in (
-                    "manufacturer",
-                    "make_and_model",
-                    "numeric_value",
-                    "quantity_unit",
-                    "quantity_kind",
-                )
-            }
-            predicates |= {
-                op[prop.predicate]
-                for prop in self.model.model.properties.values()
-                if prop.kind == "quantity"
+                self.rdf.numeric_value,
+                self.rdf.has_unit,
+                self.rdf.has_quantity_kind,
+                *(op[name] for name in self.model.model.relations),
+                *(op[prop.predicate] for prop in self.model.model.properties.values()),
             }
             triples = [t for t in graph if t[1] in predicates]
             # Show the most specific local type, instead of every ancestor.
@@ -190,11 +206,13 @@ class OntologyVisualization:
                 f'  {edge["source"]} -->|"{self._safe_label(edge["relation"])}"| {edge["target"]}'
             )
         colors = {
-            "local": ("#e0e7ff", "#6366f1"),
+            "local": ("#ede9fe", "#7c3aed"),
+            "quantity_kind": ("#fce7f3", "#db2777"),
+            "datatype": ("#f3f4f6", "#64748b"),
             "reference": ("#f3f4f6", "#64748b"),
             "product": ("#dbeafe", "#2563eb"),
             "entity": ("#fef3c7", "#d97706"),
-            "quantity": ("#ede9fe", "#7c3aed"),
+            "quantity": ("#cffafe", "#0891b2"),
             "unit": ("#dcfce7", "#16a34a"),
             "value": ("#fff7ed", "#ea580c"),
         }
@@ -225,7 +243,7 @@ class OntologyVisualization:
     def attribute_rows(self, graph):
         rows = []
         unit_names = {
-            self.rdf._reference(unit): unit for unit in self.model.units.catalog.units
+            self.rdf.unit_uri(unit): unit for unit in self.model.units.catalog.units
         }
         for product in graph.subjects(RDF.type, self.op.ProductModel):
             for evidence in graph.objects(product, self.op.attributeEvidence):
@@ -239,12 +257,8 @@ class OntologyVisualization:
                 if prop is not None and prop.kind == "quantity":
                     target = graph.value(product, self.op[prop.predicate])
                     if target is not None:
-                        numeric = graph.value(
-                            target, self.rdf._reference("numeric_value")
-                        )
-                        rdf_unit = graph.value(
-                            target, self.rdf._reference("quantity_unit")
-                        )
+                        numeric = graph.value(target, self.rdf.numeric_value)
+                        rdf_unit = graph.value(target, self.rdf.has_unit)
                         value = numeric.toPython() if numeric is not None else None
                         unit = unit_names.get(
                             rdf_unit, str(rdf_unit) if rdf_unit else None

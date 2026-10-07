@@ -61,7 +61,7 @@ I-4 검증·패키징:
 - 실제 LLM 호출은 하지 않았다. Agent payload 검사는 canned transport 기준이다.
 
 내재화 후 남은 사항:
-- **시각화 브랜치(`temp/test_visualization`) 후속 수정:** `ontology_visualization.py`의 접두사 표(gr·qudt·unit·qk·iof)를 op·opqk·opunit·opsrc로 바꾼다. `self.model.references`·`reference_uri`·`QuantityDefinition.reference`·`EntityClass.parent`/`external_parents`·`SemanticRelation.external_parent` 사용처를 `parents`·`sources`·`RdfOntologyService.unit_uri/quantity_uri/source_uri`로 바꾼다. 관계 그래프에서 IOF·GoodRelations 노드를 내부 상위 개념(PhysicalArtifact·Organization·BusinessEntity)으로 바꾼다. 외부 URI 다운로드·표시 테스트도 갱신한다. 이번 작업에서는 그 브랜치를 수정하지 않았다.
+- **시각화 병합 후 조정 완료:** 현재 `temp/test_merge_branch`의 시각화 코드에 남은 삭제 API·외부 URI 접두사·색상 분류를 내부 모델 계약으로 교체했다. 아래 “시각화 병합 후 내재화 조정”의 실제 검증 결과를 따른다. 운영 목업 교체와 SHACL 자동 연결은 별도 미완료 항목이다.
 - 외부 표준 데이터와의 상호운용은 기본 제공되지 않는다. 필요하면 대응표로 운영 RDF와 분리된 정렬 그래프를 만든다.
 - 이전 버전 RDF를 외부에 내보낸 적이 있다면 원본 제품 JSON에서 다시 생성한다. 앱 데이터에는 저장 RDF가 없어 이관 대상이 없다.
 
@@ -69,7 +69,7 @@ I-4 검증·패키징:
 
 1. 구현 명세와 이 문서를 읽는다.
 2. 브랜치·변경 사항·적용되는 로컬 지침과 의존 파일을 다시 확인한다.
-3. 1~7단계와 내재화 I-1~I-4는 완료했다. 다음은 운영 목업 교체(LLM adapter·Registry/runtime 연결)와 시각화 브랜치 후속 수정이다.
+3. 1~7단계와 내재화 I-1~I-4는 완료했다. 시각화 병합 후 내재화 조정도 완료했다. 다음은 운영 목업 교체(LLM adapter·Registry/runtime 연결)와 SHACL 자동 연결 정책 확정이다.
 4. 각 단계의 실제 변경·테스트·정책 결정·남은 작업을 이 문서에 갱신한다.
 
 ## 명세 작성 시 확인한 사실
@@ -114,7 +114,7 @@ I-4 검증·패키징:
 - `uv --cache-dir .uv-cache build --offline --out-dir .pytest_tmp/package-check-ontology-model` 성공. wheel/sdist에 YAML 5개와 TTL 4개 포함, runtime/cache 제외, 요구 의존성 확인. 별도로 푼 wheel을 `python -I`로 읽어 의미 모델·단위·OWL/SHACL 일치·모터와 베어링 SHACL을 실행했다.
 - 자체 온톨로지의 모델/물리 제품 계층을 SPARQL로 질의하고, 관계·수치·출처·충돌 보존, 오류 제약, 외부 네트워크 차단 상태에서도 SHACL이 동작함을 확인했다. 실제 Agent Graph의 최종 사람 수정 제품도 새 SHACL API로 검증했다.
 
-## 후속 시각화 구현 기록
+## 후속 시각화 구현 기록 (내재화 이전 이력)
 
 - `services/ontology_visualization.py`: 실제 RDF에서 Mermaid 노드·관계, 전체 triple 표, 속성의 입력 값·표준값·근거 표를 생성한다. 문자열은 Mermaid 문법을 깨지 않도록 이스케이프하고 RDF graph는 변경하지 않는다.
 - `views/ontology_graphs.py`, `views/ontology_explorer.py`: 선택 제품군/전체 의미 구조, 모터·베어링 예제와 저장된 제품 그래프, 근거 표시, RDF/JSON 다운로드, SHACL 검사 버튼을 제공한다. 기존 클래스 계층·속성 표·단위 미리보기는 유지한다.
@@ -122,8 +122,67 @@ I-4 검증·패키징:
 - `tests/test_ontology_visualization.py`: 실제 RDF 관계와 단위·값, 클래스별 범위, 원문 위치, 표시 문자열 이스케이프, 샘플 전환·근거·다운로드·SHACL, 저장 제품 표시의 DB 불변성을 검증한다.
 - 관련 테스트와 기존 탐색 UI 회귀: `.venv/Scripts/python.exe -m pytest tests/test_ontology_visualization.py tests/test_phase3_ui.py::test_ontology_hierarchy_inherited_fields_and_real_unit_conversion -q -W error::pytest.PytestCacheWarning` → **7 passed**.
 - 시각화 추가 후 전체 회귀: `.venv/Scripts/python.exe -m pytest -q -W error::pytest.PytestCacheWarning` → **319 passed**, 기존 RDFLib JSON-LD DeprecationWarning 1개.
-- 실제 Chrome에서 Mermaid 제품 그래프·Excel 근거 표·베어링 SHACL 통과를 확인했다. agent-browser CLI가 설치되어 있지 않아 연결된 브라우저로 검증했다. 미리보기는 `.pytest_tmp/ontology-preview-runtime`의 별도 DB를 사용한다.
+- 당시 시각화 브랜치에서는 실제 Chrome에서 Mermaid 제품 그래프·Excel 근거 표·베어링 SHACL 통과를 확인했다. 이 결과는 아래 병합 후 조정의 브라우저 검증을 대신하지 않는다. agent-browser CLI가 설치되어 있지 않아 연결된 브라우저로 검증했다. 미리보기는 `.pytest_tmp/ontology-preview-runtime`의 별도 DB를 사용한다.
 - 실행 방법과 표시 범위는 [제품 온톨로지 문서](03_PRODUCT_ONTOLOGY.md)의 그래프로 보기 절에 정리했다. 기존 운영 데이터에서 보려면 정상 실행 환경의 `uv run streamlit run app.py`로 앱을 연다.
+
+## 시각화 병합 후 내재화 조정 (2026-10-07)
+
+작업 시작 브랜치는 `temp/test_merge_branch`, `git status --short`는 `?? AGENTS.md`였다. 기존 AGENTS.md를 보존했다. 최근 이력은 `cc56031`(Ruff 개발 의존성 고정), `3af4966`(Ruff indent 자동화), `1dc6f4c`(병합 후 문서의 legacy 정보 정리)이다. 과거 문서의 “시각화 브랜치 후속 수정”은 병합된 현재 코드의 조정 완료로 갱신했다.
+
+수정 전 실제 관련 테스트 기준선:
+
+```text
+.venv/Scripts/python.exe -m pytest tests/test_ontology_visualization.py tests/test_ontology_internalization.py tests/test_phase3_ui.py::test_ontology_hierarchy_inherited_fields_and_real_unit_conversion -q
+8 failed, 9 passed in 4.46s
+```
+
+실패 목록:
+
+- `test_ontology_visualization.py::test_diagram_uses_actual_rdf_and_preserves_graph_with_distinct_literal_nodes`
+- `test_ontology_visualization.py::test_ontology_diagram_focus_shows_inheritance_external_alignment_and_properties`
+- `test_ontology_visualization.py::test_attributes_show_raw_and_normalized_values_with_original_evidence`
+- `test_ontology_visualization.py::test_untrusted_labels_cannot_break_mermaid_diagram`
+- `test_ontology_visualization.py::test_ui_sample_graph_switching_evidence_validation_and_downloads_are_read_only`
+- `test_ontology_visualization.py::test_ui_saved_product_graph_uses_actual_record_without_modifying_it`
+- `test_ontology_internalization.py::test_operational_package_files_contain_no_external_business_uris`
+- `test_phase3_ui.py::test_ontology_hierarchy_inherited_fields_and_real_unit_conversion`
+
+7건은 삭제된 `RdfOntologyService._reference()` 호출로 인한 AttributeError, 1건은 시각화 운영 코드의 외부 업무 URI 감시 실패다. 참고 전체 기준선 `8 failed, 327 passed, 1 warning`과 실패 수는 같지만, 이번 수정 전 실행은 위 관련 테스트만 실행했으므로 전체 기준선으로 간주하지 않는다.
+
+변경 내용:
+
+- `services/ontology_visualization.py`: `_reference()` 호출을 `quantity_value`, `numeric_value`, `has_unit`, `has_quantity_kind`, `unit_uri()`로 교체했다. 제조사·모델 연결은 product_model.yaml의 relations·properties에 정의된 실제 내부 관계를 사용한다. 삭제된 외부 API를 복원하거나 예외를 숨기지 않는다.
+- `term_label()`: 하위 namespace인 opqk·opunit·opsrc를 op보다 먼저 판별한다. rdf·rdfs·owl·xsd·sh·dcterms 표준 접두사도 유지한다. opsrc:qudt-3.5.2·opsrc:iof-202603·opsrc:goodrelations-1.0은 정상 내부 출처 식별자다.
+- 노드 그룹은 표시 라벨이 아닌 IRI·RDF 타입으로 판별하고 rdfs:label을 우선한다. opqk는 별도 `quantity_kind` 그룹(분홍색), opunit은 `unit`(초록색), XSD는 `datatype`(회색), opsrc 내부 출처는 보라색 `local` 그룹이다. 실제 diagram에 등장하는 내부 근거 노드도 local 그룹을 사용한다. dcterms:source를 시각화 관계 목록에 추가하지 않았다.
+- `views/ontology_graphs.py`: 자체 개념·내부 출처 보라색, 물리량 종류 분홍색, 단위 초록색, XSD 데이터 타입 회색으로 관계 탭 범례를 갱신했다. 제품 탭에서는 제품 파란색·제조사 노란색·물리량 값 청록색·값 주황색·단위 초록색·물리량 종류 분홍색·자체 개념 및 내부 출처 보라색으로 Mermaid classDef·class 할당·caption을 맞췄다. 외부 온톨로지 안내 문구도 현재 의미 모델에 맞췄다.
+- 물리량 값·단위·변환 데이터는 변경하지 않았다. 0.6 kW → 600 W, 750 g → 0.75 kg, 파일·페이지·원문 근거를 그대로 검증했다. 저장 제품은 기존 등록 경로로 임시 DB에 등록하고 저장된 정규화 값을 표시한다. 근거 문자열에서 파싱 전 숫자를 임의 복원하지 않는다.
+- `tests/test_ontology_visualization.py`: 외부 URI 기대값을 내부 관계·개념으로 갱신하고 기존 검증을 보강했다. 직접 term_label 호출, rdfs:label 우선순위, 양쪽 diagram의 단위·물리량 종류·XSD·내부 출처 그룹, 색상·class 할당·caption, 실제 제조사·물리량 및 물리 제품→모델 관계, 상속·제품군 범위, 문자열 이스케이프를 검증한다. diagram·attribute_rows·RDF/JSON 데이터 생성·SHACL 실행 전후 트리플 집합, AppTest 다운로드 생성·검사·전환 전후 products와 registration_cases 및 checkpoint DB의 모든 테이블 행 내용을 비교했다.
+- `tests/test_ontology_internalization.py`의 검사 대상·정규식·assert와 읽기 전용 모델·서비스·의존성 파일을 변경하지 않았다. 기존 `ontology_explorer.py`와 `test_phase3_ui.py`도 수정 없이 통과했다. 패키지 설치·네트워크 다운로드·실제 LLM 호출은 하지 않았다. 최초 조정 검증에서는 runtime/data/ 기존 DB에 쓰지 않았으며 pytest 밖에서 앱·스크립트를 실행하지 않아 별도 scratch 폴더를 만들지 않았다. 이후 실제 실행 요청은 아래 후속 기록을 따른다.
+
+실제 검증 결과:
+
+- 운영 코드 수정 전 보강한 시각화 테스트: `20 failed, 4 passed in 4.33s`. 신규 18개 회귀 사례 중 14개 실패·4개 통과를 확인했고, 수정 후 신규 사례와 기존 시각화 6개 모두 통과했다.
+- 최종 관련 테스트(위 동일 명령): `35 passed in 7.45s`.
+- 최종 전체: `.venv/Scripts/python.exe -m pytest -q -W error::pytest.PytestCacheWarning` → `353 passed, 1 warning in 41.44s`. `-p no:cacheprovider`는 사용하지 않았다. 경고는 범위 밖 `test_rdf_product_ontology.py`의 RDFLib JSON-LD ConjunctiveGraph DeprecationWarning 1개다.
+- 수정한 운영 코드 2개에만 `.venv/Scripts/ruff.exe format src/ontoproduct/services/ontology_visualization.py src/ontoproduct/views/ontology_graphs.py` 적용: `1 file reformatted, 1 file left unchanged`.
+- 같은 파일의 `.venv/Scripts/ruff.exe format --check src/ontoproduct/services/ontology_visualization.py src/ontoproduct/views/ontology_graphs.py` → `2 files already formatted`. 테스트 파일에는 Ruff format을 적용하지 않았다.
+- `git diff --check`: 통과(출력 없음).
+
+AppTest에서 /ontology 탐색 화면과 선택 제품군/전체 구조, 모터·베어링 샘플·저장 제품·근거 표시 전환 시 예외 없이 Mermaid 문자열이 생성됐다. 다운로드 데이터와 SHACL 결과도 검증했다. **최초 보고 당시 미확인:** 실제 Mermaid 브라우저 렌더링과 브라우저 다운로드는 확인하지 않았다. 이후 실제 실행 결과는 아래 후속 기록을 따른다. 위 AppTest·문자열·데이터 검증과 과거 Chrome 검증 기록을 구분한다. 읽기 전용 파일에서 별도 수정이 필요한 문제는 발견하지 않았다. 최종 상태에서 시작 시점에 없던 미추적 `skills-lock.json`을 확인했으며, 이번 작업의 수정 대상이 아니므로 변경하거나 삭제하지 않았다.
+
+### 후속 실제 실행 확인 (2026-10-07)
+
+사용자의 “실행해봐줘” 요청으로 로컬 Streamlit 앱을 실제 Chrome에서 실행했다. 앱 모듈 import 전에 ONTOPRODUCT_DATA_DIR을 저장소 내부의 고유 폴더 `.pytest_tmp/ontology-browser-check-34db67d2-5b7d-48c1-9d91-3129a4bc6721`로 지정했다. 기존 runtime/data/ DB는 사용하지 않았다. 확인 주소는 `http://127.0.0.1:18501/ontology`였으며 확인 후 임시 서버를 종료했다. scratch의 절대 경로와 .pytest_tmp 바로 아래 이번 작업 폴더인지 검사한 후 해당 scratch만 삭제했다.
+
+- 실제 /ontology 화면과 전체 관계 그래프가 예외 없이 렌더링됐다. watt 단위의 초록색, Power 물리량 종류의 분홍색 등 분류와 라벨을 확인했다.
+- 모터 DM-600·베어링 BR-6201 그래프 전환과 두 샘플의 SHACL 통과 메시지를 확인했다. 모터 속성 표의 0.6 kW → 600.0 W, 750 g → 0.75 kg 및 파일·페이지 근거를 확인했다.
+- 근거 표시를 켜 실제 베어링 그래프를 렌더링하면서 괄호·구분자가 entity 코드로 보이는 기존 표시 문제를 발견했다. 설치된 Mermaid 번들에서 entity 문법을 확인하고 _safe_label을 조정했다. Mermaid 인용 라벨 안에서 허용되는 대괄호·구분자를 과도하게 이스케이프하지 않고, 따옴표·HTML 문자 및 입력에 포함된 entity 표기는 안전하게 인코딩한다. 근거 노드의 `[Sheet: Spec, Row: 3] A3=Inner Diameter | B3=12 mm`가 실제 정상 문자로 표시됨을 재확인했다.
+- 새 회귀 테스트 `test_mermaid_label_entities_preserve_text_without_reinterpreting_source`의 수정 전 결과는 `1 failed in 1.17s`였고 수정 후 통과했다. 기존 문자열 주입 검증도 유지했다.
+- 실제 RDF와 제품 그래프 JSON 다운로드 이벤트가 Chrome에서 정상 발생했다. **미확인:** Chrome 다운로드 목록은 브라우저 보안 정책으로 접근이 차단되어 디스크에 저장된 파일을 다시 열어 확인하지 않았다. 다운로드 데이터의 내용·읽기 전용 동작은 자동 테스트에서 검증했다. 저장 제품의 실제 Chrome 화면 전환은 이번 확인에서 재검증하지 않았으며 AppTest 결과를 따른다.
+- 최종 관련 테스트: `36 passed in 7.38s`.
+- 최종 전체 명령 `.venv/Scripts/python.exe -m pytest -q -W error::pytest.PytestCacheWarning`: `354 passed, 1 warning in 40.67s`. 경고는 앞서 기록한 기존 RDFLib ConjunctiveGraph 경고 1개다.
+- `.venv/Scripts/ruff.exe format --check src/ontoproduct/services/ontology_visualization.py src/ontoproduct/views/ontology_graphs.py`: `2 files already formatted`.
+- `git diff --check`: 통과(출력 없음).
 
 ## 확정 인터페이스
 
@@ -197,4 +256,4 @@ generate_structured(*, task: str, payload: dict, response_schema: type[T]) -> T
 - SDK timeout/통신 retry는 adapter에서 설정하고 Graph의 업무 retry와 구분한다.
 - 실제 모델·프롬프트 품질과 문서 평가: 미실행. 실제 PDF/XLSX 바이너리 파싱: 미실행.
 - 운영 목업 교체: 미완료. 기본 mock_registry와 UI runtime을 변경하지 않았다.
-- 브랜치: `temp/test_merge_branch`. 내재화 변경은 commit·push·PR 생성 없이 남겼다.
+- 브랜치: `temp/test_merge_branch`. 현재 Git 이력에는 내재화(`606a269`, `d086f96`, `c27f4f3`)와 시각화(`5998633`, `76a0220`)의 커밋 및 병합 기록이 있다. 이번 시각화 병합 후 조정은 commit·push·PR 생성 없이 작업 트리에 남겼다.
