@@ -1,0 +1,7 @@
+Product: DM-600
+Class: BLDCMotor
+Manufacturer: XYZ Motors
+Rated Voltage: 24 V
+Rated Power: 0.6 kW
+Rated Speed: 3200 rpm
+비고: 한글 English 혼합 문서 ±5% Ω
