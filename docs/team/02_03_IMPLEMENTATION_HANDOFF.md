@@ -6,6 +6,8 @@
 
 추가 요청: IOF·GoodRelations·QUDT를 참고 URI 목록에 두는 수준에서 제품 의미 모델·RDF/OWL·SHACL 구축까지 확장했다. 5~7단계도 완료했다. 현재 제품군의 자체 온톨로지·RDF 변환·SHACL 실행은 완료했으며 산업 전체 모델링·외부 전체 공리 추론·RDF DB 연결까지 완료했다는 뜻은 아니다.
 
+후속 요청으로 온톨로지 탐색 UI에 의미 관계·제품 RDF 시각화를 추가했다. 구현·검증 내용은 아래 시각화 기록을 따른다. 운영 Extraction/Ontology 목업 교체와 Graph Validation 노드의 SHACL 자동 연결은 여전히 미완료다.
+
 **온톨로지 내재화 완료(I-1~I-4).** 운영 온톨로지·제품 RDF·SHACL·Agent context에서 IOF·GoodRelations·QUDT 업무 URI 연결을 제거하고 `urn:ontoproduct:ontology:` 아래 자체 정의로 바꿨다. 외부 → 내부 대응표는 [03_EXTERNAL_CONCORDANCE.md](03_EXTERNAL_CONCORDANCE.md), 라이선스 고지는 [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md)에 있다. 이 두 문서와 [외부 참고 기록](02_03_EXTERNAL_SOURCES.md)만 외부 URI를 담으며 운영 코드는 이들을 읽지 않는다. 운영 목업 교체 상태는 바뀌지 않았다.
 
 ## 진행 상태
@@ -88,6 +90,10 @@ I-4 검증·패키징:
 - 공통 Protocol·오류: `services/llm_protocol.py`, `agent_errors.py`.
 - 동의어·공유 단위·근거·분할·병합: `mapping_service.py`, `evidence_service.py`, `document_chunks.py`, `attribute_merge.py`. 의미 모델·RDF: `product_ontology_service.py`, `rdf_ontology_service.py`. 외부 매핑 서비스는 내재화로 제거했다.
 - `ontology_service.py`의 기존 normalize_unit 호출을 공유 UnitService에 위임했다. 기존 호출 형태와 회귀 동작을 유지했다.
+- 데이터: `ontology/property_aliases.yaml`, `unit_mappings.yaml`, `external_mappings.yaml`.
+- 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
+- 1~7단계에서 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 후속 시각화 요청에서 온톨로지 탐색 UI를 확장했다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
+- commit·push·PR 생성은 수행하지 않았다. 현재 작업 브랜치의 미커밋 변경으로 남겼다.
 - 데이터: `ontology/product_model.yaml`, `ontology.yaml`, `property_aliases.yaml`, `unit_mappings.yaml`, `rdf/*.ttl`. `external_mappings.yaml`은 내재화로 제거했다.
 - 테스트: `test_extraction_ontology_foundation.py`, `test_real_extraction.py`, `test_real_ontology_agent.py`, `test_real_document_graph.py`, `test_product_semantic_model.py`, `test_rdf_product_ontology.py`, `test_ontology_internalization.py`. 통신 대체 helper와 TXT·Parser 출력 JSON fixture를 추가했다.
 - 기존 업무 domain 스키마·CONTRACTS·Graph·Validation·Reviewer·UI·운영 runtime과 eval 원문은 변경하지 않았다. 자체 의미 모델 스키마를 별도로 추가했고 RDFLib·pySHACL 의존성을 추가했다. provider SDK·API key 설정은 추가하지 않았다.
@@ -111,6 +117,17 @@ I-4 검증·패키징:
 - `uv --cache-dir .uv-cache sync --locked --offline` 성공. pyproject.toml·requirements.txt·uv.lock의 RDF 의존성을 맞췄다.
 - `uv --cache-dir .uv-cache build --offline --out-dir .pytest_tmp/package-check-ontology-model` 성공. wheel/sdist에 YAML 5개와 TTL 4개 포함, runtime/cache 제외, 요구 의존성 확인. 별도로 푼 wheel을 `python -I`로 읽어 의미 모델·단위·OWL/SHACL 일치·모터와 베어링 SHACL을 실행했다.
 - 자체 온톨로지의 모델/물리 제품 계층을 SPARQL로 질의하고, 관계·수치·출처·충돌 보존, 오류 제약, 외부 네트워크 차단 상태에서도 SHACL이 동작함을 확인했다. 실제 Agent Graph의 최종 사람 수정 제품도 새 SHACL API로 검증했다.
+
+## 후속 시각화 구현 기록
+
+- `services/ontology_visualization.py`: 실제 RDF에서 Mermaid 노드·관계, 전체 triple 표, 속성의 입력 값·표준값·근거 표를 생성한다. 문자열은 Mermaid 문법을 깨지 않도록 이스케이프하고 RDF graph는 변경하지 않는다.
+- `views/ontology_graphs.py`, `views/ontology_explorer.py`: 선택 제품군/전체 의미 구조, 모터·베어링 예제와 저장된 제품 그래프, 근거 표시, RDF/JSON 다운로드, SHACL 검사 버튼을 제공한다. 기존 클래스 계층·속성 표·단위 미리보기는 유지한다.
+- 시각화는 주요 관계를 보여 주는 투영이며, 전체 triple은 펼쳐진 표·Turtle 원문과 RDF 다운로드에서 확인한다. 저장된 제품은 실제 레코드에서 RDF를 생성해 읽기만 하고 예제를 DB에 넣지 않는다. 운영 LLM·Parser·Agent Registry 연결을 바꾸지 않았다.
+- `tests/test_ontology_visualization.py`: 실제 RDF 관계와 단위·값, 클래스별 범위, 원문 위치, 표시 문자열 이스케이프, 샘플 전환·근거·다운로드·SHACL, 저장 제품 표시의 DB 불변성을 검증한다.
+- 관련 테스트와 기존 탐색 UI 회귀: `.venv/Scripts/python.exe -m pytest tests/test_ontology_visualization.py tests/test_phase3_ui.py::test_ontology_hierarchy_inherited_fields_and_real_unit_conversion -q -W error::pytest.PytestCacheWarning` → **7 passed**.
+- 시각화 추가 후 전체 회귀: `.venv/Scripts/python.exe -m pytest -q -W error::pytest.PytestCacheWarning` → **319 passed**, 기존 RDFLib JSON-LD DeprecationWarning 1개.
+- 실제 Chrome에서 Mermaid 제품 그래프·Excel 근거 표·베어링 SHACL 통과를 확인했다. agent-browser CLI가 설치되어 있지 않아 연결된 브라우저로 검증했다. 미리보기는 `.pytest_tmp/ontology-preview-runtime`의 별도 DB를 사용한다.
+- 실행 방법과 표시 범위는 [제품 온톨로지 문서](03_PRODUCT_ONTOLOGY.md)의 그래프로 보기 절에 정리했다. 기존 운영 데이터에서 보려면 정상 실행 환경의 `uv run streamlit run app.py`로 앱을 연다.
 
 ## 확정 인터페이스
 

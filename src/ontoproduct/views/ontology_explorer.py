@@ -3,10 +3,12 @@ import streamlit as st
 from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.views.presentation import CLASS_LABELS, LABELS, parse_value
 from ontoproduct.views.resources import get_runtime
+from ontoproduct.views.ontology_graphs import render as render_graphs
 
 
 def render():
-    ontology = get_runtime(str(ApplicationPaths.from_environment().root)).ontology
+    runtime = get_runtime(str(ApplicationPaths.from_environment().root))
+    ontology = runtime.ontology
     st.title("온톨로지 탐색")
     st.caption("클래스 상속과 필수·선택 속성, 허용 단위 및 범위를 확인하세요.")
     classes = list(ontology.definition.classes)
@@ -18,7 +20,7 @@ def render():
         if parent:
             diagram.append(f"    {names[parent]} --> {names[name]}")
     st.mermaid_chart("\n".join(diagram))
-    selected = st.selectbox("제품 분류 탐색", classes, index=classes.index("BLDCMotor"), key="ontology_class",
+    selected = st.selectbox("제품 분류 탐색", classes, index=classes.index("BLDCMotor") if "BLDCMotor" in classes else 0, key="ontology_class",
                             format_func=lambda name: CLASS_LABELS.get(name, name))
     chain = [*reversed(ontology.get_ancestors(selected)), selected]
     st.write("상속 경로: " + " → ".join(chain))
@@ -52,6 +54,7 @@ def render():
                     st.error(str(exc))
     with st.expander("온톨로지 원본 정의"):
         st.json(ontology.definition.model_dump(mode="json"), expanded=False)
+    render_graphs(runtime, selected)
 
 
 if __name__ == "__main__":

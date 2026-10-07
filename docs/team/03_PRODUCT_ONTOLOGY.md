@@ -163,6 +163,28 @@ graph = ontology.to_rdf(normalized_product, record_id="catalog-001",
 
 앱 데이터(`runtime/`)에는 RDF가 저장되어 있지 않다. 제품은 JSON으로 저장되고 RDF는 필요할 때 생성되므로 사용자 데이터 이관은 필요 없다. 저장소의 TTL 4개는 생성 스크립트로 다시 만들었다. 외부에서 이전 버전 RDF를 받아 둔 경우, 위 대응표로 외부 IRI를 내부 IRI로 바꿀 수 있지만 단위·물리량 노드 구조가 바뀌었으므로 원본 제품 JSON에서 다시 생성하는 것을 권장한다.
 
+## 그래프로 보기
+
+```powershell
+uv run streamlit run app.py
+```
+
+앱의 **온톨로지 탐색** 메뉴(`/ontology`)에서 기존 클래스 상속·속성 표 아래의 **개념 관계와 제품 데이터**를 확인한다.
+
+- **온톨로지 관계:** 선택 제품군 또는 전체 구조의 모델/물리 제품 계층, 제조사 관계, IOF·GoodRelations 연결, QUDT 물리량·단위를 표시한다. 선의 이름은 실제 RDF 관계다.
+- **제품 데이터 그래프:** DM-600 모터와 BR-6201 베어링 샘플, 또는 SQLite에 저장된 제품을 선택한다. 제품→제조사, 제품→물리량 값→숫자·단위·물리량 종류의 관계를 표시한다.
+- **근거 표시:** 파일·페이지·원문 근거 체크박스로 출처 노드까지 펼친다. 표에는 입력 속성 값과 RDF에서 표준 단위로 변환한 값을 함께 표시한다. 샘플은 `0.6 kW → 600 W`, `750 g → 0.75 kg`와 PDF/Excel 위치를 포함한다. 저장 제품의 입력 값은 저장된 속성 값이며 파싱 전 숫자를 별도로 복원하지 않는다.
+- **데이터 확인:** 그래프 데이터와 원본 RDF를 펼치면 전체 triple 표, 표시된 노드·관계 JSON, Turtle 원문을 볼 수 있다. RDF/JSON 다운로드와 그래프 도구 모음의 PNG 다운로드·전체 화면을 사용할 수 있다.
+- **사양 제약 검사:** 선택한 제품 그래프에 실제 SHACL 검증을 실행한다. DB 등록·수정과 LLM 호출은 하지 않는다.
+
+화면의 관계 그래프는 RDF에서 주요 계층·관계·수치 구조를 선택해 보여 준다. OWL restriction 등 모든 triple을 시각적 노드로 펼치지는 않으며, 전체 데이터는 원본 RDF 표와 다운로드에 포함된다. 예제 TTL은 패키지에 포함된 fixture로 운영 모델의 추출 결과가 아니다.
+
+변환 코드는 `services/ontology_visualization.py`, 화면은 `views/ontology_graphs.py`, 검증은 `tests/test_ontology_visualization.py`에 있다.
+
+```powershell
+uv run pytest tests/test_ontology_visualization.py tests/test_phase3_ui.py::test_ontology_hierarchy_inherited_fields_and_real_unit_conversion -q
+```
+
 ## 운영 연결과 검증 한계
 
 기본 OntologyService와 실제 02/03 Agent는 이 모델을 사용한다. RDF/SHACL API는 실행·검증 가능하다. 운영 Registry/runtime 목업 교체, RDF DB 저장, Graph의 Validation 노드에서 SHACL 결과를 업무 정책과 합치는 작업은 아직 하지 않았다. 현재 운영 앱의 기존 Validation은 베어링 내경<외경 제약을 자동 적용하지 않는다.
