@@ -90,3 +90,5 @@ confidence 누락 감소나 품질 개선 효과는 확인하지 못했다. 자�
 **추가 발견:** 두 버전 모두 E008/E009의 candidate_class=Bearing을 Ontology에서 MechanicalPart로 바꿨다. 따라서 Bearing SHACL 관계 규칙이 적용되지 않아 Validation은 valid=true였고, 낮은 분류 confidence로 NEEDS_FIX·can_register=false에 멈췄다. 이를 올바른 오류 검출 성공으로 보고하지 않는다. 2.1.0은 E009의 두 치수 confidence를 null로 반환했다. 원문 전사 확신과 의미적 유효성·문서 간 충돌을 구분하는 안내 보완, 상위 분류로 검증을 놓치는 경로의 회귀 테스트·분류 일관성 보완이 남았다. 이는 6~8의 기능 확장보다 먼저 검토할 항목이다.
 
 관련 confidence·근거·Ontology·Reviewer 회귀 테스트는 **94 passed**, `git diff --check`는 통과했다. 이번 검증은 기능 코드를 변경하지 않았으며 앞선 전체 513 passed / 2 skipped 결과와 구분한다.
+
+**후속 결정 (2026-10-09):** 개선 근거가 없으므로 Extraction 프롬프트를 2.0.0으로 되돌렸다. 위 2.1.0 결과와 보고서는 비교 이력으로 보존한다. 현재 프롬프트 기준의 오프라인 기록은 2.0.0 실행인 `468a534f-bd12-47f5-a0d1-b0ed02b22502`이다. confidence 안내는 분류 이탈을 보완한 뒤 다시 측정한다.
