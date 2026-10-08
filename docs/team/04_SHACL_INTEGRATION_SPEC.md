@@ -20,7 +20,9 @@
 | 빈 path SPARQL 비교 | left 속성 / RANGE | 모델 comparisons의 클래스·left·right·operator와 제품 값을 사용한다. less_than 위반은 `inner_diameter must be less than outer_diameter`로 안내한다. message 부분 문자열로 비교를 식별하지 않는다. |
 | 설명되지 않는 일반/비교 위반 | 대응 속성 또는 product_class / CLASS | SHACL 위반이라는 안정적인 안내로 차단한다. 기존 CLASS는 온톨로지 적합성 실패의 호환 코드로 재사용한다. |
 
-비교 후보는 제품 클래스 및 조상에 적용되는 정의에서 얻는다. 규칙 TYPE·UNIT·RANGE 오류가 있는 비교 피연산자로 추가 관계 오류를 추측하지 않는다. 매핑할 수 없는 비교는 일반 SHACL 오류로 보존한다. Reviewer는 null/충돌 및 단일 속성·관계 오류를 구분하되 관계 오류를 낮은 confidence 재추출로 보내지 않는다.
+비교 후보는 제품 클래스 및 조상에 적용되는 정의에서 얻는다. 규칙 TYPE·UNIT·RANGE 오류가 있는 비교 피연산자로 추가 관계 오류를 추측하지 않는다.
+
+**분류 밖 비교 (2026-10-09 결정):** 내경≥외경은 분류와 관계없이 차단한다. 실모델 gpt-5는 E008/E009를 세 번 모두 상위 분류 MechanicalPart로 골랐다. 이 분류에는 Bearing 비교 SHACL이 적용되지 않아 사람이 분류를 확정하면 저장될 수 있었다. 그래서 제품 클래스 밖 comparisons도 두 피연산자가 모두 있으면 해당 클래스의 속성 정의로 단위를 정규화한 뒤 검사한다. 위반은 같은 `left 속성 / RANGE`와 안내로 보고한다. 값이나 단위를 해석할 수 없으면 위반을 단정하지 않는다. 분류 자체를 Bearing으로 바로잡는 가드는 이 결정에 포함하지 않는다. 매핑할 수 없는 비교는 일반 SHACL 오류로 보존한다. Reviewer는 null/충돌 및 단일 속성·관계 오류를 구분하되 관계 오류를 낮은 confidence 재추출로 보내지 않는다.
 
 반환 순서는 기존 규칙 issue 순서를 먼저 보존하고 추가 의미 issue를 field·code·message 순으로 정렬한다. 같은 field라는 이유로 전체 오류를 제거하지 않는다. 동일 업무 code·field·안내만 중복 제거한다. 원문 보고서 전체를 state/schema에 추가하지 않으며 원문 evidence와 HUMAN/locked는 제품에 그대로 남긴다.
 

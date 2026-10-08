@@ -14,10 +14,13 @@ from ontoproduct.services.registration_service import RegistrationService
 
 
 class BearingLlm:
+    def __init__(self, product_class="Bearing", confidence=0.9):
+        self.product_class, self.confidence = product_class, confidence
+
     def generate_structured(self, *, task, payload, response_schema):
         if task == "ontology":
             return response_schema.model_validate(
-                {"product_class": "Bearing", "confidence": 0.9}
+                {"product_class": self.product_class, "confidence": self.confidence}
             )
         chunk = payload["documents"][0]
         lines = dict(
@@ -67,11 +70,13 @@ def mapping(ontology, cls):
     }
 
 
+@pytest.mark.parametrize("cls", ["Bearing", "MechanicalPart"])
 @pytest.mark.parametrize("inner,outer", [(32, 12), (12, 12)])
-def test_direct_approval_cannot_bypass_shacl(tmp_path, product, inner, outer):
+def test_direct_approval_cannot_bypass_shacl(tmp_path, product, inner, outer, cls):
     ontology = OntologyService()
     repository = ProductRepository(Database(tmp_path / "products.db"))
     service = RegistrationService(repository, ontology, tmp_path / "exports")
+    product["product_class"] = cls
     product["attributes"]["inner_diameter"]["value"] = inner
     product["attributes"]["outer_diameter"]["value"] = outer
     with pytest.raises(ValueError, match="validation"):
@@ -94,6 +99,27 @@ def test_real_validation_preserves_input_and_maps_comparison(product):
     assert [(i["field"], i["code"]) for i in result["issues"]] == [
         ("attributes.inner_diameter", "RANGE")
     ]
+
+
+@pytest.mark.parametrize(
+    "inner,outer,valid",
+    [(32, 12, False), (12, 12, False), (12, 32, True), ("unknown", 12, True)],
+)
+def test_bearing_comparison_applies_outside_bearing_class(product, inner, outer, valid):
+    from ontoproduct.services.validation_service import validate_registration_product
+
+    ontology = OntologyService()
+    product["product_class"] = "MechanicalPart"
+    product["attributes"]["inner_diameter"]["value"] = inner
+    product["attributes"]["outer_diameter"]["value"] = outer
+    before = deepcopy(product)
+    result = validate_registration_product(
+        product, mapping(ontology, "MechanicalPart"), ontology
+    )
+    assert product == before
+    assert result["valid"] is valid
+    errors = [(i["field"], i["code"]) for i in result["issues"] if i["severity"] == "error"]
+    assert errors == ([] if valid else [("attributes.inner_diameter", "RANGE")])
 
 
 def test_conflict_dedup_keeps_candidates_and_other_violation(product):
@@ -237,5 +263,50 @@ def test_inputdata_graph_blocks_then_human_repair_saves_once(tmp_path, case_id):
         [record] = runtime.products.list()
         [export] = list(paths.exports.glob("*.json"))
         assert json.loads(export.read_text(encoding="utf-8")) == record["product"]
+    finally:
+        runtime.close()
+
+
+def test_parent_class_choice_cannot_hide_invalid_bearing_dimensions(tmp_path):
+    """Live gpt-5 picked MechanicalPart for E009; a human may also confirm it."""
+    from uuid import uuid4
+
+    from ontoproduct.agents.real_registry import build_document_registry
+    from ontoproduct.services.application_paths import ApplicationPaths
+    from ontoproduct.services.parser_service import ParserService
+    from ontoproduct.services.workflow_runtime import WorkflowRuntime
+
+    paths = ApplicationPaths(tmp_path)
+    llm = BearingLlm("MechanicalPart", 0.6)
+
+    def factory(ontology):
+        return build_document_registry(
+            ontology,
+            parser_service=ParserService(paths.uploads),
+            llm_services={"extraction": llm, "ontology": llm},
+        )
+
+    runtime = WorkflowRuntime(paths, registry_factory=factory)
+    try:
+        session = str(uuid4())
+        thread = runtime.create_case(session)
+        path = Path(__file__).parents[1] / "inputdata/03_edge_cases/E009_bearing.txt"
+        refs = [runtime.documents.save(session, path.name, path.read_bytes())]
+        list(runtime.start(thread, refs))
+        state = runtime.snapshot(thread).values
+        assert state["ontology_mapping"]["product_class"] == "MechanicalPart"
+        assert not state["validation_result"]["valid"]
+        assert state["review_result"]["decision"] == "NEEDS_FIX"
+        list(
+            runtime.resume(
+                thread, {"action": "EDIT", "changed_class": "MechanicalPart"}
+            )
+        )
+        state = runtime.snapshot(thread).values
+        assert "product_class" in state["locked_fields"]
+        assert not state["validation_result"]["valid"]
+        list(runtime.resume(thread, {"action": "APPROVE"}))
+        assert runtime.products.count() == 0
+        assert not list(paths.exports.glob("*.json"))
     finally:
         runtime.close()

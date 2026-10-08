@@ -67,11 +67,48 @@ def validate_product(product, mapping):
     ).model_dump(mode="json")
 
 
+def _out_of_class_comparisons(product, ontology):
+    """Apply comparison rules of other classes when both properties are present.
+
+    SHACL only checks comparisons of the product's own class, so choosing a parent
+    class (e.g. MechanicalPart for a Bearing) must not hide inner >= outer diameter.
+    """
+    product = NormalizedProduct.model_validate(product)
+    classes = {product.product_class, *ontology.get_ancestors(product.product_class)}
+    issues = []
+    for rule in ontology.semantic_model.model.comparisons:
+        if rule.product_class in classes:
+            continue  # Reported through SHACL in validate_registration_product.
+        properties = ontology.resolve_properties(rule.product_class)
+        values = []
+        for key in (rule.left, rule.right):
+            attr = product.attributes.get(key)
+            if attr is None or attr.value is None:
+                break
+            try:
+                values.append(
+                    ontology.normalize_unit(properties[key], attr.value, attr.unit)[0]
+                )
+            except ValueError:
+                break  # Uninterpretable values cannot prove a violation.
+        if len(values) == 2 and values[0] >= values[1]:
+            issues.append(
+                ValidationIssue(
+                    field=f"attributes.{rule.left}",
+                    code="RANGE",
+                    message=f"{rule.left} must be less than {rule.right}",
+                ).model_dump(mode="json")
+            )
+    return issues
+
+
 def validate_registration_product(product, mapping, ontology):
     """Combine operational rules and aligned SHACL without changing the JSON contract."""
     result = validate_product(product, mapping)
     if ontology.semantic_model is None:
         return result
+    result["issues"] += _out_of_class_comparisons(product, ontology)
+    result["valid"] = not any(i["severity"] == "error" for i in result["issues"])
     semantic = ontology.validate_semantics(product)
     if semantic["valid"]:
         return result
