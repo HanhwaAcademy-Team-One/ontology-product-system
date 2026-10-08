@@ -50,13 +50,19 @@ class WorkflowRuntime:
             "recursion_limit": 150,
         }
 
+    def _case_registry(self, case_id):
+        registry = self.registry_factory(self.ontology)
+        registry.register(RegistrationAgent(case_id, self.registration), replace=True)
+        registry.register(
+            DuplicateAgent(DuplicateService(self.products, self.ontology)), replace=True
+        )
+        return registry
+
     def graph(self, thread_id):
         thread_id = str(UUID(thread_id))
         with self._guard:
             if thread_id not in self._graphs:
-                registry = self.registry_factory(self.ontology)
-                registry.register(RegistrationAgent(thread_id, self.registration), replace=True)
-                registry.register(DuplicateAgent(DuplicateService(self.products, self.ontology)), replace=True)
+                registry = self._case_registry(thread_id)
                 self._registries[thread_id] = registry
                 self._graphs[thread_id] = build_workflow(
                     registry, ontology=self.ontology, checkpointer=self.checkpointer
@@ -147,10 +153,7 @@ class WorkflowRuntime:
         if thread_id:
             self.graph(thread_id)
             return self._registries[thread_id].metadata()
-        registry = self.registry_factory(self.ontology)
-        registry.register(RegistrationAgent("metadata", self.registration), replace=True)
-        registry.register(DuplicateAgent(DuplicateService(self.products)), replace=True)
-        return registry.metadata()
+        return self._case_registry("metadata").metadata()
 
     def compiled_diagram(self):
         return build_workflow(ontology=self.ontology).get_graph().draw_mermaid()
