@@ -1,0 +1,7 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-B005
+Product Class: Bearing
+Construction: Rolling bearing
+
+Inner Diameter: 17 mm
+Outer Diameter: 35 mm

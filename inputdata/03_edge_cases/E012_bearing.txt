@@ -1,0 +1,7 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-E012
+Product Class: Bearing
+Construction: Rolling bearing
+
+Inner Diameter: 0.001 mm
+Outer Diameter: 0.002 mm

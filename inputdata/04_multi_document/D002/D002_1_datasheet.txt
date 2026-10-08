@@ -1,0 +1,10 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-D002
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+Manufacturer: Demo Motion Works
+Rated Voltage: 48 V
+Rated Power: 0.6 kW
+Rated Speed: 3000 rpm
+Weight: 750 g

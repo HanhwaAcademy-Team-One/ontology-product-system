@@ -1,0 +1,7 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-E008
+Product Class: Bearing
+Construction: Rolling bearing
+
+Inner Diameter: 20 mm
+Outer Diameter: 20 mm

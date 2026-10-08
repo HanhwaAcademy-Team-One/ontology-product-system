@@ -1,0 +1,7 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-B008
+Product Class: Bearing
+Construction: Rolling bearing
+
+Inner Diameter: 30 mm
+Outer Diameter: 62 mm

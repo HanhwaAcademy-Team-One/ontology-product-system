@@ -1,0 +1,10 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-E013
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+제조사: Demo Motion Works
+정격 전압: 48 V
+정격 출력: 0.6 kW
+정격 회전수: 3000 rpm
+질량: 750 g
