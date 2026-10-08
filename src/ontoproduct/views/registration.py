@@ -126,7 +126,9 @@ def _review(runtime, thread_id, state, payload):
     candidates = state.get("duplicate_candidates", [])
     if candidates:
         st.info("유사한 기존 제품이 있습니다. 후보를 확인한 뒤 등록 여부를 결정하세요.")
-        st.dataframe([{"제품명": c["product_name"], "규칙 기반 유사도": f"{c['score']:.0%}"}
+        verdicts = {"LIKELY_DUPLICATE": "중복 가능성 높음", "POSSIBLE_DUPLICATE": "중복 의심"}
+        st.dataframe([{"제품명": c["product_name"], "판정": verdicts.get(c.get("verdict"), "-"),
+                       "규칙 기반 유사도": f"{c['score']:.0%}", "근거": c["reason"]}
                       for c in candidates], hide_index=True, width="stretch")
     orphaned = state.get("orphaned_overrides", {})
     if orphaned:
