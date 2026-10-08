@@ -1,0 +1,9 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-E015
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+Manufacturer: Demo Motion Works.
+The Rated Voltage is 24 V.
+Rated Power is 0.125 kW at a Rated Speed of 2400 rpm.
+The Weight is 500 g.

@@ -1,0 +1,10 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-M015
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+Manufacturer: Demo Motion Works
+Rated Voltage: 72 V
+Rated Power: 1800 W
+Rated Speed: 4800 rpm
+Weight: 3.9 kg

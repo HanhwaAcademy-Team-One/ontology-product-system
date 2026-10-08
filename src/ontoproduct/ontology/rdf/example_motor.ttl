@@ -1,0 +1,106 @@
+@prefix op: <urn:ontoproduct:ontology:> .
+@prefix opqk: <urn:ontoproduct:ontology:quantitykind/> .
+@prefix opunit: <urn:ontoproduct:ontology:unit/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<urn:ontoproduct:record:motor> a op:BLDCMotorModel,
+        op:CatalogProductModel,
+        op:ElectricalPartModel,
+        op:MotorModel,
+        op:ProductModel ;
+    rdfs:label "DM-600" ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:manufacturer>,
+        <urn:ontoproduct:record:motor:attribute:rated_power>,
+        <urn:ontoproduct:record:motor:attribute:rated_speed>,
+        <urn:ontoproduct:record:motor:attribute:rated_voltage>,
+        <urn:ontoproduct:record:motor:attribute:weight> ;
+    op:hasManufacturer <urn:ontoproduct:record:motor:value:manufacturer> ;
+    op:mass <urn:ontoproduct:record:motor:value:weight> ;
+    op:ratedPower <urn:ontoproduct:record:motor:value:rated_power> ;
+    op:ratedSpeed <urn:ontoproduct:record:motor:value:rated_speed> ;
+    op:ratedVoltage <urn:ontoproduct:record:motor:value:rated_voltage> .
+
+<urn:ontoproduct:record:motor:value:manufacturer> a op:BusinessEntity,
+        op:Manufacturer ;
+    rdfs:label "XYZ Motors" ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:manufacturer> .
+
+<urn:ontoproduct:record:motor:value:rated_power> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_power> ;
+    op:hasQuantityKind opqk:power ;
+    op:hasUnit opunit:W ;
+    op:numericValue 6e+02 .
+
+<urn:ontoproduct:record:motor:value:rated_speed> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_speed> ;
+    op:hasQuantityKind opqk:rotational_frequency ;
+    op:hasUnit opunit:rpm ;
+    op:numericValue 3200 .
+
+<urn:ontoproduct:record:motor:value:rated_voltage> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:rated_voltage> ;
+    op:hasQuantityKind opqk:electric_potential ;
+    op:hasUnit opunit:V ;
+    op:numericValue 24 .
+
+<urn:ontoproduct:record:motor:value:weight> a op:QuantityValue ;
+    op:attributeEvidence <urn:ontoproduct:record:motor:attribute:weight> ;
+    op:hasQuantityKind opqk:mass ;
+    op:hasUnit opunit:kg ;
+    op:numericValue 7.5e-01 .
+
+<urn:ontoproduct:record:motor:attribute:manufacturer> op:applicationField "manufacturer" ;
+    op:candidateEvidence [ op:confidence 8.5e-01 ;
+            op:evidence "Manufacturer: XYZ Motors" ;
+            op:page 1 ;
+            op:provenance "AI" ;
+            op:source_file "motor_spec.pdf (22222222)" ;
+            op:value "XYZ Motors" ] ;
+    op:hasConflict false ;
+    op:recordJSON "{\"value\": \"XYZ Motors\", \"unit\": null, \"confidence\": 0.85, \"evidence\": \"Manufacturer: XYZ Motors\", \"source_file\": \"motor_spec.pdf (22222222)\", \"page\": 1, \"provenance\": \"AI\"}" .
+
+<urn:ontoproduct:record:motor:attribute:rated_power> op:applicationField "rated_power" ;
+    op:candidateEvidence [ op:confidence 8.5e-01 ;
+            op:evidence "Rated Power: 0.6 kW" ;
+            op:page 2 ;
+            op:provenance "AI" ;
+            op:source_file "motor_spec.pdf (22222222)" ;
+            op:unit "kW" ;
+            op:value 6e-01 ] ;
+    op:hasConflict false ;
+    op:recordJSON "{\"value\": 0.6, \"unit\": \"kW\", \"confidence\": 0.85, \"evidence\": \"Rated Power: 0.6 kW\", \"source_file\": \"motor_spec.pdf (22222222)\", \"page\": 2, \"provenance\": \"AI\"}" .
+
+<urn:ontoproduct:record:motor:attribute:rated_speed> op:applicationField "rated_speed" ;
+    op:candidateEvidence [ op:confidence 8.5e-01 ;
+            op:evidence "Rated Speed: 3200 rpm" ;
+            op:page 2 ;
+            op:provenance "AI" ;
+            op:source_file "motor_spec.pdf (22222222)" ;
+            op:unit "rpm" ;
+            op:value 3200 ] ;
+    op:hasConflict false ;
+    op:recordJSON "{\"value\": 3200, \"unit\": \"rpm\", \"confidence\": 0.85, \"evidence\": \"Rated Speed: 3200 rpm\", \"source_file\": \"motor_spec.pdf (22222222)\", \"page\": 2, \"provenance\": \"AI\"}" .
+
+<urn:ontoproduct:record:motor:attribute:rated_voltage> op:applicationField "rated_voltage" ;
+    op:candidateEvidence [ op:confidence 8.5e-01 ;
+            op:evidence "Rated Voltage: 24 V" ;
+            op:page 1 ;
+            op:provenance "AI" ;
+            op:source_file "motor_spec.pdf (22222222)" ;
+            op:unit "V" ;
+            op:value 24 ] ;
+    op:hasConflict false ;
+    op:recordJSON "{\"value\": 24, \"unit\": \"V\", \"confidence\": 0.85, \"evidence\": \"Rated Voltage: 24 V\", \"source_file\": \"motor_spec.pdf (22222222)\", \"page\": 1, \"provenance\": \"AI\"}" .
+
+<urn:ontoproduct:record:motor:attribute:weight> op:applicationField "weight" ;
+    op:candidateEvidence [ op:confidence 8.5e-01 ;
+            op:evidence "Weight: 750 g" ;
+            op:page 2 ;
+            op:provenance "AI" ;
+            op:source_file "motor_spec.pdf (22222222)" ;
+            op:unit "g" ;
+            op:value 750 ] ;
+    op:hasConflict false ;
+    op:recordJSON "{\"value\": 750, \"unit\": \"g\", \"confidence\": 0.85, \"evidence\": \"Weight: 750 g\", \"source_file\": \"motor_spec.pdf (22222222)\", \"page\": 2, \"provenance\": \"AI\"}" .
+

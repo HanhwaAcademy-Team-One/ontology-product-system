@@ -16,16 +16,30 @@ dependencies = [
     "PyYAML==6.0.3",
     "streamlit==1.64.0",
     "langgraph-checkpoint-sqlite==3.1.1",
+    "rdflib==7.6.0",
+    "pyshacl==0.40.1",
     "pdfplumber==0.11.10",
     "openpyxl==3.1.5",
+    "openai==3.26.0",
 ]
 
 [dependency-groups]
-dev = ["pytest==9.1.1", "fpdf2==2.8.9"]
+dev = [
+    "pytest==9.1.1",
+    "ruff==0.16.10",
+    "fpdf2==2.8.9",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+
+[tool.ruff]
+indent-width = 4
+extend-exclude = [".pytest_tmp", ".uv-cache", "runtime", "*.md"]
+
+[tool.ruff.format]
+indent-style = "space"
 
 [project.scripts]
 ontology-product-system = "ontology_product_system:main"

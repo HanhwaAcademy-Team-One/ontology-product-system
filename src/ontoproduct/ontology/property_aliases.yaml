@@ -1,0 +1,8 @@
+aliases:
+  manufacturer: [Manufacturer, 제조사, 제조업체]
+  rated_voltage: [Rated Voltage, 정격 전압, 정격전압]
+  rated_power: [Rated Power, 정격 출력, 정격출력]
+  rated_speed: [Rated Speed, 정격 속도, 정격속도, 정격 회전수]
+  weight: [Weight, Mass, 무게, 질량]
+  inner_diameter: [Inner Diameter, Bore Diameter, 내경]
+  outer_diameter: [Outer Diameter, 외경]

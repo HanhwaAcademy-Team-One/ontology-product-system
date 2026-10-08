@@ -31,7 +31,10 @@ def test_concurrent_same_case_unique_constraint(registration, paused_state):
 
     def register():
         barrier.wait()
-        return registration.register("same-case", paused_state["normalized_product"], {"action": "APPROVE"})
+        return registration.register(
+            "same-case", paused_state["normalized_product"], {"action": "APPROVE"}
+        )
+
     with ThreadPoolExecutor(max_workers=2) as executor:
         results = list(executor.map(lambda _: register(), range(2)))
     assert sorted(r["status"] for r in results) == ["ALREADY_REGISTERED", "REGISTERED"]
@@ -60,24 +63,43 @@ def test_seed_is_idempotent_and_search_reads_database(registration):
     assert all(r["status"] == "REGISTERED" for r in first)
     assert all(r["status"] == "ALREADY_REGISTERED" for r in second)
     assert registration.repository.count() == 3
-    assert {r["product"]["product_name"] for r in registration.repository.list()} == {"DM-500A", "DM-510", "MX-500"}
+    assert {r["product"]["product_name"] for r in registration.repository.list()} == {
+        "DM-500A",
+        "DM-510",
+        "MX-500",
+    }
     assert len(registration.repository.list(search="DM-")) == 2
 
 
 def test_search_treats_like_wildcards_literally(registration):
     seed_products(registration.repository)
-    product = {"product_name": "DM_100%", "product_class": "BLDCMotor", "attributes": {}}
+    product = {
+        "product_name": "DM_100%",
+        "product_class": "BLDCMotor",
+        "attributes": {},
+    }
     registration.repository.save("case-wildcard", product)
-    assert [r["product"]["product_name"] for r in registration.repository.list(search="_")] == ["DM_100%"]
-    assert [r["product"]["product_name"] for r in registration.repository.list(search="%")] == ["DM_100%"]
+    assert [
+        r["product"]["product_name"] for r in registration.repository.list(search="_")
+    ] == ["DM_100%"]
+    assert [
+        r["product"]["product_name"] for r in registration.repository.list(search="%")
+    ] == ["DM_100%"]
 
 
 def test_duplicate_search_covers_products_beyond_listing_limit(registration):
     from ontoproduct.services.duplicate_service import DuplicateService
+
     seed_products(registration.repository)
     for index in range(600):
-        registration.repository.save(f"filler-{index}", {"product_name": f"Bearing-{index}",
-                                                         "product_class": "Bearing", "attributes": {}})
+        registration.repository.save(
+            f"filler-{index}",
+            {
+                "product_name": f"Bearing-{index}",
+                "product_class": "Bearing",
+                "attributes": {},
+            },
+        )
     target = registration.repository.list(search="DM-500A")[0]["product"]
     candidates = DuplicateService(registration.repository).find(target)
     assert "DM-500A" in {c["product_name"] for c in candidates}

@@ -10,7 +10,11 @@ class DuplicateAgent(BaseAgent):
 
     def __init__(self, service):
         required, optional, writes = CONTRACTS[self.name]
-        self.required_reads, self.optional_reads, self.writes = set(required), set(optional), dict(writes)
+        self.required_reads, self.optional_reads, self.writes = (
+            set(required),
+            set(optional),
+            dict(writes),
+        )
         self.service = service
 
     def run(self, state):

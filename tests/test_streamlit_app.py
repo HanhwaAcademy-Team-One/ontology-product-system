@@ -10,14 +10,18 @@ from ontoproduct.views.resources import get_runtime
 @pytest.fixture
 def app(tmp_path, monkeypatch):
     monkeypatch.setenv("ONTOPRODUCT_DATA_DIR", str(tmp_path))
-    value = AppTest.from_file(Path(__file__).resolve().parents[1] / "app.py", default_timeout=20).run()
+    value = AppTest.from_file(
+        Path(__file__).resolve().parents[1] / "app.py", default_timeout=20
+    ).run()
     assert not value.exception
     yield value, get_runtime(str(tmp_path)), tmp_path
     get_runtime.clear()
 
 
 def fill_speed(app, value="3000"):
-    next(field for field in app.text_input if field.label == "정격 속도 *").set_value(value)
+    next(field for field in app.text_input if field.label == "정격 속도 *").set_value(
+        value
+    )
     app.button(key="submit_edit").click().run()
 
 
@@ -39,23 +43,38 @@ def test_ui_demo_edit_approve_rerun_and_download(app):
     assert runtime.products.count() == 1
     assert page.download_button(key="download_registered")
     record = runtime.products.get_by_case(thread)
-    assert json.loads((root / "exports" / f"{record['product_id']}.json").read_text()) == record["product"]
+    assert (
+        json.loads((root / "exports" / f"{record['product_id']}.json").read_text())
+        == record["product"]
+    )
     page.run()
     assert runtime.products.count() == 1
 
 
 def test_ui_file_uploads_store_references_without_uploadedfile_in_state(app):
     page, runtime, root = app
-    page.file_uploader[0].set_value([
-        ("motor_spec.pdf", b"%PDF mock", "application/pdf"),
-        ("bom.xlsx", b"mock workbook", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"),
-    ]).run()
+    page.file_uploader[0].set_value(
+        [
+            ("motor_spec.pdf", b"%PDF mock", "application/pdf"),
+            (
+                "bom.xlsx",
+                b"mock workbook",
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ),
+        ]
+    ).run()
     assert not page.button(key="start_upload").disabled
     page.button(key="start_upload").click().run()
     assert not page.exception
     state = runtime.snapshot(page.session_state["thread_id"]).values
-    assert [ref["name"] for ref in state["source_documents"]] == ["motor_spec.pdf", "bom.xlsx"]
-    assert all(Path(ref["path"]).is_relative_to(root / "uploads") for ref in state["source_documents"])
+    assert [ref["name"] for ref in state["source_documents"]] == [
+        "motor_spec.pdf",
+        "bom.xlsx",
+    ]
+    assert all(
+        Path(ref["path"]).is_relative_to(root / "uploads")
+        for ref in state["source_documents"]
+    )
     json.dumps(state)
     assert runtime.products.count() == 0
 
@@ -84,6 +103,7 @@ def test_ui_registration_error_retry_reuses_saved_product(app):
         if len(calls) == 1:
             raise OSError("Export unavailable")
         return original(record)
+
     runtime.registration.export = export
     page.button(key="approve_case").click().run()
     assert not page.exception
@@ -131,7 +151,9 @@ def test_ui_class_change_preserves_orphaned_overrides(app):
     page, runtime, _ = app
     page.button(key="start_demo").click().run()
     fill_speed(page)
-    next(box for box in page.selectbox if box.label == "제품 분류").select("Bearing").run()
+    next(box for box in page.selectbox if box.label == "제품 분류").select(
+        "Bearing"
+    ).run()
     next(field for field in page.text_input if field.label == "내경 *").set_value("10")
     next(field for field in page.text_input if field.label == "외경 *").set_value("20")
     page.button(key="submit_edit").click().run()

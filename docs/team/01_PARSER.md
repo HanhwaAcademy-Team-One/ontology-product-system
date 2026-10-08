@@ -1,5 +1,7 @@
 # 01. Parser 담당자: 실제 파일을 문서 텍스트로 바꾸기
 
+> **현재 상태:** 이 Agent는 구현되어 UI Real 모드에 연결되어 있습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
+
 [공통 약속](00_COMMON.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
 ## 1. 내가 맡는 일
@@ -62,7 +64,7 @@ PDF 파일을 업로드했다는 것과 PDF 내용을 읽었다는 것은 다릅
 
 여러 문서는 list에 여러 항목을 넣습니다. PDF는 페이지별 항목으로 나누면 Extraction이 어느 페이지에 근거가 있는지 알 수 있습니다.
 
-신규 실제 Parser의 규칙은 TXT와 Excel의 `page: null`, PDF의 `page: 1, 2, ...`입니다. 위 출력도 이 규칙을 따릅니다. 기존 ParserMock은 TXT에도 `page: 1`을 반환하지만 Mock 구현을 변경하는 작업은 아닙니다. Schema상 둘 다 유효하므로 신규 실제 Parser 테스트에서는 여기서 정한 규칙을 명시적으로 검사합니다. Excel 시트명과 셀 위치는 현재 별도 schema 필드가 없으므로 text에 `[Sheet: Spec, Cell: B3]`처럼 남깁니다. page에 시트 번호를 넣으면 PDF 페이지와 의미가 달라지므로 임의로 사용하지 않습니다.
+신규 실제 Parser의 규칙은 TXT와 Excel의 `page: null`, PDF의 `page: 1, 2, ...`입니다. 위 출력도 이 규칙을 따릅니다. 기존 ParserMock은 TXT에도 `page: 1`을 반환하지만 Mock 구현을 변경하는 작업은 아닙니다. Schema상 둘 다 유효하므로 신규 실제 Parser 테스트에서는 여기서 정한 규칙을 명시적으로 검사합니다. Excel 시트명과 셀 위치는 현재 별도 schema 필드가 없으므로 text의 각 행 앞에 `[Sheet: Spec, Row: 3] A3=Manufacturer | B3=XYZ Motors`처럼 시트·행 번호와 셀 주소를 남깁니다. Extraction의 근거 검증도 이 `[Sheet: 이름, Row: n]` 형식을 기준으로 합니다. page에 시트 번호를 넣으면 PDF 페이지와 의미가 달라지므로 임의로 사용하지 않습니다.
 
 원본 파일명이 같은 경우 source_file을 어떻게 유일하게 표시할지 통합/Extraction 담당자와 합의합니다. 원본 file_id를 포함한 표시 문자열을 사용할 수 있으며 schema 필드를 추가하려면 함께 변경합니다.
 
@@ -85,15 +87,18 @@ parser_service.py의 함수명은 제안이며 팀이 합의해서 정하면 됩
 공통 문서의 ParserAgent 틀을 구현한 뒤 개발용 테스트에서 다음처럼 바꿉니다.
 
 ```python
+from pathlib import Path
 from ontoproduct.mocks.agents import mock_registry
 from ontoproduct.agents.parser_agent import ParserAgent
+from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.services.parser_service import ParserService
 
+paths = ApplicationPaths(Path("<데이터 폴더>"))
 registry = mock_registry()
-registry.register(ParserAgent(ParserService()), replace=True)
+registry.register(ParserAgent(ParserService(paths.uploads)), replace=True)
 ```
 
-ParserService의 업로드 경로 설정이 필요하면 생성자에 전달하도록 팀과 정합니다. 이 코드는 신규 파일 작성 후 사용할 예시입니다.
+ParserService는 업로드 폴더(`ApplicationPaths.uploads`)를 생성자 인자로 받으며, 그 폴더 밖의 경로는 읽지 않습니다. 앱에서는 `AGENT_MODE=real`일 때 실제 Parser가 연결됩니다([통합 담당자 문서](08_INTEGRATION.md)).
 
 다른 슬롯은 그대로이므로 Graph 전체를 실행해도 추출 결과는 아직 DM-500일 수 있습니다. **Parser 테스트는 parsed_documents에 실제 원문이 들어오는지 검사해야 합니다.** Extraction까지 고정 데이터를 쓰는 상태에서 최종 제품명을 Parser 성능의 기준으로 삼으면 안 됩니다.
 
@@ -127,3 +132,13 @@ UI 연결은 [통합 담당자 문서](08_INTEGRATION.md)를 따릅니다.
 TXT, 지원하는 PDF/XLSX에서 실제 내용을 읽고 위치를 보존해야 합니다. 읽기 실패가 기존 오류 경로에 들어가야 합니다.
 
 Extraction 담당자에게 실제 파일 1개, parsed_documents JSON, Excel 위치 표기 규칙, OCR 지원 범위를 전달하세요.
+
+### 인계 기록 (실제 Parser 기준)
+
+- 지원 형식: TXT(UTF-8·UTF-8 BOM·CP949), 텍스트 PDF, XLSX. 그 밖의 확장자는 업로드 단계에서 거부합니다.
+- page: TXT·XLSX는 `null`, PDF는 1부터 시작하는 실제 페이지 번호입니다. 텍스트가 없는 PDF 페이지는 건너뛰지만 번호는 원본을 따릅니다.
+- PDF 표: 본문 텍스트 뒤에 `[Table n]`과 `항목 | 값 | 단위` 행을 덧붙입니다. 세로줄이 없는 표는 글자 간격으로 칸을 나눕니다.
+- Excel: 시트마다 항목 하나이며, 각 행은 `[Sheet: 이름, Row: n] A1=값 | B1=값` 형식입니다. 수식 셀은 Excel이 저장한 계산값을 읽습니다.
+- 같은 이름 파일: source_file을 `이름 (file_id 앞 8자리)`로 구분합니다.
+- OCR 미지원: 텍스트가 없는 스캔 PDF는 "읽을 수 있는 텍스트가 없습니다 (스캔 PDF OCR 미지원)" 오류입니다.
+- 읽기 실패는 파일명이 붙은 ValueError로 Wrapper의 parser 단계 오류 이벤트가 됩니다.

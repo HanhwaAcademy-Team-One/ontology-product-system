@@ -1,0 +1,186 @@
+@prefix op: <urn:ontoproduct:ontology:> .
+@prefix opqk: <urn:ontoproduct:ontology:quantitykind/> .
+@prefix opunit: <urn:ontoproduct:ontology:unit/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+op:BLDCMotorShape a sh:NodeShape ;
+    sh:property [ sh:class op:QuantityValue ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:name "rated_speed" ;
+            sh:node [ a sh:NodeShape ;
+                    sh:property [ sh:hasValue opunit:rpm ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasUnit ],
+                        [ sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:minInclusive 0e+00 ;
+                            sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ;
+                            sh:path op:numericValue ;
+                            sh:pattern "^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$" ],
+                        [ sh:hasValue opqk:rotational_frequency ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasQuantityKind ] ] ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:ratedSpeed ],
+        [ sh:class op:QuantityValue ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:name "rated_voltage" ;
+            sh:node [ a sh:NodeShape ;
+                    sh:property [ sh:hasValue opunit:V ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasUnit ],
+                        [ sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:minInclusive 0e+00 ;
+                            sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ;
+                            sh:path op:numericValue ;
+                            sh:pattern "^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$" ],
+                        [ sh:hasValue opqk:electric_potential ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasQuantityKind ] ] ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:ratedVoltage ],
+        [ sh:class op:Manufacturer ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:name "manufacturer" ;
+            sh:node op:ManufacturerShape ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:hasManufacturer ],
+        [ sh:class op:QuantityValue ;
+            sh:maxCount 1 ;
+            sh:name "weight" ;
+            sh:node [ a sh:NodeShape ;
+                    sh:property [ sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:minInclusive 0e+00 ;
+                            sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ;
+                            sh:path op:numericValue ;
+                            sh:pattern "^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$" ],
+                        [ sh:hasValue opqk:mass ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasQuantityKind ],
+                        [ sh:hasValue opunit:kg ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasUnit ] ] ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:mass ],
+        [ sh:class op:QuantityValue ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:name "rated_power" ;
+            sh:node [ a sh:NodeShape ;
+                    sh:property [ sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:minInclusive 0e+00 ;
+                            sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ;
+                            sh:path op:numericValue ;
+                            sh:pattern "^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$" ],
+                        [ sh:hasValue opqk:power ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasQuantityKind ],
+                        [ sh:hasValue opunit:W ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasUnit ] ] ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:ratedPower ] ;
+    sh:targetClass op:BLDCMotorModel .
+
+op:BearingShape a sh:NodeShape ;
+    sh:property [ sh:class op:QuantityValue ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:name "inner_diameter" ;
+            sh:node [ a sh:NodeShape ;
+                    sh:property [ sh:hasValue opunit:mm ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasUnit ],
+                        [ sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:minInclusive 0e+00 ;
+                            sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ;
+                            sh:path op:numericValue ;
+                            sh:pattern "^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$" ],
+                        [ sh:hasValue opqk:length ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasQuantityKind ] ] ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:innerDiameter ],
+        [ sh:class op:QuantityValue ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:name "outer_diameter" ;
+            sh:node [ a sh:NodeShape ;
+                    sh:property [ sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:minInclusive 0e+00 ;
+                            sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ;
+                            sh:path op:numericValue ;
+                            sh:pattern "^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$" ],
+                        [ sh:hasValue opunit:mm ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasUnit ],
+                        [ sh:hasValue opqk:length ;
+                            sh:maxCount 1 ;
+                            sh:minCount 1 ;
+                            sh:path op:hasQuantityKind ] ] ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:outerDiameter ] ;
+    sh:sparql [ sh:message "inner_diameter must be less than outer_diameter" ;
+            sh:select "SELECT $this WHERE { $this <urn:ontoproduct:ontology:innerDiameter>/<urn:ontoproduct:ontology:numericValue> ?left ; <urn:ontoproduct:ontology:outerDiameter>/<urn:ontoproduct:ontology:numericValue> ?right . FILTER (?left >= ?right) }" ] ;
+    sh:targetClass op:BearingModel .
+
+op:ElectricalPartShape a sh:NodeShape ;
+    sh:targetClass op:ElectricalPartModel .
+
+op:ManufacturedItemShape a sh:NodeShape ;
+    sh:property [ sh:class op:ProductModel ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:path op:hasMakeAndModel ] ;
+    sh:targetClass op:ManufacturedItem .
+
+op:MechanicalPartShape a sh:NodeShape ;
+    sh:targetClass op:MechanicalPartModel .
+
+op:MotorShape a sh:NodeShape ;
+    sh:property [ sh:class op:Manufacturer ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:name "manufacturer" ;
+            sh:node op:ManufacturerShape ;
+            sh:nodeKind sh:BlankNodeOrIRI ;
+            sh:path op:hasManufacturer ] ;
+    sh:targetClass op:MotorModel .
+
+op:ProductModelShape a sh:NodeShape ;
+    sh:not [ sh:class op:ManufacturedItem ] ;
+    sh:targetClass op:ProductModel .
+
+op:ProductShape a sh:NodeShape ;
+    sh:targetClass op:CatalogProductModel .
+
+op:ManufacturerShape a sh:NodeShape ;
+    sh:property [ sh:datatype xsd:string ;
+            sh:maxCount 1 ;
+            sh:minCount 1 ;
+            sh:path rdfs:label ;
+            sh:pattern "\\S" ] ;
+    sh:targetClass op:Manufacturer .
+

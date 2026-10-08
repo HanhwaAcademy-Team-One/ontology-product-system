@@ -1,0 +1,2706 @@
+{
+  "schema_version": 1,
+  "synthetic": true,
+  "namespace": "urn:ontoproduct:ontology:",
+  "logical_cases": 50,
+  "upload_files": 80,
+  "reference_response_only": true,
+  "live_llm_verified": false,
+  "cases": [
+    {
+      "id": "M001",
+      "category": "normal_motor",
+      "title": "기본 모터와 kW·g 변환",
+      "product_name": "DEMO-M001",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "01_normal_motors/M001_bldcmotor.txt",
+        "01_normal_motors/M001_bldcmotor.xlsx",
+        "01_normal_motors/M001_bldcmotor.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 600.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.75,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M002",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 2",
+      "product_name": "DEMO-M002",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 120,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.45,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "01_normal_motors/M002_bldcmotor.txt",
+        "01_normal_motors/M002_bldcmotor.xlsx",
+        "01_normal_motors/M002_bldcmotor.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 120,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.45,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M003",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 3",
+      "product_name": "DEMO-M003",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 12,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 45,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4200,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 180,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "01_normal_motors/M003_bldcmotor.txt",
+        "01_normal_motors/M003_bldcmotor.xlsx",
+        "01_normal_motors/M003_bldcmotor.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 12,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 45,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4200,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.18,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M004",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 4",
+      "product_name": "DEMO-M004",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 36,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.25,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3200,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.82,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "01_normal_motors/M004_bldcmotor.txt",
+        "01_normal_motors/M004_bldcmotor.xlsx",
+        "01_normal_motors/M004_bldcmotor.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 36,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 250.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3200,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.82,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M005",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 5",
+      "product_name": "DEMO-M005",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 500,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2800,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 1.4,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "01_normal_motors/M005_bldcmotor.txt",
+        "01_normal_motors/M005_bldcmotor.xlsx",
+        "01_normal_motors/M005_bldcmotor.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 500,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2800,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 1.4,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M006",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 6",
+      "product_name": "DEMO-M006",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 72,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 1.2,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3600,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 2300,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "01_normal_motors/M006_bldcmotor.txt",
+        "01_normal_motors/M006_bldcmotor.xlsx",
+        "01_normal_motors/M006_bldcmotor.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 72,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 1200.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3600,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 2.3,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M007",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 7",
+      "product_name": "DEMO-M007",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 80,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 1800,
+          "unit": "rpm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx"
+      ],
+      "files": [
+        "01_normal_motors/M007_bldcmotor.txt",
+        "01_normal_motors/M007_bldcmotor.xlsx"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 80,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 1800,
+          "unit": "rpm"
+        }
+      }
+    },
+    {
+      "id": "M008",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 8",
+      "product_name": "DEMO-M008",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 750,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 1.65,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx"
+      ],
+      "files": [
+        "01_normal_motors/M008_bldcmotor.txt",
+        "01_normal_motors/M008_bldcmotor.xlsx"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 750,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 1.65,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M009",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 9",
+      "product_name": "DEMO-M009",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 96,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 2.5,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 4.8,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx"
+      ],
+      "files": [
+        "01_normal_motors/M009_bldcmotor.txt",
+        "01_normal_motors/M009_bldcmotor.xlsx"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 96,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 2500.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 4.8,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M010",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 10",
+      "product_name": "DEMO-M010",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 12,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 30,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 6000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 95,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx"
+      ],
+      "files": [
+        "01_normal_motors/M010_bldcmotor.txt",
+        "01_normal_motors/M010_bldcmotor.xlsx"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 12,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 30,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 6000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.095,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M011",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 11",
+      "product_name": "DEMO-M011",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.18,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 640,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M011_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 180.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.64,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M012",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 12",
+      "product_name": "DEMO-M012",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 36,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 350,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2400,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 1.1,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M012_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 36,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 350,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2400,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 1.1,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M013",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 13",
+      "product_name": "DEMO-M013",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 900,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 2.2,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M013_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 900,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 2.2,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M014",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 14",
+      "product_name": "DEMO-M014",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 60,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 1.5,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 3200,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M014_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 60,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 1500.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 3.2,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M015",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 15",
+      "product_name": "DEMO-M015",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 72,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 1800,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4800,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 3.9,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M015_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 72,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 1800,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 4800,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 3.9,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M016",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 16",
+      "product_name": "DEMO-M016",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 60,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 1200,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.28,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M016_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 60,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 1200,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.28,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M017",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 17",
+      "product_name": "DEMO-M017",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.075,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 1500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 310,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M017_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 75.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 1500,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.31,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M018",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 18",
+      "product_name": "DEMO-M018",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 36,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 200,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2200,
+          "unit": "rpm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M018_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 36,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 200,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2200,
+          "unit": "rpm"
+        }
+      }
+    },
+    {
+      "id": "M019",
+      "category": "normal_motor",
+      "title": "정상 BLDC 모터 19",
+      "product_name": "DEMO-M019",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 96,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 3200,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 5000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 6.4,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M019_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 96,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 3200,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 5000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 6.4,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "M020",
+      "category": "normal_motor",
+      "title": "문자열 이스케이프 제품명",
+      "product_name": "DEMO-M020 [Rev A] | \"Compact\"",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.75,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "01_normal_motors/M020_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 600.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.75,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "B001",
+      "category": "normal_bearing",
+      "title": "정상 베어링 1",
+      "product_name": "DEMO-B001",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 8,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 22,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "02_normal_bearings/B001_bearing.txt",
+        "02_normal_bearings/B001_bearing.xlsx",
+        "02_normal_bearings/B001_bearing.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 8,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 22,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B002",
+      "category": "normal_bearing",
+      "title": "정상 베어링 2",
+      "product_name": "DEMO-B002",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 10,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 26,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "02_normal_bearings/B002_bearing.txt",
+        "02_normal_bearings/B002_bearing.xlsx",
+        "02_normal_bearings/B002_bearing.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 10,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 26,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B003",
+      "category": "normal_bearing",
+      "title": "정상 베어링 3",
+      "product_name": "DEMO-B003",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 12,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 28,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "02_normal_bearings/B003_bearing.txt",
+        "02_normal_bearings/B003_bearing.xlsx",
+        "02_normal_bearings/B003_bearing.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 12,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 28,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B004",
+      "category": "normal_bearing",
+      "title": "정상 베어링 4",
+      "product_name": "DEMO-B004",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 15,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 32,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx",
+        "pdf"
+      ],
+      "files": [
+        "02_normal_bearings/B004_bearing.txt",
+        "02_normal_bearings/B004_bearing.xlsx",
+        "02_normal_bearings/B004_bearing.pdf"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 15,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 32,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B005",
+      "category": "normal_bearing",
+      "title": "정상 베어링 5",
+      "product_name": "DEMO-B005",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 17,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 35,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt",
+        "xlsx"
+      ],
+      "files": [
+        "02_normal_bearings/B005_bearing.txt",
+        "02_normal_bearings/B005_bearing.xlsx"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 17,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 35,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B006",
+      "category": "normal_bearing",
+      "title": "정상 베어링 6",
+      "product_name": "DEMO-B006",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 20,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 47,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "02_normal_bearings/B006_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 20,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 47,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B007",
+      "category": "normal_bearing",
+      "title": "정상 베어링 7",
+      "product_name": "DEMO-B007",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 25,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 52,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "02_normal_bearings/B007_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 25,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 52,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B008",
+      "category": "normal_bearing",
+      "title": "정상 베어링 8",
+      "product_name": "DEMO-B008",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 30,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 62,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "02_normal_bearings/B008_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 30,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 62,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B009",
+      "category": "normal_bearing",
+      "title": "정상 베어링 9",
+      "product_name": "DEMO-B009",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 35,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 72,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "02_normal_bearings/B009_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 35,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 72,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "B010",
+      "category": "normal_bearing",
+      "title": "정상 베어링 10",
+      "product_name": "DEMO-B010",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 40,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 80,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "02_normal_bearings/B010_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 40,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 80,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "E001",
+      "category": "edge",
+      "title": "제조사 누락",
+      "product_name": "DEMO-E001",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "classification_error",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E001_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E002",
+      "category": "edge",
+      "title": "전압 누락",
+      "product_name": "DEMO-E002",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "missing_required",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E002_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E003",
+      "category": "edge",
+      "title": "속도 누락",
+      "product_name": "DEMO-E003",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "missing_required",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E003_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E004",
+      "category": "edge",
+      "title": "허용되지 않는 전압 단위",
+      "product_name": "DEMO-E004",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48000,
+          "unit": "mV"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "unsupported_unit",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E004_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E005",
+      "category": "edge",
+      "title": "허용되지 않는 출력 단위",
+      "product_name": "DEMO-E005",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.8,
+          "unit": "hp"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "unsupported_unit",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E005_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E006",
+      "category": "edge",
+      "title": "허용되지 않는 속도 단위",
+      "product_name": "DEMO-E006",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 300,
+          "unit": "rad/s"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "unsupported_unit",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E006_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E007",
+      "category": "edge",
+      "title": "음수 질량",
+      "product_name": "DEMO-E007",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": -750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "semantic_error",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E007_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E008",
+      "category": "edge",
+      "title": "내경과 외경 동일",
+      "product_name": "DEMO-E008",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 20,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 20,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "semantic_error",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E008_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E009",
+      "category": "edge",
+      "title": "내경이 외경보다 큼",
+      "product_name": "DEMO-E009",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 30,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 20,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "semantic_error",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E009_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E010",
+      "category": "edge",
+      "title": "허용되지 않는 길이 단위",
+      "product_name": "DEMO-E010",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 2,
+          "unit": "cm"
+        },
+        "outer_diameter": {
+          "value": 47,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "unsupported_unit",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E010_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "E011",
+      "category": "edge",
+      "title": "0 값과 누락 구분",
+      "product_name": "DEMO-E011",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 0,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0,
+          "unit": "kg"
+        }
+      },
+      "expected_outcome": "valid",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E011_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 0,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "E012",
+      "category": "edge",
+      "title": "작은 소수 지름",
+      "product_name": "DEMO-E012",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 0.001,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 0.002,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "encoding": "utf-8",
+      "layout": "standard",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E012_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 0.001,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 0.002,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "E013",
+      "category": "edge",
+      "title": "한글 별칭과 CP949",
+      "product_name": "DEMO-E013",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "encoding": "cp949",
+      "layout": "korean",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E013_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 600.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.75,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "E014",
+      "category": "edge",
+      "title": "한글 별칭과 UTF-8 BOM",
+      "product_name": "DEMO-E014",
+      "product_class": "Bearing",
+      "raw_attributes": {
+        "inner_diameter": {
+          "value": 20,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 47,
+          "unit": "mm"
+        }
+      },
+      "expected_outcome": "valid",
+      "encoding": "utf-8-sig",
+      "layout": "korean",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E014_bearing.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "inner_diameter": {
+          "value": 20,
+          "unit": "mm"
+        },
+        "outer_diameter": {
+          "value": 47,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "E015",
+      "category": "edge",
+      "title": "서술형 영어 사양",
+      "product_name": "DEMO-E015",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.125,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 2400,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 500,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "encoding": "utf-8",
+      "layout": "narrative",
+      "documents": [],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "03_edge_cases/E015_bldcmotor.txt"
+      ],
+      "upload_mode": "choose_one_format",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 125.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 2400,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.5,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "D001",
+      "category": "multi_document",
+      "title": "문서별 사양 보완",
+      "product_name": "DEMO-D001",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "valid",
+      "documents": [
+        {
+          "product_name": "DEMO-D001",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            }
+          }
+        },
+        {
+          "product_name": "DEMO-D001",
+          "attributes": {
+            "rated_power": {
+              "value": 0.6,
+              "unit": "kW"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 750,
+              "unit": "g"
+            }
+          }
+        }
+      ],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "04_multi_document/D001/D001_1_datasheet.txt",
+        "04_multi_document/D001/D001_2_supplement.txt"
+      ],
+      "upload_mode": "together",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 600.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.75,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "D002",
+      "category": "multi_document",
+      "title": "단위가 달라도 같은 값",
+      "product_name": "DEMO-D002",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "equivalent_values",
+      "documents": [
+        {
+          "product_name": "DEMO-D002",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 0.6,
+              "unit": "kW"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 750,
+              "unit": "g"
+            }
+          }
+        },
+        {
+          "product_name": "DEMO-D002",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 600,
+              "unit": "W"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 0.75,
+              "unit": "kg"
+            }
+          }
+        }
+      ],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "04_multi_document/D002/D002_1_datasheet.txt",
+        "04_multi_document/D002/D002_2_supplement.txt"
+      ],
+      "upload_mode": "together",
+      "expected_normalized_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 600.0,
+          "unit": "W"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 0.75,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "id": "D003",
+      "category": "multi_document",
+      "title": "필수 출력 값 충돌",
+      "product_name": "DEMO-D003",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "required_conflict",
+      "documents": [
+        {
+          "product_name": "DEMO-D003",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 0.6,
+              "unit": "kW"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 750,
+              "unit": "g"
+            }
+          }
+        },
+        {
+          "product_name": "DEMO-D003",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 800,
+              "unit": "W"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 750,
+              "unit": "g"
+            }
+          }
+        }
+      ],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "04_multi_document/D003/D003_1_datasheet.txt",
+        "04_multi_document/D003/D003_2_supplement.txt"
+      ],
+      "upload_mode": "together",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "D004",
+      "category": "multi_document",
+      "title": "선택 질량 값 충돌",
+      "product_name": "DEMO-D004",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "optional_conflict",
+      "documents": [
+        {
+          "product_name": "DEMO-D004",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 0.6,
+              "unit": "kW"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 750,
+              "unit": "g"
+            }
+          }
+        },
+        {
+          "product_name": "DEMO-D004",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 0.6,
+              "unit": "kW"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 900,
+              "unit": "g"
+            }
+          }
+        }
+      ],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "04_multi_document/D004/D004_1_datasheet.txt",
+        "04_multi_document/D004/D004_2_supplement.txt"
+      ],
+      "upload_mode": "together",
+      "expected_normalized_attributes": null
+    },
+    {
+      "id": "D005",
+      "category": "multi_document",
+      "title": "제품명 충돌",
+      "product_name": "DEMO-D005",
+      "product_class": "BLDCMotor",
+      "raw_attributes": {
+        "manufacturer": {
+          "value": "Demo Motion Works",
+          "unit": null
+        },
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 0.6,
+          "unit": "kW"
+        },
+        "rated_speed": {
+          "value": 3000,
+          "unit": "rpm"
+        },
+        "weight": {
+          "value": 750,
+          "unit": "g"
+        }
+      },
+      "expected_outcome": "identity_conflict",
+      "documents": [
+        {
+          "product_name": "DEMO-D005",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 0.6,
+              "unit": "kW"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 750,
+              "unit": "g"
+            }
+          }
+        },
+        {
+          "product_name": "DEMO-D005-OTHER",
+          "attributes": {
+            "manufacturer": {
+              "value": "Demo Motion Works",
+              "unit": null
+            },
+            "rated_voltage": {
+              "value": 48,
+              "unit": "V"
+            },
+            "rated_power": {
+              "value": 0.6,
+              "unit": "kW"
+            },
+            "rated_speed": {
+              "value": 3000,
+              "unit": "rpm"
+            },
+            "weight": {
+              "value": 750,
+              "unit": "g"
+            }
+          }
+        }
+      ],
+      "formats": [
+        "txt"
+      ],
+      "files": [
+        "04_multi_document/D005/D005_1_datasheet.txt",
+        "04_multi_document/D005/D005_2_supplement.txt"
+      ],
+      "upload_mode": "together",
+      "expected_normalized_attributes": null
+    }
+  ]
+}

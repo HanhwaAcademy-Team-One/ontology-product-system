@@ -34,11 +34,15 @@ def test_missing_required_read_is_error(name, registry):
     assert not set(registry.get(name).writes) & result.keys()
 
 
-@pytest.mark.parametrize("output", [
-    {}, {"parsed_documents": [], "normalized_product": {}},
-    {"parsed_documents": [{"source_file": "x", "text": 42}]},
-    {"parsed_documents": [object()]},
-])
+@pytest.mark.parametrize(
+    "output",
+    [
+        {},
+        {"parsed_documents": [], "normalized_product": {}},
+        {"parsed_documents": [{"source_file": "x", "text": 42}]},
+        {"parsed_documents": [object()]},
+    ],
+)
 def test_invalid_output_is_atomic(output, registry):
     registry.get("parser").run = lambda state: output
     result = execute_agent(registry, "parser", {"source_documents": []})
@@ -53,8 +57,11 @@ def test_mutation_is_detected_and_isolated(registry):
     def mutate(inputs):
         inputs["source_documents"].clear()
         return {"parsed_documents": []}
+
     registry.get("parser").run = mutate
-    assert execute_agent(registry, "parser", state)["agent_logs"][-1]["status"] == "error"
+    assert (
+        execute_agent(registry, "parser", state)["agent_logs"][-1]["status"] == "error"
+    )
     assert state == before
 
 
@@ -62,13 +69,24 @@ def test_undeclared_inputs_are_not_exposed(registry):
     def run(state):
         assert set(state) == {"source_documents"}
         return {"parsed_documents": []}
+
     registry.get("parser").run = run
-    result = execute_agent(registry, "parser", {"source_documents": [], "human_review": {"action": "APPROVE"}})
+    result = execute_agent(
+        registry,
+        "parser",
+        {"source_documents": [], "human_review": {"action": "APPROVE"}},
+    )
     assert result["agent_logs"][-1]["status"] == "success"
 
 
-@pytest.mark.parametrize("field,value", [("writes", {"normalized_product": dict}),
-                                       ("required_reads", {"human_review"}), ("provider", "")])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("writes", {"normalized_product": dict}),
+        ("required_reads", {"human_review"}),
+        ("provider", ""),
+    ],
+)
 def test_registry_rejects_contract_changes(registry, field, value):
     agent = deepcopy(registry.get("parser"))
     setattr(agent, field, value)
@@ -92,7 +110,11 @@ def test_non_finite_or_structured_attribute_is_rejected(value):
 
 
 def test_review_cannot_claim_ready_while_blocking_or_allow_needs_fix():
-    for decision, can_register in [("NEEDS_FIX", True), ("REJECT", True), ("READY_FOR_HUMAN", False)]:
+    for decision, can_register in [
+        ("NEEDS_FIX", True),
+        ("REJECT", True),
+        ("READY_FOR_HUMAN", False),
+    ]:
         with pytest.raises(ValidationError):
             ReviewResult(decision=decision, reason="x", can_register=can_register)
 

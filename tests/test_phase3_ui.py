@@ -72,7 +72,9 @@ def test_evaluation_ui_calculates_downloads_and_leaves_products_untouched(app):
     page.button(key="run_evaluation").click().run()
     assert not page.exception
     assert runtime.products.count() == 0
-    report = json.loads((root / "evaluation" / "evaluation.json").read_text(encoding="utf-8"))
+    report = json.loads(
+        (root / "evaluation" / "evaluation.json").read_text(encoding="utf-8")
+    )
     assert report["suites"][0]["label"] == "MOCK EVALUATION"
     assert report["suites"][1]["label"] == "RULE ENGINE EVALUATION"
     assert page.download_button(key="download_evaluation_json")

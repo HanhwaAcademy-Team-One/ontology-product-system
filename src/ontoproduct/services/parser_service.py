@@ -39,7 +39,11 @@ class ParserService:
             if reader is None:
                 raise ValueError(f"{ref.name}: 지원하지 않는 파일 형식입니다")
             # 같은 이름의 파일이 여러 개면 file_id 앞 8자리로 구분한다.
-            source = ref.name if name_counts[ref.name] == 1 else f"{ref.name} ({ref.file_id[:8]})"
+            source = (
+                ref.name
+                if name_counts[ref.name] == 1
+                else f"{ref.name} ({ref.file_id[:8]})"
+            )
             # 읽기 함수가 직접 낸 오류는 메시지를 그대로 살리고, 라이브러리 오류는
             # "읽을 수 없음"으로 감싼다. 어느 쪽이든 파일명을 붙여 오류 화면에서
             # 원인을 알 수 있게 한다.
@@ -49,7 +53,9 @@ class ParserService:
                 raise ValueError(f"{ref.name}: {exc}") from exc
             except Exception as exc:
                 reason = f"{type(exc).__name__}: {exc}"
-                raise ValueError(f"{ref.name}: 문서를 읽을 수 없습니다 ({reason})") from exc
+                raise ValueError(
+                    f"{ref.name}: 문서를 읽을 수 없습니다 ({reason})"
+                ) from exc
             for page, text in pages:
                 document = ParsedDocument(source_file=source, text=text, page=page)
                 parsed.append(document.model_dump(mode="json"))
@@ -87,7 +93,9 @@ def read_pdf(path: Path) -> list[ParsedPage]:
                 # 세로줄 없이 가로줄만 있는 표는 행 전체가 한 칸으로 읽히므로 글자 간격으로 나눈다.
                 if max(len(row) for row in cells) < 2:
                     cells = split_columns_by_gap(page, table)
-                rows = [" | ".join((cell or "").strip() for cell in row) for row in cells]
+                rows = [
+                    " | ".join((cell or "").strip() for cell in row) for row in cells
+                ]
                 blocks.append(f"[Table {index}]\n" + "\n".join(rows))
             text = "\n\n".join(block for block in blocks if block.strip())
             # 빈 페이지는 건너뛰지만 page에는 원본의 실제 페이지 번호를 그대로 쓴다.
@@ -117,7 +125,9 @@ def split_columns_by_gap(page: Page, table: Table) -> list[list[str]]:
     for words in word_rows:
         cells: list[list[str]] = [[] for _ in columns]
         for word in words:
-            column = max(i for i, start in enumerate(columns) if start <= word["x0"] + 1)
+            column = max(
+                i for i, start in enumerate(columns) if start <= word["x0"] + 1
+            )
             cells[column].append(word["text"])
         rows.append([" ".join(cell) for cell in cells])
     return rows
@@ -134,10 +144,18 @@ def read_xlsx(path: Path) -> list[ParsedPage]:
         for sheet in workbook.worksheets:
             lines = []
             for row in sheet.iter_rows():
-                cells = [cell for cell in row if cell.value is not None and str(cell.value).strip()]
+                cells = [
+                    cell
+                    for cell in row
+                    if cell.value is not None and str(cell.value).strip()
+                ]
                 if cells:
-                    values = " | ".join(f"{cell.coordinate}={cell.value}" for cell in cells)
-                    lines.append(f"[Sheet: {sheet.title}, Row: {cells[0].row}] {values}")
+                    values = " | ".join(
+                        f"{cell.coordinate}={cell.value}" for cell in cells
+                    )
+                    lines.append(
+                        f"[Sheet: {sheet.title}, Row: {cells[0].row}] {values}"
+                    )
             if lines:
                 sheets.append((None, "\n".join(lines)))
     finally:
@@ -148,4 +166,7 @@ def read_xlsx(path: Path) -> list[ParsedPage]:
 
 
 READERS: dict[str, Callable[[Path], list[ParsedPage]]] = {
-    ".txt": read_txt, ".pdf": read_pdf, ".xlsx": read_xlsx}
+    ".txt": read_txt,
+    ".pdf": read_pdf,
+    ".xlsx": read_xlsx,
+}

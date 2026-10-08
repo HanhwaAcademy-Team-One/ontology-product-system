@@ -1,0 +1,10 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-M003
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+Manufacturer: Demo Motion Works
+Rated Voltage: 12 V
+Rated Power: 45 W
+Rated Speed: 4200 rpm
+Weight: 180 g

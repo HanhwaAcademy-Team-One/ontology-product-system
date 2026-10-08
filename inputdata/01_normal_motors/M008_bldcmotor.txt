@@ -1,0 +1,10 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-M008
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+Manufacturer: Demo Motion Works
+Rated Voltage: 48 V
+Rated Power: 750 W
+Rated Speed: 4500 rpm
+Weight: 1.65 kg

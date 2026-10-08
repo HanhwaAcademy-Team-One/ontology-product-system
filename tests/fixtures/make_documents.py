@@ -1,4 +1,5 @@
 """Parser 테스트용 샘플 문서를 다시 만든다: uv run python tests/fixtures/make_documents.py"""
+
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -7,9 +8,11 @@ from openpyxl import Workbook
 
 OUT = Path(__file__).parent / "documents"
 FIXED_TIME = datetime(2026, 1, 1, tzinfo=UTC)
-MOTOR_TEXT = ("Product: DM-600\nClass: BLDCMotor\nManufacturer: XYZ Motors\n"
-              "Rated Voltage: 24 V\nRated Power: 0.6 kW\nRated Speed: 3200 rpm\n"
-              "비고: 한글 English 혼합 문서 ±5% Ω\n")
+MOTOR_TEXT = (
+    "Product: DM-600\nClass: BLDCMotor\nManufacturer: XYZ Motors\n"
+    "Rated Voltage: 24 V\nRated Power: 0.6 kW\nRated Speed: 3200 rpm\n"
+    "비고: 한글 English 혼합 문서 ±5% Ω\n"
+)
 
 
 def new_pdf() -> FPDF:
@@ -22,7 +25,9 @@ def new_pdf() -> FPDF:
 
 def make_text() -> None:
     (OUT / "motor_spec.txt").write_text(MOTOR_TEXT, encoding="utf-8")
-    (OUT / "motor_spec_cp949.txt").write_bytes(MOTOR_TEXT.replace("±5% Ω", "").encode("cp949"))
+    (OUT / "motor_spec_cp949.txt").write_bytes(
+        MOTOR_TEXT.replace("±5% Ω", "").encode("cp949")
+    )
 
 
 def make_pdf() -> None:
@@ -32,8 +37,12 @@ def make_pdf() -> None:
     pdf.add_page()
     pdf.cell(0, 10, "Electrical Ratings", new_x="LMARGIN", new_y="NEXT")
     with pdf.table(col_widths=(60, 40, 30)) as table:
-        for row in [("Item", "Value", "Unit"), ("Power", "0.6", "kW"),
-                    ("Voltage", "24", "V"), ("Speed", "3200", "rpm")]:
+        for row in [
+            ("Item", "Value", "Unit"),
+            ("Power", "0.6", "kW"),
+            ("Voltage", "24", "V"),
+            ("Speed", "3200", "rpm"),
+        ]:
             cells = table.row()
             for value in row:
                 cells.cell(value)
@@ -46,8 +55,12 @@ def make_horizontal_lines_pdf() -> None:
     pdf = new_pdf()
     pdf.add_page()
     pdf.set_fill_color(235, 240, 245)
-    rows = [("Item", "Value", "Unit"), ("Product", "DM-600", ""),
-            ("Rated Power", "0.6", "kW"), ("Rated Speed", "3200", "rpm")]
+    rows = [
+        ("Item", "Value", "Unit"),
+        ("Product", "DM-600", ""),
+        ("Rated Power", "0.6", "kW"),
+        ("Rated Speed", "3200", "rpm"),
+    ]
     for index, row in enumerate(rows):
         top = 30 + index * 12
         pdf.rect(20, top, 160, 12, style="F")
@@ -70,14 +83,20 @@ def make_xlsx() -> None:
     workbook = Workbook()
     spec = workbook.active
     spec.title = "Spec"
-    for row in [("Item", "Value", "Unit"), ("Product", "DM-600", None),
-                ("Manufacturer", "XYZ Motors", None), ("정격 전압", 24, "V")]:
+    for row in [
+        ("Item", "Value", "Unit"),
+        ("Product", "DM-600", None),
+        ("Manufacturer", "XYZ Motors", None),
+        ("정격 전압", 24, "V"),
+    ]:
         spec.append(row)
     electrical = workbook.create_sheet("Electrical")
     electrical["A1"], electrical["B1"], electrical["C1"] = "Rated Power", 0.6, "kW"
     electrical["A3"], electrical["C3"] = "Rated Speed", "rpm"
     electrical["B3"] = 3200
-    workbook.properties.created = workbook.properties.modified = FIXED_TIME.replace(tzinfo=None)
+    workbook.properties.created = workbook.properties.modified = FIXED_TIME.replace(
+        tzinfo=None
+    )
     workbook.save(OUT / "two_sheet_spec.xlsx")
 
 

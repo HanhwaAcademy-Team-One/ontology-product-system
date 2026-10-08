@@ -2,7 +2,7 @@
 
 이 문서는 신입 개발자가 담당 기능을 맡아 구현·교체·테스트할 수 있도록 기존 정리 문서를 다시 작성한 것입니다.
 
-**현재 상태 설명과 앞으로 만들 파일을 구분합니다.** 이 문서 작성으로 실제 Parser나 LLM Agent가 구현된 것은 아닙니다. “신규”라고 표시한 파일은 팀원이 앞으로 만들 위치입니다.
+**현재 상태:** UI Real 모드에 Parser·Extraction·Ontology와 OpenAI adapter·Registry 연결을 구현했습니다. 기본 Mock 데모는 유지합니다. ValidationAgent는 Real 모드에 기존 Python 규칙 검증으로 연결했습니다. Reviewer Agent 교체와 Real 품질 평가 확장은 남은 범위입니다. 설치는 [Quick start](QUICK_START.md), 현재 연결은 [통합 가이드](team/08_INTEGRATION.md)를 따릅니다. 01~03 담당 문서의 최초 교체 절차는 구현 당시 참고 자료입니다.
 
 저장소 루트는 `D:\ontology-product-system`입니다. 아래 문서의 `src/...`는 이 폴더를 기준으로 읽으세요.
 
@@ -22,15 +22,15 @@
 
 | 담당 | 현재 상태 | 앞으로 맡을 일 | 자세한 설명 |
 | --- | --- | --- | --- |
-| 문서 처리 | ParserMock | PDF/XLSX/TXT 실제 읽기, 원본 위치 보존 | [01 Parser](team/01_PARSER.md) |
-| 정보 추출 | ExtractionMock | 문서에서 LLM으로 제품·속성·근거 추출 | [02 Extraction](team/02_EXTRACTION.md) |
-| 분류·정규화 | OntologyMock | 실제 분류, 표준 속성 매핑, 기존 단위 규칙 연결 | [03 Ontology](team/03_ONTOLOGY.md) |
-| 검증 | ValidationMock이 실제 규칙 함수 호출 | 실제 Agent로 분리, 검증 경계 사례 테스트 | [04 Validation](team/04_VALIDATION.md) |
+| 문서 처리 | Mock 유지, Real ParserAgent 연결 | 텍스트 PDF/XLSX/TXT·근거 위치 회귀 검증; OCR은 미지원 | [01 Parser](team/01_PARSER.md) |
+| 정보 추출 | Mock 유지, Real ExtractionAgent 연결 | 실제 문서 추출·근거·충돌·재추출 품질 검증 | [02 Extraction](team/02_EXTRACTION.md) |
+| 분류·정규화 | Mock 유지, Real OntologyAgent 연결 | 자체 의미 모델·규칙·LLM 분류·단위 정규화 검증 | [03 Ontology](team/03_ONTOLOGY.md) |
+| 검증 | Mock: ValidationMock / Real: ValidationAgent, 모두 실제 Python 규칙 함수 호출 | SHACL 업무 정책·등록 재검증 연결 합의(03·08 공동), 실제 문서 평가 | [04 Validation](team/04_VALIDATION.md) |
 | 중복 조회 | UI에서는 실제 SQLite Agent | 기존 기능 검증·개선; 의미 검색은 선택 확장 | [05 Duplicate](team/05_DUPLICATE.md) |
 | 검토 판단 | ReviewerMock의 규칙 판단 | 실제 Agent로 분리, 판단·재시도·사람 수정 보호 | [06 Reviewer](team/06_REVIEWER.md) |
 | 저장 | UI에서는 실제 SQLite Agent | 승인·멱등 저장·Export 실패 복구 검증 | [07 Registration](team/07_REGISTRATION.md) |
-| 통합·LLM 기반 설정 | 기본 registry가 Mock | 공통 LLM client/설정, 실제 registry, runtime/UI 연결 | [08 Integration](team/08_INTEGRATION.md) |
-| 평가·QA | 합성 문서 3개 Mock 평가 | 실제 원문/정답, Real 평가와 통합 테스트 | [09 Evaluation](team/09_EVALUATION.md) |
+| 통합·LLM 기반 설정 | 모드 설정·OpenAI adapter·실제 registry 연결 | Reviewer 추가 연결, cache·오류·복원 회귀 검증 | [08 Integration](team/08_INTEGRATION.md) |
+| 평가·QA | 합성 문서 3개 Mock/규칙 평가, 별도 live 테스트 | 실제 원문/정답 확대, Real 품질 평가 경로 | [09 Evaluation](team/09_EVALUATION.md) |
 
 ## 팀원끼리 주고받는 데이터
 
@@ -86,4 +86,4 @@ flowchart TD
 - 실행한 테스트와 결과.
 - 아직 처리하지 못하는 입력·오류.
 
-현재 기존 전체 테스트는 166개입니다. 새 기능을 완료했다고 말하려면 자기 단위 테스트, 계약 검사, 전체 회귀 테스트, 실제 문서 통합 확인까지 끝내야 합니다.
+테스트 개수는 구현 이력에 고정하지 않고 실행 결과로 보고합니다. 새 기능을 완료했다고 말하려면 자기 단위 테스트, 계약 검사, 전체 회귀 테스트, 해당 기능의 실제 문서 통합 확인까지 끝내야 합니다.

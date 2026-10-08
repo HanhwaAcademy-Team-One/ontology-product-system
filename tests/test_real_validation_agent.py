@@ -1,11 +1,18 @@
 import json
 from copy import deepcopy
+from threading import Barrier
 
 import pytest
 
+from ontoproduct.agents.duplicate_agent import DuplicateAgent
 from ontoproduct.agents.validation_agent import ValidationAgent
 from ontoproduct.graph.execution import execute_agent
+from ontoproduct.graph.state import initial_state
+from ontoproduct.graph.workflow import build_workflow
 from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.repositories.database import Database
+from ontoproduct.repositories.product_repository import ProductRepository
+from ontoproduct.services.duplicate_service import DuplicateService
 from ontoproduct.services.validation_service import validate_product
 
 
@@ -308,3 +315,112 @@ def test_multiple_errors_are_preserved():
     find_issue(result, "MISSING_REQUIRED", "attributes.rated_speed")
     find_issue(result, "UNIT", "attributes.rated_power")
     assert result["valid"] is False
+
+
+def test_unknown_property_warnings_have_stable_order():
+    inputs = make_input()
+    attributes = inputs["normalized_product"]["attributes"]
+    for key in (
+        "extra_zeta",
+        "extra_alpha",
+        "extra_theta",
+        "extra_beta",
+        "extra_gamma",
+        "extra_delta",
+    ):
+        attributes[key] = {"value": "extra"}
+
+    result = run_validation(inputs)
+    unknown = [
+        issue for issue in result["issues"] if issue["code"] == "UNKNOWN_PROPERTY"
+    ]
+    assert [issue["field"] for issue in unknown] == [
+        "attributes.extra_alpha",
+        "attributes.extra_beta",
+        "attributes.extra_delta",
+        "attributes.extra_gamma",
+        "attributes.extra_theta",
+        "attributes.extra_zeta",
+    ]
+    assert all(issue["severity"] == "warning" for issue in unknown)
+    assert result["valid"] is True
+
+
+@pytest.mark.parametrize(
+    "property_type,value,valid",
+    [
+        ("integer", 1, True),
+        ("integer", 1.0, False),
+        ("integer", True, False),
+        ("boolean", True, True),
+        ("boolean", False, True),
+        ("boolean", 0, False),
+        ("boolean", "false", False),
+        ("string", "   ", False),
+    ],
+)
+def test_property_types_keep_zero_false_and_blank_distinct(property_type, value, valid):
+    inputs = make_input()
+    inputs["ontology_mapping"]["required_properties"]["test_property"] = {
+        "type": property_type
+    }
+    inputs["normalized_product"]["attributes"]["test_property"] = {"value": value}
+    before = deepcopy(inputs)
+
+    result = run_validation(inputs)
+
+    assert inputs == before
+    assert result["valid"] is valid
+    if not valid:
+        issue = find_issue(result, "TYPE", "attributes.test_property")
+        assert issue["severity"] == "error"
+
+
+@pytest.mark.parametrize("value,valid", [(100, True), (100.1, False)])
+def test_maximum_is_inclusive(value, valid):
+    inputs = make_input()
+    inputs["ontology_mapping"]["required_properties"]["rated_voltage"]["maximum"] = 100
+    inputs["normalized_product"]["attributes"]["rated_voltage"]["value"] = value
+
+    result = run_validation(inputs)
+
+    assert result["valid"] is valid
+    if not valid:
+        issue = find_issue(result, "RANGE", "attributes.rated_voltage")
+        assert issue["severity"] == "error"
+
+
+def test_real_validation_and_duplicate_join_before_reviewer(
+    complete_registry, ontology, config, tmp_path, monkeypatch
+):
+    repository = ProductRepository(Database(tmp_path / "products.db"))
+    complete_registry.register(ValidationAgent(), replace=True)
+    complete_registry.register(
+        DuplicateAgent(DuplicateService(repository, ontology)), replace=True
+    )
+    barrier = Barrier(2, timeout=5)
+    for name in ("validation", "duplicate"):
+        agent = complete_registry.get(name)
+        original = agent.run
+
+        def run(state, original=original):
+            barrier.wait()
+            return original(state)
+
+        monkeypatch.setattr(agent, "run", run)
+
+    graph = build_workflow(complete_registry, ontology=ontology)
+    events = list(graph.stream(initial_state(), config, stream_mode="updates"))
+    updates = [key for event in events for key in event if key != "__interrupt__"]
+    assert updates.count("post_parallel_gate") == 1
+    assert (
+        max(updates.index("validation"), updates.index("duplicate"))
+        < updates.index("post_parallel_gate")
+        < updates.index("reviewer")
+    )
+    state = graph.get_state(config).values
+    assert state["validation_result"]["valid"] is True
+    assert state["duplicate_candidates"] == []
+    assert state["error_events"] == []
+    assert state["case_status"] == "READY_FOR_HUMAN"
+    assert repository.count() == 0

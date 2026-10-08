@@ -1,0 +1,1688 @@
+{
+  "all_checks_passed": true,
+  "parsed_files": 80,
+  "parsed_documents": 90,
+  "upload_groups_checked": 75,
+  "outcomes": {
+    "valid": 62,
+    "classification_error": 1,
+    "missing_required": 2,
+    "unsupported_unit": 4,
+    "semantic_error": 3,
+    "required_conflict": 1,
+    "document_conflict": 2
+  },
+  "checks": [
+    "actual ParserService for all input files",
+    "expected response evidence with actual ExtractionAgent and no external model",
+    "rule OntologyAgent",
+    "deterministic validation",
+    "SHACL for valid and semantic-error cases",
+    "normalization preserves source evidence and parsed inputs"
+  ],
+  "not_checked": [
+    "actual LLM extraction accuracy",
+    "browser upload and full registration",
+    "native Excel application"
+  ],
+  "files": [
+    {
+      "file": "01_normal_motors/M001_bldcmotor.txt",
+      "bytes": 243,
+      "sha256": "67d97e6ac4337791cf74b08b1401b7743240f892d9e49ed732dc714f90adefca",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M001_bldcmotor.xlsx",
+      "bytes": 4084,
+      "sha256": "5b86e6248bb8f5801e70beabcc7d2bc7f629cf053b689c8e2e3a356360ad602f",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M001_bldcmotor.pdf",
+      "bytes": 2893,
+      "sha256": "602204a0817adfb34b73703839dafdaff1733d338f2409dfb69c188647190606",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M002_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "6df8ee11fa2e1f0091cc5540d0e2e3020e848f514e051e7560978f48014d2e70",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M002_bldcmotor.xlsx",
+      "bytes": 4088,
+      "sha256": "d21f23ea1fc4b7877527b71de0ebfc071835a4374da79d7123df76d89b42fb79",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M002_bldcmotor.pdf",
+      "bytes": 2896,
+      "sha256": "bb81547b50f8a05fcce7228d8cf64402e52d454ca62030b0d3871c40d141c318",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M003_bldcmotor.txt",
+      "bytes": 241,
+      "sha256": "ecbb199e7d081eb2f224c88b7f818fd6c5e805fde724bbf6885e5acbe06f56df",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M003_bldcmotor.xlsx",
+      "bytes": 4084,
+      "sha256": "ecb743711cb6e04ff352852dcea21182beba305af4499944ed15f6e3f5a34027",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M003_bldcmotor.pdf",
+      "bytes": 2888,
+      "sha256": "24c2d04affbb453e9cb2b13deb1671ed3f97f3bb2d74fd8d15ab4428f416f8d4",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M004_bldcmotor.txt",
+      "bytes": 246,
+      "sha256": "681d0cc4cf93482a8e7416fd584169b6dfc12fa9d972eebf4dfcd6d7f3a73cc2",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M004_bldcmotor.xlsx",
+      "bytes": 4086,
+      "sha256": "87fb966db7c917d365982bc65f09980d6fed7eba548b0632fa02295e7e384627",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M004_bldcmotor.pdf",
+      "bytes": 2895,
+      "sha256": "aec963d8870ceac10233f6b79b3a10155819f662fcb0d87574898233b6fd1b57",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M005_bldcmotor.txt",
+      "bytes": 243,
+      "sha256": "c1cb86fc494ec0fc3185c446bf44da3a8ae113435b1cfa2c5ce1f27ab11342d6",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M005_bldcmotor.xlsx",
+      "bytes": 4086,
+      "sha256": "608ac7b90ed8935ac062c72d747bfa5db965a264458abe0a71fbc79decdaa269",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M005_bldcmotor.pdf",
+      "bytes": 2891,
+      "sha256": "4968fd5d62262561de298487873305a67c4be570b9b8363e67008df402921255",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M006_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "675bc9f85bf993b5347765fe16cc973d7dcd484bf608263efd0f6d6b2f06db3e",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M006_bldcmotor.xlsx",
+      "bytes": 4086,
+      "sha256": "427afd2d0683ea0d5dee9045ec48bdef184b3f5b5e1bfde2ac80cf16a6f2fe8d",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M006_bldcmotor.pdf",
+      "bytes": 2890,
+      "sha256": "b8b367a4f153099ed78cd3884a454d2ce01fd6ce2a2f0cc6144ae8b576b12d9e",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M007_bldcmotor.txt",
+      "bytes": 227,
+      "sha256": "9108dd031b70c46b72c47d3805110711e5c984820ca769d81997d4673c81f9d8",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M007_bldcmotor.xlsx",
+      "bytes": 4062,
+      "sha256": "1f8552f05ad2552dbb570e0d03183717c48b7e267c1f66eeca92d993df4f28a1",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M008_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "c2d1133a8610be7331d055129299bbef312c89679d693375d2550f34229da3f9",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M008_bldcmotor.xlsx",
+      "bytes": 4088,
+      "sha256": "c8408ca7440075240493c54ba952cd90fce6bd9d4850338ed97f44ecacf7ee78",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M009_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "b686271c4581586e27a679bcca5492ecd927cbcdc21bdaa576de2e4025444d4d",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M009_bldcmotor.xlsx",
+      "bytes": 4088,
+      "sha256": "fd0ad3062d30ec41b41c702585ce5538fc4d47a5ce1c9e371ea76339aa3bd183",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M010_bldcmotor.txt",
+      "bytes": 240,
+      "sha256": "989333677b4e54ef48a6260942342f66060bc66f90ec42a924b76d69a89e8492",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M010_bldcmotor.xlsx",
+      "bytes": 4084,
+      "sha256": "84380e7bea211fc5d44dcd7fa2ee56b8cb2abc85ab7ed06d9458461f64ce79b5",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M011_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "7b674844fcf490fa359dc84271cc7cfa6a216f879a0f40007f102ea1ed418ecd",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M012_bldcmotor.txt",
+      "bytes": 243,
+      "sha256": "c675a2c73a67990edf20849e188ae4f68f09fb70e358e2b3b1a87aff066deb49",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M013_bldcmotor.txt",
+      "bytes": 243,
+      "sha256": "45a61b7da1b177878c370b1c1950bae9557b43c079f471f53a764c002b18c498",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M014_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "15d8a5248bfe7a00da2ab8fd933e00b76bdece28bf951b081746102bd5893e57",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M015_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "c3132b7058e75bcd4f73bf8354822053172093977e2888e78b0ec4cf80e47f46",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M016_bldcmotor.txt",
+      "bytes": 243,
+      "sha256": "c80be1616b0d83b205e4939eb7985abc93a908a8c00d5ba04514e42332ff1a5f",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M017_bldcmotor.txt",
+      "bytes": 245,
+      "sha256": "c4a42acc806e2438d40596e5e334466129578d07a9a563d4a8e327dd7c1400cd",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M018_bldcmotor.txt",
+      "bytes": 228,
+      "sha256": "4761affcaff85a63636945244919a0e7a03fe764c09dfd1a57c5beef55fc4727",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M019_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "63d3aa661e77af6326e73c37e5b896734fbb12be7f0923d4d7a533d49a887ca8",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "01_normal_motors/M020_bldcmotor.txt",
+      "bytes": 265,
+      "sha256": "dc4fc985b86df973a41a9d8b60bf49265953a1ccc8cbc00d0cf64152521deb56",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B001_bearing.txt",
+      "bytes": 173,
+      "sha256": "e9bdd0f43140d027d7d3cd645a556b39392e24f01aae9bf34f6c1f991b854c77",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B001_bearing.xlsx",
+      "bytes": 3968,
+      "sha256": "7cb5b02b8c44510aaae7b9bc2b543f4df95cc9ed9b6549e819a5c99eff6a25ef",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B001_bearing.pdf",
+      "bytes": 2771,
+      "sha256": "cb1b416efef3755afc224e486c2ba871ae52b314df04b564cc25d14b948d786b",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B002_bearing.txt",
+      "bytes": 174,
+      "sha256": "fbf0d16115d25dcc436184531420e179301eae64eecb4b5eb3640dfd3703942c",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B002_bearing.xlsx",
+      "bytes": 3969,
+      "sha256": "6ed83af26fb88d7bb23f84c2afc13f1eaf9c770ec0e07592886e27b7588bf9d7",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B002_bearing.pdf",
+      "bytes": 2768,
+      "sha256": "7cac6d9b3f16c960b4ad19b7277ae4608ae35e31108bc8e485fc66c6dd54bb5f",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B003_bearing.txt",
+      "bytes": 174,
+      "sha256": "f2eaf842dac4f676df74353d5c6c2443f21241215f4435a8b58f05fc10316bf8",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B003_bearing.xlsx",
+      "bytes": 3968,
+      "sha256": "3b2e5213fe552104b4132c3790a81b2a603f426dc68f1071435256b15f24262a",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B003_bearing.pdf",
+      "bytes": 2768,
+      "sha256": "502b1cc3ac20325eaa3e0406b8e71cb22126515d8ef7dd3bc0fe75c33aabf243",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B004_bearing.txt",
+      "bytes": 174,
+      "sha256": "2e192e6f6eb5daa8d474e360ae1c6fc96c2b4ce129811cb8fa6309220f86bf01",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B004_bearing.xlsx",
+      "bytes": 3968,
+      "sha256": "79668f2171163e19f7d13d87762601591243d5f7b9efcb22aaa2bef5ea7e653e",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B004_bearing.pdf",
+      "bytes": 2767,
+      "sha256": "e835f92d786b3a3ba092f2787fc92c90fa0d87c343d776960ae9a0023085445c",
+      "pages": [
+        1,
+        2
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B005_bearing.txt",
+      "bytes": 174,
+      "sha256": "c3b94429306d64cac40f044c157955c5fed647d4482832c5df096cfd2ade97e5",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B005_bearing.xlsx",
+      "bytes": 3969,
+      "sha256": "a71a1a4d776a48b25cf174f0c46f7a56be53e5f7272ad57d5f2937a55619e10e",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B006_bearing.txt",
+      "bytes": 174,
+      "sha256": "5e193ef5ace9286dbe77bfa15c3dff61585daf6850d0d036128852938ef08b1a",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B007_bearing.txt",
+      "bytes": 174,
+      "sha256": "0a807c7fabf7ca35d13d1e7aaf7927b99bab6a17e5d20eaf11bb6405a2de1f04",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B008_bearing.txt",
+      "bytes": 174,
+      "sha256": "fea4dabde7413a1e8cfcc49d8e36657d11837fb16d1cd0ed66f33936cbbaa14a",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B009_bearing.txt",
+      "bytes": 174,
+      "sha256": "393348755750636ca50598c7e9c386eee7c3939558711dd2be7db0e1c2ad39c4",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "02_normal_bearings/B010_bearing.txt",
+      "bytes": 174,
+      "sha256": "c0b7d2686a6f4cbe4780ff6c745039b17e286a156dc3969ce9e1d3451ca0bba2",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E001_bldcmotor.txt",
+      "bytes": 211,
+      "sha256": "ea9a90cab5a1f6db5e796e7709c040ade2ac15d77920e8b6a0ad01a08dfae101",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E002_bldcmotor.txt",
+      "bytes": 223,
+      "sha256": "587723dc59c97f5a9da7fe584873c9913adad9248d85585d178f3d5b617b2844",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E003_bldcmotor.txt",
+      "bytes": 221,
+      "sha256": "a4eb1909401b18aae198dfd76266702dc350c8e5c2da3742bade9ec3e61686b5",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E004_bldcmotor.txt",
+      "bytes": 247,
+      "sha256": "6e7b4f06113e96b7a9d4cc22007507e42f5b3f82febf414e12eeef7ab3d001a7",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E005_bldcmotor.txt",
+      "bytes": 243,
+      "sha256": "a1f1b922ad90e60e5bac858495c9a3f2ed5625fa5e7c8ecd14d6546be37b60f3",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E006_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "7f047c0629477f2d41bb17986343cc59e42674c6ebd72d7684bcf30496409532",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E007_bldcmotor.txt",
+      "bytes": 244,
+      "sha256": "06ef4d5b071e0eb3614aabcfbb9aa04621523ae2578f953b601845a9c92ded37",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E008_bearing.txt",
+      "bytes": 174,
+      "sha256": "d36ed0707065f2db702d6b37483af5d34c5a2876e4e33b6aaab64b8e1c2f8a3d",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E009_bearing.txt",
+      "bytes": 174,
+      "sha256": "d9cd209a5b54f0f482f0fb2d3a01140beec901e689593d6f47c6e27b0b5ea42d",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E010_bearing.txt",
+      "bytes": 173,
+      "sha256": "87ee4ae2ea99b7656ab9fbfa6e433ba7052f76d3c7d711fa3aea5016a89db13f",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E011_bldcmotor.txt",
+      "bytes": 236,
+      "sha256": "b84c852664ce26f5ac5afd7697dc6e96a7797705bbebd077f87ff014861773d9",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E012_bearing.txt",
+      "bytes": 180,
+      "sha256": "bd44364b83a6ee835accd0526a36b7a08d7fd9f776f38bfecdd88b88ea3cefe2",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E013_bldcmotor.txt",
+      "bytes": 229,
+      "sha256": "5fae161a202b05ea0b7cc21aa165150cac72ddc97af999062cf4f07e0ad714c0",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E014_bearing.txt",
+      "bytes": 161,
+      "sha256": "bf930f35211bb217c8256c67c06c5e232321a7cd121f7dfa394bb9102538b6e5",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "03_edge_cases/E015_bldcmotor.txt",
+      "bytes": 270,
+      "sha256": "4fdd21e402cfc443de522108453ac79833549c5690e5eb4443249f00636e8fdb",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D001/D001_1_datasheet.txt",
+      "bytes": 187,
+      "sha256": "991779ac352c22b89603ea49f1a000bf67d5d704a3b746cb776d27ae69f53868",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D001/D001_2_supplement.txt",
+      "bytes": 191,
+      "sha256": "b71503d3f0dfbfb4eede0bbc31f415f1ce8d14678ed5f43a60060528abbb1511",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D002/D002_1_datasheet.txt",
+      "bytes": 243,
+      "sha256": "cc15cf531251d5eb5b672581e33421cee1136a275bd4e5aaef76d76590d28e9e",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D002/D002_2_supplement.txt",
+      "bytes": 244,
+      "sha256": "5261e9d0f677b2345d6c78abd48113b1cb6beeb110b204a5a7f54b1af2870ab9",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D003/D003_1_datasheet.txt",
+      "bytes": 243,
+      "sha256": "893d6cf67d44f5cdc60d0fc2d16cf85a44617e61b22f9ab2afa6187c0c441041",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D003/D003_2_supplement.txt",
+      "bytes": 242,
+      "sha256": "2eab872185204e20679f7ace2954c264c44c78f18235e716b9d10c9c761d0f2d",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D004/D004_1_datasheet.txt",
+      "bytes": 243,
+      "sha256": "1a9bb8c96b3c1c86b4e2db68035b422cd610de0887fb0838cb4e6c4189e4ad3b",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D004/D004_2_supplement.txt",
+      "bytes": 243,
+      "sha256": "ee492ab0d7168bff6cd7825241923bf95e9a16ec1bcf22afdfd41599520fb515",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D005/D005_1_datasheet.txt",
+      "bytes": 243,
+      "sha256": "c6eec5646400729f5909a309a3cf4a978ec9a4ac8e66342b84e2867113490a33",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    },
+    {
+      "file": "04_multi_document/D005/D005_2_supplement.txt",
+      "bytes": 249,
+      "sha256": "9d5c3d8412ecef82efdcd0b0ae6aa6aed55e5893cb2c3d9e1a4758d4a5f639b3",
+      "pages": [
+        null
+      ],
+      "parsed": true
+    }
+  ],
+  "groups": [
+    {
+      "case_id": "M001",
+      "files": [
+        "01_normal_motors/M001_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M001",
+      "files": [
+        "01_normal_motors/M001_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M001",
+      "files": [
+        "01_normal_motors/M001_bldcmotor.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M002",
+      "files": [
+        "01_normal_motors/M002_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M002",
+      "files": [
+        "01_normal_motors/M002_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M002",
+      "files": [
+        "01_normal_motors/M002_bldcmotor.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M003",
+      "files": [
+        "01_normal_motors/M003_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M003",
+      "files": [
+        "01_normal_motors/M003_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M003",
+      "files": [
+        "01_normal_motors/M003_bldcmotor.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M004",
+      "files": [
+        "01_normal_motors/M004_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M004",
+      "files": [
+        "01_normal_motors/M004_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M004",
+      "files": [
+        "01_normal_motors/M004_bldcmotor.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M005",
+      "files": [
+        "01_normal_motors/M005_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M005",
+      "files": [
+        "01_normal_motors/M005_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M005",
+      "files": [
+        "01_normal_motors/M005_bldcmotor.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M006",
+      "files": [
+        "01_normal_motors/M006_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M006",
+      "files": [
+        "01_normal_motors/M006_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M006",
+      "files": [
+        "01_normal_motors/M006_bldcmotor.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M007",
+      "files": [
+        "01_normal_motors/M007_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [
+        {
+          "field": "attributes.weight",
+          "code": "MISSING_OPTIONAL",
+          "message": "Optional property weight is missing",
+          "severity": "warning"
+        }
+      ],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M007",
+      "files": [
+        "01_normal_motors/M007_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [
+        {
+          "field": "attributes.weight",
+          "code": "MISSING_OPTIONAL",
+          "message": "Optional property weight is missing",
+          "severity": "warning"
+        }
+      ],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M008",
+      "files": [
+        "01_normal_motors/M008_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M008",
+      "files": [
+        "01_normal_motors/M008_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M009",
+      "files": [
+        "01_normal_motors/M009_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M009",
+      "files": [
+        "01_normal_motors/M009_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M010",
+      "files": [
+        "01_normal_motors/M010_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M010",
+      "files": [
+        "01_normal_motors/M010_bldcmotor.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M011",
+      "files": [
+        "01_normal_motors/M011_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M012",
+      "files": [
+        "01_normal_motors/M012_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M013",
+      "files": [
+        "01_normal_motors/M013_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M014",
+      "files": [
+        "01_normal_motors/M014_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M015",
+      "files": [
+        "01_normal_motors/M015_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M016",
+      "files": [
+        "01_normal_motors/M016_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M017",
+      "files": [
+        "01_normal_motors/M017_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M018",
+      "files": [
+        "01_normal_motors/M018_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [
+        {
+          "field": "attributes.weight",
+          "code": "MISSING_OPTIONAL",
+          "message": "Optional property weight is missing",
+          "severity": "warning"
+        }
+      ],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M019",
+      "files": [
+        "01_normal_motors/M019_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "M020",
+      "files": [
+        "01_normal_motors/M020_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B001",
+      "files": [
+        "02_normal_bearings/B001_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B001",
+      "files": [
+        "02_normal_bearings/B001_bearing.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B001",
+      "files": [
+        "02_normal_bearings/B001_bearing.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B002",
+      "files": [
+        "02_normal_bearings/B002_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B002",
+      "files": [
+        "02_normal_bearings/B002_bearing.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B002",
+      "files": [
+        "02_normal_bearings/B002_bearing.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B003",
+      "files": [
+        "02_normal_bearings/B003_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B003",
+      "files": [
+        "02_normal_bearings/B003_bearing.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B003",
+      "files": [
+        "02_normal_bearings/B003_bearing.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B004",
+      "files": [
+        "02_normal_bearings/B004_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B004",
+      "files": [
+        "02_normal_bearings/B004_bearing.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B004",
+      "files": [
+        "02_normal_bearings/B004_bearing.pdf"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B005",
+      "files": [
+        "02_normal_bearings/B005_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B005",
+      "files": [
+        "02_normal_bearings/B005_bearing.xlsx"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B006",
+      "files": [
+        "02_normal_bearings/B006_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B007",
+      "files": [
+        "02_normal_bearings/B007_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B008",
+      "files": [
+        "02_normal_bearings/B008_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B009",
+      "files": [
+        "02_normal_bearings/B009_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "B010",
+      "files": [
+        "02_normal_bearings/B010_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "E001",
+      "files": [
+        "03_edge_cases/E001_bldcmotor.txt"
+      ],
+      "expected_outcome": "classification_error",
+      "observed": "classification_error"
+    },
+    {
+      "case_id": "E002",
+      "files": [
+        "03_edge_cases/E002_bldcmotor.txt"
+      ],
+      "expected_outcome": "missing_required",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.rated_voltage",
+          "code": "MISSING_REQUIRED",
+          "message": "Required property rated_voltage is missing",
+          "severity": "error"
+        }
+      ],
+      "observed": "missing_required"
+    },
+    {
+      "case_id": "E003",
+      "files": [
+        "03_edge_cases/E003_bldcmotor.txt"
+      ],
+      "expected_outcome": "missing_required",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.rated_speed",
+          "code": "MISSING_REQUIRED",
+          "message": "Required property rated_speed is missing",
+          "severity": "error"
+        }
+      ],
+      "observed": "missing_required"
+    },
+    {
+      "case_id": "E004",
+      "files": [
+        "03_edge_cases/E004_bldcmotor.txt"
+      ],
+      "expected_outcome": "unsupported_unit",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.rated_voltage",
+          "code": "UNIT",
+          "message": "Expected canonical unit 'V'",
+          "severity": "error"
+        }
+      ],
+      "observed": "unsupported_unit"
+    },
+    {
+      "case_id": "E005",
+      "files": [
+        "03_edge_cases/E005_bldcmotor.txt"
+      ],
+      "expected_outcome": "unsupported_unit",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.rated_power",
+          "code": "UNIT",
+          "message": "Expected canonical unit 'W'",
+          "severity": "error"
+        }
+      ],
+      "observed": "unsupported_unit"
+    },
+    {
+      "case_id": "E006",
+      "files": [
+        "03_edge_cases/E006_bldcmotor.txt"
+      ],
+      "expected_outcome": "unsupported_unit",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.rated_speed",
+          "code": "UNIT",
+          "message": "Expected canonical unit 'rpm'",
+          "severity": "error"
+        }
+      ],
+      "observed": "unsupported_unit"
+    },
+    {
+      "case_id": "E007",
+      "files": [
+        "03_edge_cases/E007_bldcmotor.txt"
+      ],
+      "expected_outcome": "semantic_error",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.weight",
+          "code": "RANGE",
+          "message": "Value is below 0.0",
+          "severity": "error"
+        }
+      ],
+      "shacl_valid": false,
+      "shacl_issues": [
+        {
+          "focus_node": "urn:ontoproduct:record:E007",
+          "path": "urn:ontoproduct:ontology:mass",
+          "message": "Value does not conform to Shape [ rdf:type sh:NodeShape ; sh:property [ sh:hasValue opqk:mass ; sh:maxCount Literal(\"1\", datatype=xsd:integer) ; sh:minCount Literal(\"1\", datatype=xsd:integer) ; sh:path op:hasQuantityKind ], [ sh:hasValue opunit:kg ; sh:maxCount Literal(\"1\", datatype=xsd:integer) ; sh:minCount Literal(\"1\", datatype=xsd:integer) ; sh:path op:hasUnit ], [ sh:maxCount Literal(\"1\", datatype=xsd:integer) ; sh:minCount Literal(\"1\", datatype=xsd:integer) ; sh:minInclusive Literal(\"0.0\", datatype=xsd:double) ; sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ; sh:path op:numericValue ; sh:pattern Literal(\"^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$\") ] ]. See details for more information.",
+          "constraint": "http://www.w3.org/ns/shacl#NodeConstraintComponent"
+        },
+        {
+          "focus_node": "urn:ontoproduct:record:E007:value:weight",
+          "path": "urn:ontoproduct:ontology:numericValue",
+          "message": "Value is not >= Literal(\"0.0\", datatype=xsd:double)",
+          "constraint": "http://www.w3.org/ns/shacl#MinInclusiveConstraintComponent"
+        }
+      ],
+      "observed": "semantic_error"
+    },
+    {
+      "case_id": "E008",
+      "files": [
+        "03_edge_cases/E008_bearing.txt"
+      ],
+      "expected_outcome": "semantic_error",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": false,
+      "shacl_issues": [
+        {
+          "focus_node": "urn:ontoproduct:record:E008",
+          "path": "",
+          "message": "inner_diameter must be less than outer_diameter",
+          "constraint": "http://www.w3.org/ns/shacl#SPARQLConstraintComponent"
+        }
+      ],
+      "observed": "semantic_error"
+    },
+    {
+      "case_id": "E009",
+      "files": [
+        "03_edge_cases/E009_bearing.txt"
+      ],
+      "expected_outcome": "semantic_error",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": false,
+      "shacl_issues": [
+        {
+          "focus_node": "urn:ontoproduct:record:E009",
+          "path": "",
+          "message": "inner_diameter must be less than outer_diameter",
+          "constraint": "http://www.w3.org/ns/shacl#SPARQLConstraintComponent"
+        }
+      ],
+      "observed": "semantic_error"
+    },
+    {
+      "case_id": "E010",
+      "files": [
+        "03_edge_cases/E010_bearing.txt"
+      ],
+      "expected_outcome": "unsupported_unit",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.inner_diameter",
+          "code": "UNIT",
+          "message": "Expected canonical unit 'mm'",
+          "severity": "error"
+        }
+      ],
+      "observed": "unsupported_unit"
+    },
+    {
+      "case_id": "E011",
+      "files": [
+        "03_edge_cases/E011_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "E012",
+      "files": [
+        "03_edge_cases/E012_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "E013",
+      "files": [
+        "03_edge_cases/E013_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "E014",
+      "files": [
+        "03_edge_cases/E014_bearing.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "E015",
+      "files": [
+        "03_edge_cases/E015_bldcmotor.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "D001",
+      "files": [
+        "04_multi_document/D001/D001_1_datasheet.txt",
+        "04_multi_document/D001/D001_2_supplement.txt"
+      ],
+      "expected_outcome": "valid",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "D002",
+      "files": [
+        "04_multi_document/D002/D002_1_datasheet.txt",
+        "04_multi_document/D002/D002_2_supplement.txt"
+      ],
+      "expected_outcome": "equivalent_values",
+      "validation_valid": true,
+      "validation_issues": [],
+      "shacl_valid": true,
+      "observed": "valid"
+    },
+    {
+      "case_id": "D003",
+      "files": [
+        "04_multi_document/D003/D003_1_datasheet.txt",
+        "04_multi_document/D003/D003_2_supplement.txt"
+      ],
+      "expected_outcome": "required_conflict",
+      "validation_valid": false,
+      "validation_issues": [
+        {
+          "field": "attributes.rated_power",
+          "code": "MISSING_REQUIRED",
+          "message": "Required property rated_power is missing",
+          "severity": "error"
+        }
+      ],
+      "observed": "required_conflict"
+    },
+    {
+      "case_id": "D004",
+      "files": [
+        "04_multi_document/D004/D004_1_datasheet.txt",
+        "04_multi_document/D004/D004_2_supplement.txt"
+      ],
+      "expected_outcome": "optional_conflict",
+      "observed": "document_conflict"
+    },
+    {
+      "case_id": "D005",
+      "files": [
+        "04_multi_document/D005/D005_1_datasheet.txt",
+        "04_multi_document/D005/D005_2_supplement.txt"
+      ],
+      "expected_outcome": "identity_conflict",
+      "observed": "document_conflict"
+    }
+  ],
+  "related_pytest": {
+    "command": ".venv/Scripts/python.exe -m pytest tests/test_real_parser.py tests/test_real_extraction.py tests/test_real_ontology_agent.py -q",
+    "stdout": "........................................................................ [ 80%]\r\n.................                                                        [100%]\r\n89 passed in 7.27s",
+    "exit_code": 0
+  }
+}

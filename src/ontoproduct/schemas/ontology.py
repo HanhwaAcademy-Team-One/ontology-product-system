@@ -18,7 +18,11 @@ class PropertyDefinition(DomainModel):
             raise ValueError("canonical_unit must be an allowed unit")
         if self.units and not self.canonical_unit:
             raise ValueError("units require canonical_unit")
-        if self.minimum is not None and self.maximum is not None and self.minimum > self.maximum:
+        if (
+            self.minimum is not None
+            and self.maximum is not None
+            and self.minimum > self.maximum
+        ):
             raise ValueError("minimum exceeds maximum")
         return self
 
@@ -53,8 +57,18 @@ class OntologyDefinition(DomainModel):
         return self
 
 
+class ClassificationCheck(DomainModel):
+    """An AI class that contradicts the evidence-based rule class; a human decides."""
+
+    ai_class: str
+    evidence_class: str
+    category: Literal["PARENT_CLASS", "UNSUPPORTED_SUBCLASS", "OTHER_BRANCH"]
+    evidence: dict[str, str | None]
+
+
 class OntologyMapping(DomainModel):
     product_class: str
     confidence: float = Field(ge=0, le=1)
     required_properties: dict[str, PropertyDefinition]
     optional_properties: dict[str, PropertyDefinition]
+    classification_check: ClassificationCheck | None = None

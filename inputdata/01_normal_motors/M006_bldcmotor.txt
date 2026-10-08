@@ -1,0 +1,10 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-M006
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+Manufacturer: Demo Motion Works
+Rated Voltage: 72 V
+Rated Power: 1.2 kW
+Rated Speed: 3600 rpm
+Weight: 2300 g

@@ -1,9 +1,14 @@
 """Metrics use annotated truth and recorded outputs; undefined ratios are None."""
+
 from math import isclose
 
 
 def ratio(correct, total):
-    return {"value": correct / total if total else None, "correct": correct, "total": total}
+    return {
+        "value": correct / total if total else None,
+        "correct": correct,
+        "total": total,
+    }
 
 
 def present(attributes):
@@ -32,7 +37,10 @@ def evaluate_extraction(samples):
             values += equal_value(attr.get("value"), truth[key]["value"])
             if truth[key].get("unit") is not None:
                 unit_total += 1
-                units += attr.get("value") is not None and attr.get("unit") == truth[key]["unit"]
+                units += (
+                    attr.get("value") is not None
+                    and attr.get("unit") == truth[key]["unit"]
+                )
     precision, recall = ratio(tp, tp + fp), ratio(tp, tp + fn)
     return {
         "Attribute Detection Precision": precision,
@@ -51,14 +59,19 @@ def evaluate_ontology(samples, ontology):
         outputs = sample["outputs"]
         classes += outputs["ontology_mapping"]["product_class"] == expected_class
         attrs = outputs["normalized_product"]["attributes"]
-        reported = {issue["field"].removeprefix("attributes.") for issue in
-                    outputs["validation_result"]["issues"] if issue["code"] == "MISSING_REQUIRED"}
+        reported = {
+            issue["field"].removeprefix("attributes.")
+            for issue in outputs["validation_result"]["issues"]
+            if issue["code"] == "MISSING_REQUIRED"
+        }
         for key in ontology.resolve_required_properties(expected_class):
             missing = key not in attrs or attrs[key].get("value") is None
             required_correct += missing == (key in reported)
             required_total += 1
-    return {"Ontology Classification Accuracy": ratio(classes, len(samples)),
-            "Required Field Detection Accuracy": ratio(required_correct, required_total)}
+    return {
+        "Ontology Classification Accuracy": ratio(classes, len(samples)),
+        "Required Field Detection Accuracy": ratio(required_correct, required_total),
+    }
 
 
 def evaluate_duplicate(samples, *, k=3):
@@ -77,8 +90,14 @@ def evaluate_duplicate(samples, *, k=3):
         if not relevant:
             negative_total += 1
             negative_correct += not names
-        per_query.append({"case_id": sample["ground_truth"]["case_id"], "retrieved": names,
-                          "relevant": sorted(relevant), "hits": matched})
+        per_query.append(
+            {
+                "case_id": sample["ground_truth"]["case_id"],
+                "retrieved": names,
+                "relevant": sorted(relevant),
+                "hits": matched,
+            }
+        )
     # Precision@K uses K slots per query, including empty slots; recall is micro over relevant labels.
     return {f"Duplicate Precision@{k}": ratio(hits, k * len(samples)),
             f"Duplicate Recall@{k}": ratio(hits, relevant_total),

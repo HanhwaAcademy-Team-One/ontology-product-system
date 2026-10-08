@@ -1,0 +1,7 @@
+﻿Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-E014
+Product Class: Bearing
+Construction: Rolling bearing
+
+내경: 20 mm
+외경: 47 mm

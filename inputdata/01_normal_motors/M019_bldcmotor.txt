@@ -1,0 +1,10 @@
+Synthetic product data. Not a commercial datasheet.
+Product Name: DEMO-M019
+Product Class: BLDCMotor
+Construction: Brushless DC motor
+
+Manufacturer: Demo Motion Works
+Rated Voltage: 96 V
+Rated Power: 3200 W
+Rated Speed: 5000 rpm
+Weight: 6.4 kg

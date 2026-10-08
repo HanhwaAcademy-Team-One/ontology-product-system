@@ -7,8 +7,12 @@ from ontoproduct.schemas.error import unresolved_errors
 from conftest import count_runs, fail_once
 
 
-@pytest.mark.parametrize("name", ["parser", "extraction", "ontology", "reviewer", "registration"])
-def test_real_error_interrupt_retry_resolves_same_error(complete_registry, ontology, config, name):
+@pytest.mark.parametrize(
+    "name", ["parser", "extraction", "ontology", "reviewer", "registration"]
+)
+def test_real_error_interrupt_retry_resolves_same_error(
+    complete_registry, ontology, config, name
+):
     fail_once(complete_registry.get(name))
     graph = build_workflow(complete_registry, ontology=ontology)
     result = graph.invoke(initial_state(), config)
@@ -21,7 +25,9 @@ def test_real_error_interrupt_retry_resolves_same_error(complete_registry, ontol
     result = graph.invoke(Command(resume={"action": "RETRY"}), config)
     state = graph.get_state(config).values
     assert not unresolved_errors(state["error_events"])
-    assert [e["status"] for e in state["error_events"] if e["error_id"] == error["error_id"]] == ["OPEN", "RESOLVED"]
+    assert [
+        e["status"] for e in state["error_events"] if e["error_id"] == error["error_id"]
+    ] == ["OPEN", "RESOLVED"]
     assert count_runs(state, name) == 2
     assert state["extraction_retry_count"] == state["ontology_retry_count"] == 0
     if name == "registration":
@@ -32,7 +38,9 @@ def test_real_error_interrupt_retry_resolves_same_error(complete_registry, ontol
         assert result["case_status"] == "REGISTERED"
 
 
-def test_failed_error_retry_preserves_each_open_event_then_resolves(registry, ontology, config):
+def test_failed_error_retry_preserves_each_open_event_then_resolves(
+    registry, ontology, config
+):
     agent = registry.get("parser")
     original = agent.run
     calls = []
@@ -42,6 +50,7 @@ def test_failed_error_retry_preserves_each_open_event_then_resolves(registry, on
         if len(calls) < 3:
             raise OSError("Still broken")
         return original(state)
+
     agent.run = run
     graph = build_workflow(registry, ontology=ontology)
     graph.invoke(initial_state(), config)
@@ -52,7 +61,12 @@ def test_failed_error_retry_preserves_each_open_event_then_resolves(registry, on
     graph.invoke(Command(resume={"action": "RETRY"}), config)
     state = graph.get_state(config).values
     assert not unresolved_errors(state["error_events"])
-    assert [e["status"] for e in state["error_events"]] == ["OPEN", "OPEN", "RESOLVED", "RESOLVED"]
+    assert [e["status"] for e in state["error_events"]] == [
+        "OPEN",
+        "OPEN",
+        "RESOLVED",
+        "RESOLVED",
+    ]
     assert count_runs(state, "parser") == 3
 
 

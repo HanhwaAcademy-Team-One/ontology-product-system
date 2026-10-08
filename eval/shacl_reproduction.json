@@ -1,0 +1,111 @@
+{
+  "mode": "offline_reference",
+  "actual_llm_calls": 0,
+  "records": [
+    {
+      "case_id": "E007",
+      "source_hashes": {
+        "03_edge_cases/E007_bldcmotor.txt": "06ef4d5b071e0eb3614aabcfbb9aa04621523ae2578f953b601845a9c92ded37"
+      },
+      "rules": {
+        "valid": false,
+        "issues": [
+          {
+            "field": "attributes.weight",
+            "code": "RANGE",
+            "message": "Value is below 0.0",
+            "severity": "error"
+          }
+        ]
+      },
+      "shacl": {
+        "valid": false,
+        "issues": [
+          {
+            "focus_node": "urn:ontoproduct:record:validation",
+            "path": "urn:ontoproduct:ontology:mass",
+            "message": "Value does not conform to Shape [ rdf:type sh:NodeShape ; sh:property [ sh:hasValue opqk:mass ; sh:maxCount Literal(\"1\", datatype=xsd:integer) ; sh:minCount Literal(\"1\", datatype=xsd:integer) ; sh:path op:hasQuantityKind ], [ sh:hasValue opunit:kg ; sh:maxCount Literal(\"1\", datatype=xsd:integer) ; sh:minCount Literal(\"1\", datatype=xsd:integer) ; sh:path op:hasUnit ], [ sh:maxCount Literal(\"1\", datatype=xsd:integer) ; sh:minCount Literal(\"1\", datatype=xsd:integer) ; sh:minInclusive Literal(\"0.0\", datatype=xsd:double) ; sh:or ( [ sh:datatype xsd:integer ] [ sh:datatype xsd:decimal ] [ sh:datatype xsd:double ] [ sh:datatype xsd:float ] ) ; sh:path op:numericValue ; sh:pattern Literal(\"^[+-]?([0-9]+(\\.[0-9]*)?|\\.[0-9]+)([eE][+-]?[0-9]+)?$\") ] ]. See details for more information.",
+            "constraint": "http://www.w3.org/ns/shacl#NodeConstraintComponent"
+          },
+          {
+            "focus_node": "urn:ontoproduct:record:validation:value:weight",
+            "path": "urn:ontoproduct:ontology:numericValue",
+            "message": "Value is not >= Literal(\"0.0\", datatype=xsd:double)",
+            "constraint": "http://www.w3.org/ns/shacl#MinInclusiveConstraintComponent"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "E008",
+      "source_hashes": {
+        "03_edge_cases/E008_bearing.txt": "d36ed0707065f2db702d6b37483af5d34c5a2876e4e33b6aaab64b8e1c2f8a3d"
+      },
+      "rules": {
+        "valid": true,
+        "issues": []
+      },
+      "shacl": {
+        "valid": false,
+        "issues": [
+          {
+            "focus_node": "urn:ontoproduct:record:validation",
+            "path": "",
+            "message": "inner_diameter must be less than outer_diameter",
+            "constraint": "http://www.w3.org/ns/shacl#SPARQLConstraintComponent"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "E009",
+      "source_hashes": {
+        "03_edge_cases/E009_bearing.txt": "d9cd209a5b54f0f482f0fb2d3a01140beec901e689593d6f47c6e27b0b5ea42d"
+      },
+      "rules": {
+        "valid": true,
+        "issues": []
+      },
+      "shacl": {
+        "valid": false,
+        "issues": [
+          {
+            "focus_node": "urn:ontoproduct:record:validation",
+            "path": "",
+            "message": "inner_diameter must be less than outer_diameter",
+            "constraint": "http://www.w3.org/ns/shacl#SPARQLConstraintComponent"
+          }
+        ]
+      }
+    },
+    {
+      "case_id": "D003",
+      "source_hashes": {
+        "04_multi_document/D003/D003_1_datasheet.txt": "893d6cf67d44f5cdc60d0fc2d16cf85a44617e61b22f9ab2afa6187c0c441041",
+        "04_multi_document/D003/D003_2_supplement.txt": "2eab872185204e20679f7ace2954c264c44c78f18235e716b9d10c9c761d0f2d"
+      },
+      "rules": {
+        "valid": false,
+        "issues": [
+          {
+            "field": "attributes.rated_power",
+            "code": "MISSING_REQUIRED",
+            "message": "Required property rated_power has conflicting document values",
+            "severity": "error"
+          }
+        ]
+      },
+      "shacl": {
+        "valid": false,
+        "issues": [
+          {
+            "focus_node": "urn:ontoproduct:record:validation",
+            "path": "urn:ontoproduct:ontology:ratedPower",
+            "message": "Less than 1 values on <urn:ontoproduct:record:validation>->op:ratedPower",
+            "constraint": "http://www.w3.org/ns/shacl#MinCountConstraintComponent"
+          }
+        ]
+      }
+    }
+  ]
+}

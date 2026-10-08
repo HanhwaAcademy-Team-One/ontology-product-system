@@ -8,7 +8,9 @@ def normalize_attributes(attributes, properties, ontology):
         if key not in properties or attr.get("value") is None:
             continue
         try:
-            attr["value"], attr["unit"] = ontology.normalize_unit(properties[key], attr["value"], attr.get("unit"))
+            attr["value"], attr["unit"] = ontology.normalize_unit(
+                properties[key], attr["value"], attr.get("unit")
+            )
         except ValueError:
             # Keep invalid evidence for deterministic validation and human repair.
             pass
@@ -32,7 +34,10 @@ def merge_extraction_retry(state, incoming):
 def apply_overrides(state, ontology):
     product = deepcopy(state["base_normalized_product"])
     properties = ontology.resolve_properties(product["product_class"])
-    overrides = {**deepcopy(state.get("orphaned_overrides", {})), **deepcopy(state.get("manual_overrides", {}))}
+    overrides = {
+        **deepcopy(state.get("orphaned_overrides", {})),
+        **deepcopy(state.get("manual_overrides", {})),
+    }
     active, orphaned = {}, {}
     for path, value in overrides.items():
         if path == "product_class":
@@ -40,16 +45,25 @@ def apply_overrides(state, ontology):
         elif path == "product_name":
             product["product_name"] = value
             active[path] = value
-        elif path.startswith("attributes.") and path.removeprefix("attributes.") in properties:
+        elif (
+            path.startswith("attributes.")
+            and path.removeprefix("attributes.") in properties
+        ):
             attr = ProductAttribute.model_validate(value).model_dump(mode="json")
             attr.update(provenance="HUMAN", confidence=None)
             key = path.removeprefix("attributes.")
-            product["attributes"][key] = normalize_attributes({key: attr}, properties, ontology)[key]
+            product["attributes"][key] = normalize_attributes(
+                {key: attr}, properties, ontology
+            )[key]
             active[path] = attr
         else:
             orphaned[path] = value
     product = NormalizedProduct.model_validate(product).model_dump(mode="json")
-    return {"normalized_product": product, "manual_overrides": active, "orphaned_overrides": orphaned}
+    return {
+        "normalized_product": product,
+        "manual_overrides": active,
+        "orphaned_overrides": orphaned,
+    }
 
 
 def human_edits(state, edits, changed_class, ontology):
@@ -60,7 +74,10 @@ def human_edits(state, edits, changed_class, ontology):
     for path, value in edits.items():
         if path == "product_name" and isinstance(value, str) and value.strip():
             active[path] = value
-        elif path.startswith("attributes.") and path.removeprefix("attributes.") in properties:
+        elif (
+            path.startswith("attributes.")
+            and path.removeprefix("attributes.") in properties
+        ):
             attr = ProductAttribute.model_validate(value).model_dump(mode="json")
             attr.update(provenance="HUMAN", confidence=None)
             active[path] = attr

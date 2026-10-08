@@ -1,0 +1,18 @@
+# LLM team defaults. Environment variables override every value here:
+#   LLM_PROVIDER, LLM_MODEL, LLM_MODEL_EXTRACTION, LLM_MODEL_ONTOLOGY,
+#   LLM_TIMEOUT_SECONDS, LLM_MAX_RETRIES.
+# AGENT_MODE (mock/real) is chosen only by the environment.
+# Never put API keys here; the provider SDK reads them from its own environment variable.
+
+provider: openai # API key: OPENAI_API_KEY environment variable
+
+models:
+  # Shared by every LLM agent unless an agent-specific model is set.
+  default: gpt-5
+  # Optional per-agent overrides. Ontology only selects a class, so a cheaper
+  # model can be set here later if cost matters.
+  # extraction: null
+  # ontology: null
+
+timeout_seconds: 250 # per model request; a gpt-5 sample took about 39 s
+max_retries: 2 # short transport retries, separate from Graph business retries

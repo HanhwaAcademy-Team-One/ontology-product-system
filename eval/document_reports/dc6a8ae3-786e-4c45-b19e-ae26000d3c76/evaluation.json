@@ -1,0 +1,1387 @@
+{
+  "schema_version": 1,
+  "run_id": "dc6a8ae3-786e-4c45-b19e-ae26000d3c76",
+  "generated_at": "2026-10-08T16:33:50.656175+00:00",
+  "mode": "live",
+  "live_llm_verified": true,
+  "report_directory": "D:\\ontology-product-system\\eval\\document_reports\\dc6a8ae3-786e-4c45-b19e-ae26000d3c76",
+  "manifest_sha256": "5811c2f9a9c2e493e7c6df621c135ee666fb441a92c022774b055ca88d7a68b7",
+  "verification_sha256": "6b677138c41406769630a899e9f40095183e61a02f2718144305b8337188e887",
+  "dataset": {
+    "name": "inputdata synthetic documents",
+    "case_count": 4,
+    "limitations": "Manifest truth candidates; offline reference responses are not LLM accuracy. No OCR. Duplicate relevance is unannotated; no duplicate accuracy claim."
+  },
+  "definitions": {
+    "outcome_mapping": {
+      "valid": "valid",
+      "equivalent_values": "valid",
+      "classification_error": "classification_error",
+      "missing_required": "missing_required",
+      "unsupported_unit": "unsupported_unit",
+      "semantic_error": "semantic_error",
+      "required_conflict": "required_conflict",
+      "optional_conflict": "document_conflict",
+      "identity_conflict": "document_conflict"
+    },
+    "quality_metrics": "Known normalized truth only; failures remain in denominators. Unknown truth coverage is explicit.",
+    "automatic": "All outputs before EDIT/APPROVE; no products saved.",
+    "calls": "Service calls; SDK transport retries are not counted separately.",
+    "confidence": "Null scores / observed non-null normalized AI attributes. Unproduced attributes are outside this score-only denominator; quality metrics still penalize missing known truth. No calibrated probability claim."
+  },
+  "truth_coverage": {
+    "normalized_truth_groups": 2,
+    "unknown_normalized_truth_groups": 2,
+    "independently_human_reviewed": false
+  },
+  "call_count": 8,
+  "limits": {
+    "max_calls": 8,
+    "time_limit_seconds": 600,
+    "semantics": "Checked before each service call; in-flight SDK calls retain configured timeout/retries."
+  },
+  "limited_cases": [],
+  "calls": [
+    {
+      "task": "extraction",
+      "prompt_version": "2.1.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 23.100066100014374
+    },
+    {
+      "task": "ontology",
+      "prompt_version": "3.0.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 11.308782599982806
+    },
+    {
+      "task": "extraction",
+      "prompt_version": "2.1.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 8.609696900006384
+    },
+    {
+      "task": "ontology",
+      "prompt_version": "3.0.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 6.2940597999840975
+    },
+    {
+      "task": "extraction",
+      "prompt_version": "2.1.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 16.714317700010724
+    },
+    {
+      "task": "ontology",
+      "prompt_version": "3.0.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 19.29875760001596
+    },
+    {
+      "task": "extraction",
+      "prompt_version": "2.1.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 15.455327200004831
+    },
+    {
+      "task": "ontology",
+      "prompt_version": "3.0.0",
+      "provider": "openai",
+      "model": "gpt-5",
+      "status": "success",
+      "seconds": 11.718258999986574
+    }
+  ],
+  "failures": [
+    "E008-002",
+    "E009-003"
+  ],
+  "suites": [
+    {
+      "label": "LIVE MODEL EVALUATION",
+      "input_mode": "live",
+      "agents": [
+        {
+          "name": "parser",
+          "provider": "local-document-parser",
+          "version": "0.3.0",
+          "is_mock": false,
+          "required_reads": [
+            "source_documents"
+          ],
+          "optional_reads": [],
+          "writes": [
+            "parsed_documents"
+          ],
+          "health": true
+        },
+        {
+          "name": "extraction",
+          "provider": "structured-llm-adapter",
+          "version": "2.1.0",
+          "is_mock": false,
+          "required_reads": [
+            "parsed_documents"
+          ],
+          "optional_reads": [
+            "locked_fields",
+            "ontology_mapping",
+            "review_result"
+          ],
+          "writes": [
+            "extracted_product"
+          ],
+          "health": true
+        },
+        {
+          "name": "ontology",
+          "provider": "ontology-structured-llm-adapter",
+          "version": "3.0.0",
+          "is_mock": false,
+          "required_reads": [
+            "extracted_product"
+          ],
+          "optional_reads": [
+            "locked_fields",
+            "manual_overrides"
+          ],
+          "writes": [
+            "base_normalized_product",
+            "ontology_mapping"
+          ],
+          "health": true
+        },
+        {
+          "name": "validation",
+          "provider": "python-validation-rules",
+          "version": "0.2.0",
+          "is_mock": false,
+          "required_reads": [
+            "normalized_product",
+            "ontology_mapping"
+          ],
+          "optional_reads": [],
+          "writes": [
+            "validation_result"
+          ],
+          "health": true
+        },
+        {
+          "name": "duplicate",
+          "provider": "sqlite-rule-engine",
+          "version": "0.3.0",
+          "is_mock": false,
+          "required_reads": [
+            "normalized_product",
+            "ontology_mapping"
+          ],
+          "optional_reads": [],
+          "writes": [
+            "duplicate_candidates"
+          ],
+          "health": true
+        },
+        {
+          "name": "reviewer",
+          "provider": "python-review-rules",
+          "version": "0.1.0",
+          "is_mock": false,
+          "required_reads": [
+            "duplicate_candidates",
+            "normalized_product",
+            "ontology_mapping",
+            "validation_result"
+          ],
+          "optional_reads": [
+            "locked_fields",
+            "review_result"
+          ],
+          "writes": [
+            "review_result"
+          ],
+          "health": true
+        },
+        {
+          "name": "registration",
+          "provider": "sqlite",
+          "version": "0.2.0",
+          "is_mock": false,
+          "required_reads": [
+            "human_review",
+            "normalized_product"
+          ],
+          "optional_reads": [
+            "duplicate_candidates",
+            "ontology_mapping"
+          ],
+          "writes": [
+            "final_product"
+          ],
+          "health": true
+        }
+      ],
+      "metrics": {
+        "Attribute Detection Precision": {
+          "value": 1.0,
+          "correct": 7,
+          "total": 7
+        },
+        "Attribute Detection Recall": {
+          "value": 1.0,
+          "correct": 7,
+          "total": 7
+        },
+        "Attribute Detection F1": {
+          "value": 1.0,
+          "correct": 14,
+          "total": 14
+        },
+        "Attribute Value Accuracy": {
+          "value": 1.0,
+          "correct": 7,
+          "total": 7
+        },
+        "Unit Normalization Accuracy": {
+          "value": 1.0,
+          "correct": 6,
+          "total": 6
+        },
+        "detection_counts": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0
+        },
+        "Ontology Classification Accuracy": {
+          "value": 1.0,
+          "correct": 2,
+          "total": 2
+        },
+        "Required Field Detection Accuracy": {
+          "value": 1.0,
+          "correct": 6,
+          "total": 6
+        },
+        "Expected Outcome Accuracy": {
+          "value": 0.5,
+          "correct": 2,
+          "total": 4
+        },
+        "AI Confidence Null Rate": {
+          "value": 0.18181818181818182,
+          "correct": 2,
+          "total": 11
+        },
+        "Human Repair Case Rate": {
+          "value": 0.5,
+          "correct": 2,
+          "total": 4
+        }
+      },
+      "samples": [
+        {
+          "ground_truth": {
+            "case_id": "M001-000",
+            "source_sha256": "7d9473dc63624dcc463312f28633ba00020603cfe15f10656313e7552dad3527",
+            "ground_truth_sha256": "24ff376a2384e3f1c835272ce3a50d55f6efc811b6d70f77c08742302437c58e",
+            "product": {
+              "product_name": "DEMO-M001",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "Demo Motion Works",
+                  "unit": null
+                },
+                "rated_voltage": {
+                  "value": 48,
+                  "unit": "V"
+                },
+                "rated_power": {
+                  "value": 600.0,
+                  "unit": "W"
+                },
+                "rated_speed": {
+                  "value": 3000,
+                  "unit": "rpm"
+                },
+                "weight": {
+                  "value": 0.75,
+                  "unit": "kg"
+                }
+              }
+            },
+            "relevant_duplicates": []
+          },
+          "outputs": {
+            "parsed_documents": [
+              {
+                "source_file": "M001_bldcmotor.txt",
+                "text": "Synthetic product data. Not a commercial datasheet.\nProduct Name: DEMO-M001\nProduct Class: BLDCMotor\nConstruction: Brushless DC motor\n\nManufacturer: Demo Motion Works\nRated Voltage: 48 V\nRated Power: 0.6 kW\nRated Speed: 3000 rpm\nWeight: 750 g\n",
+                "page": null
+              }
+            ],
+            "extracted_product": {
+              "product_name": "DEMO-M001",
+              "candidate_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "Demo Motion Works",
+                  "unit": null,
+                  "confidence": 0.96,
+                  "evidence": "Manufacturer: Demo Motion Works",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 48,
+                  "unit": "V",
+                  "confidence": 0.98,
+                  "evidence": "Rated Voltage: 48 V",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 0.6,
+                  "unit": "kW",
+                  "confidence": 0.98,
+                  "evidence": "Rated Power: 0.6 kW",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_speed": {
+                  "value": 3000,
+                  "unit": "rpm",
+                  "confidence": 0.98,
+                  "evidence": "Rated Speed: 3000 rpm",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "weight": {
+                  "value": 750,
+                  "unit": "g",
+                  "confidence": 0.98,
+                  "evidence": "Weight: 750 g",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "normalized_product": {
+              "product_name": "DEMO-M001",
+              "product_class": "BLDCMotor",
+              "attributes": {
+                "manufacturer": {
+                  "value": "Demo Motion Works",
+                  "unit": null,
+                  "confidence": 0.96,
+                  "evidence": "Manufacturer: Demo Motion Works",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_voltage": {
+                  "value": 48,
+                  "unit": "V",
+                  "confidence": 0.98,
+                  "evidence": "Rated Voltage: 48 V",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_power": {
+                  "value": 600.0,
+                  "unit": "W",
+                  "confidence": 0.98,
+                  "evidence": "Rated Power: 0.6 kW",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "rated_speed": {
+                  "value": 3000,
+                  "unit": "rpm",
+                  "confidence": 0.98,
+                  "evidence": "Rated Speed: 3000 rpm",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "weight": {
+                  "value": 0.75,
+                  "unit": "kg",
+                  "confidence": 0.98,
+                  "evidence": "Weight: 750 g",
+                  "source_file": "M001_bldcmotor.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "ontology_mapping": {
+              "product_class": "BLDCMotor",
+              "confidence": 0.88,
+              "required_properties": {
+                "manufacturer": {
+                  "type": "string",
+                  "canonical_unit": null,
+                  "units": [],
+                  "minimum": null,
+                  "maximum": null
+                },
+                "rated_voltage": {
+                  "type": "number",
+                  "canonical_unit": "V",
+                  "units": [
+                    "V"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_power": {
+                  "type": "number",
+                  "canonical_unit": "W",
+                  "units": [
+                    "W",
+                    "kW"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "rated_speed": {
+                  "type": "number",
+                  "canonical_unit": "rpm",
+                  "units": [
+                    "rpm"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              },
+              "optional_properties": {
+                "weight": {
+                  "type": "number",
+                  "canonical_unit": "kg",
+                  "units": [
+                    "g",
+                    "kg"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              }
+            },
+            "validation_result": {
+              "valid": true,
+              "issues": []
+            },
+            "duplicate_candidates": [],
+            "review_result": {
+              "decision": "READY_FOR_HUMAN",
+              "reason": "Required properties are valid; human approval is required.",
+              "retry_fields": [],
+              "can_register": true
+            },
+            "agent_logs": [
+              {
+                "execution_id": "8a88a1ba-75c1-40f6-9c28-46620b081b8f",
+                "agent": "parser",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:31:57.414074+00:00"
+              },
+              {
+                "execution_id": "8a88a1ba-75c1-40f6-9c28-46620b081b8f",
+                "agent": "parser",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0018251000437885523,
+                "timestamp": "2026-10-08T16:31:57.416061+00:00"
+              },
+              {
+                "execution_id": "b471e629-3695-4bf0-af7e-adc78c3b787a",
+                "agent": "extraction",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:31:57.417060+00:00"
+              },
+              {
+                "execution_id": "b471e629-3695-4bf0-af7e-adc78c3b787a",
+                "agent": "extraction",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 23.101787699968554,
+                "timestamp": "2026-10-08T16:32:20.518347+00:00"
+              },
+              {
+                "execution_id": "e1427ab8-09e3-4edf-9e0b-00fbaf7f2693",
+                "agent": "ontology",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:20.519351+00:00"
+              },
+              {
+                "execution_id": "e1427ab8-09e3-4edf-9e0b-00fbaf7f2693",
+                "agent": "ontology",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 11.310663899988867,
+                "timestamp": "2026-10-08T16:32:31.830749+00:00"
+              },
+              {
+                "execution_id": "cd5bead6-0ba3-4eed-8a92-68f095b3e3e5",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:31.834735+00:00"
+              },
+              {
+                "execution_id": "cd5bead6-0ba3-4eed-8a92-68f095b3e3e5",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.15808339999057353,
+                "timestamp": "2026-10-08T16:32:31.992809+00:00"
+              },
+              {
+                "execution_id": "590d17c4-8abe-40b5-a928-ef85ff137217",
+                "agent": "validation",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:31.835733+00:00"
+              },
+              {
+                "execution_id": "590d17c4-8abe-40b5-a928-ef85ff137217",
+                "agent": "validation",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.15692069998476654,
+                "timestamp": "2026-10-08T16:32:31.992809+00:00"
+              },
+              {
+                "execution_id": "a9a8dea3-028d-4111-bfa5-274229048069",
+                "agent": "reviewer",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:31.994845+00:00"
+              },
+              {
+                "execution_id": "a9a8dea3-028d-4111-bfa5-274229048069",
+                "agent": "reviewer",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0002738999901339412,
+                "timestamp": "2026-10-08T16:32:31.994845+00:00"
+              }
+            ],
+            "error_events": []
+          },
+          "case_status": "READY_FOR_HUMAN",
+          "source_hashes": {
+            "01_normal_motors/M001_bldcmotor.txt": "67d97e6ac4337791cf74b08b1401b7743240f892d9e49ed732dc714f90adefca"
+          },
+          "expected_outcome": "valid",
+          "observed_outcome": "valid",
+          "outcome_matches": true,
+          "saved_products": 0,
+          "integration_after_human": null,
+          "calls": [
+            {
+              "task": "extraction",
+              "prompt_version": "2.1.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 23.100066100014374
+            },
+            {
+              "task": "ontology",
+              "prompt_version": "3.0.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 11.308782599982806
+            }
+          ],
+          "truth_review": "manifest_candidate; lexical reference anchors checked; no independent human review",
+          "extraction_retry_count": 0,
+          "ontology_retry_count": 0
+        },
+        {
+          "ground_truth": {
+            "case_id": "B001-001",
+            "source_sha256": "352d7a26dd18869c836991d813bebefb07697377d2174da4e384e17718afa7fc",
+            "ground_truth_sha256": "8501a1442cd3f7cc0517fde193862289e9d8f9fe814b518691d40956e06399da",
+            "product": {
+              "product_name": "DEMO-B001",
+              "product_class": "Bearing",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 8,
+                  "unit": "mm"
+                },
+                "outer_diameter": {
+                  "value": 22,
+                  "unit": "mm"
+                }
+              }
+            },
+            "relevant_duplicates": []
+          },
+          "outputs": {
+            "parsed_documents": [
+              {
+                "source_file": "B001_bearing.txt",
+                "text": "Synthetic product data. Not a commercial datasheet.\nProduct Name: DEMO-B001\nProduct Class: Bearing\nConstruction: Rolling bearing\n\nInner Diameter: 8 mm\nOuter Diameter: 22 mm\n",
+                "page": null
+              }
+            ],
+            "extracted_product": {
+              "product_name": "DEMO-B001",
+              "candidate_class": "Bearing",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 8,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Inner Diameter: 8 mm",
+                  "source_file": "B001_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "outer_diameter": {
+                  "value": 22,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Outer Diameter: 22 mm",
+                  "source_file": "B001_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "normalized_product": {
+              "product_name": "DEMO-B001",
+              "product_class": "Bearing",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 8,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Inner Diameter: 8 mm",
+                  "source_file": "B001_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "outer_diameter": {
+                  "value": 22,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Outer Diameter: 22 mm",
+                  "source_file": "B001_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "ontology_mapping": {
+              "product_class": "Bearing",
+              "confidence": 0.95,
+              "required_properties": {
+                "inner_diameter": {
+                  "type": "number",
+                  "canonical_unit": "mm",
+                  "units": [
+                    "mm"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                },
+                "outer_diameter": {
+                  "type": "number",
+                  "canonical_unit": "mm",
+                  "units": [
+                    "mm"
+                  ],
+                  "minimum": 0.0,
+                  "maximum": null
+                }
+              },
+              "optional_properties": {}
+            },
+            "validation_result": {
+              "valid": true,
+              "issues": []
+            },
+            "duplicate_candidates": [],
+            "review_result": {
+              "decision": "READY_FOR_HUMAN",
+              "reason": "Required properties are valid; human approval is required.",
+              "retry_fields": [],
+              "can_register": true
+            },
+            "agent_logs": [
+              {
+                "execution_id": "b2246b3b-7ed4-4762-9714-a577ac3058a6",
+                "agent": "parser",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:32.097900+00:00"
+              },
+              {
+                "execution_id": "b2246b3b-7ed4-4762-9714-a577ac3058a6",
+                "agent": "parser",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0018859999254345894,
+                "timestamp": "2026-10-08T16:32:32.099899+00:00"
+              },
+              {
+                "execution_id": "a0003dad-7bb8-485a-bf27-1d36616ee584",
+                "agent": "extraction",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:32.100899+00:00"
+              },
+              {
+                "execution_id": "a0003dad-7bb8-485a-bf27-1d36616ee584",
+                "agent": "extraction",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 8.611383700044826,
+                "timestamp": "2026-10-08T16:32:40.712408+00:00"
+              },
+              {
+                "execution_id": "729bd83c-a953-4326-b82f-b136d4998fa1",
+                "agent": "ontology",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:40.714411+00:00"
+              },
+              {
+                "execution_id": "729bd83c-a953-4326-b82f-b136d4998fa1",
+                "agent": "ontology",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 6.2957184999249876,
+                "timestamp": "2026-10-08T16:32:47.010508+00:00"
+              },
+              {
+                "execution_id": "b6facf5a-e163-48fd-ba9c-035e8644f7d3",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:47.014504+00:00"
+              },
+              {
+                "execution_id": "b6facf5a-e163-48fd-ba9c-035e8644f7d3",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.07445819990243763,
+                "timestamp": "2026-10-08T16:32:47.089128+00:00"
+              },
+              {
+                "execution_id": "eec87602-434b-48b1-9e44-920327ec7ced",
+                "agent": "validation",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:47.016510+00:00"
+              },
+              {
+                "execution_id": "eec87602-434b-48b1-9e44-920327ec7ced",
+                "agent": "validation",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.06990320002660155,
+                "timestamp": "2026-10-08T16:32:47.086149+00:00"
+              },
+              {
+                "execution_id": "adedebb3-9969-434b-881e-476b86cc600c",
+                "agent": "reviewer",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:47.092146+00:00"
+              },
+              {
+                "execution_id": "adedebb3-9969-434b-881e-476b86cc600c",
+                "agent": "reviewer",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00018960004672408104,
+                "timestamp": "2026-10-08T16:32:47.093116+00:00"
+              }
+            ],
+            "error_events": []
+          },
+          "case_status": "READY_FOR_HUMAN",
+          "source_hashes": {
+            "02_normal_bearings/B001_bearing.txt": "e9bdd0f43140d027d7d3cd645a556b39392e24f01aae9bf34f6c1f991b854c77"
+          },
+          "expected_outcome": "valid",
+          "observed_outcome": "valid",
+          "outcome_matches": true,
+          "saved_products": 0,
+          "integration_after_human": null,
+          "calls": [
+            {
+              "task": "extraction",
+              "prompt_version": "2.1.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 8.609696900006384
+            },
+            {
+              "task": "ontology",
+              "prompt_version": "3.0.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 6.2940597999840975
+            }
+          ],
+          "truth_review": "manifest_candidate; lexical reference anchors checked; no independent human review",
+          "extraction_retry_count": 0,
+          "ontology_retry_count": 0
+        },
+        {
+          "ground_truth": {
+            "case_id": "E008-002",
+            "source_sha256": "5af365f896134113149d20991bc883d68cf4a402f99fe43556f4f9a7ce04d5d1",
+            "ground_truth_sha256": "525e9384b6e4c6396abe2b0bd44af0d07f5d25cd473591784f85d771697814ea",
+            "product": {
+              "product_name": "DEMO-E008",
+              "product_class": "Bearing",
+              "attributes": {}
+            },
+            "relevant_duplicates": []
+          },
+          "outputs": {
+            "parsed_documents": [
+              {
+                "source_file": "E008_bearing.txt",
+                "text": "Synthetic product data. Not a commercial datasheet.\nProduct Name: DEMO-E008\nProduct Class: Bearing\nConstruction: Rolling bearing\n\nInner Diameter: 20 mm\nOuter Diameter: 20 mm\n",
+                "page": null
+              }
+            ],
+            "extracted_product": {
+              "product_name": "DEMO-E008",
+              "candidate_class": "Bearing",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Inner Diameter: 20 mm",
+                  "source_file": "E008_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "outer_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Outer Diameter: 20 mm",
+                  "source_file": "E008_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "normalized_product": {
+              "product_name": "DEMO-E008",
+              "product_class": "MechanicalPart",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Inner Diameter: 20 mm",
+                  "source_file": "E008_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "outer_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": 0.95,
+                  "evidence": "Outer Diameter: 20 mm",
+                  "source_file": "E008_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "ontology_mapping": {
+              "product_class": "MechanicalPart",
+              "confidence": 0.62,
+              "required_properties": {},
+              "optional_properties": {}
+            },
+            "validation_result": {
+              "valid": true,
+              "issues": [
+                {
+                  "field": "attributes.inner_diameter",
+                  "code": "UNKNOWN_PROPERTY",
+                  "message": "Property is outside this ontology class",
+                  "severity": "warning"
+                },
+                {
+                  "field": "attributes.outer_diameter",
+                  "code": "UNKNOWN_PROPERTY",
+                  "message": "Property is outside this ontology class",
+                  "severity": "warning"
+                }
+              ]
+            },
+            "duplicate_candidates": [],
+            "review_result": {
+              "decision": "NEEDS_FIX",
+              "reason": "Ontology retry limit reached.",
+              "retry_fields": [],
+              "can_register": false
+            },
+            "agent_logs": [
+              {
+                "execution_id": "8f102628-439c-4806-9e10-39ec57b4112c",
+                "agent": "parser",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:47.179056+00:00"
+              },
+              {
+                "execution_id": "8f102628-439c-4806-9e10-39ec57b4112c",
+                "agent": "parser",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0022152999881654978,
+                "timestamp": "2026-10-08T16:32:47.181057+00:00"
+              },
+              {
+                "execution_id": "04c3dbbe-6387-4b03-b102-42c5893e2bc7",
+                "agent": "extraction",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:32:47.182057+00:00"
+              },
+              {
+                "execution_id": "04c3dbbe-6387-4b03-b102-42c5893e2bc7",
+                "agent": "extraction",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 16.715586199890822,
+                "timestamp": "2026-10-08T16:33:03.898218+00:00"
+              },
+              {
+                "execution_id": "953fc6e7-c4e9-4944-88a6-d288269224ed",
+                "agent": "ontology",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:03.899222+00:00"
+              },
+              {
+                "execution_id": "953fc6e7-c4e9-4944-88a6-d288269224ed",
+                "agent": "ontology",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 19.299892199924216,
+                "timestamp": "2026-10-08T16:33:23.199269+00:00"
+              },
+              {
+                "execution_id": "d6a16952-f16f-42e6-90bd-55d7c70f8126",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:23.204858+00:00"
+              },
+              {
+                "execution_id": "d6a16952-f16f-42e6-90bd-55d7c70f8126",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.0652875000378117,
+                "timestamp": "2026-10-08T16:33:23.269907+00:00"
+              },
+              {
+                "execution_id": "86027242-536f-4f4a-a78c-00395fe95356",
+                "agent": "validation",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:23.205887+00:00"
+              },
+              {
+                "execution_id": "86027242-536f-4f4a-a78c-00395fe95356",
+                "agent": "validation",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.06157590006478131,
+                "timestamp": "2026-10-08T16:33:23.267907+00:00"
+              },
+              {
+                "execution_id": "d11ab90f-093a-4632-8176-22a9ec3d7d7a",
+                "agent": "reviewer",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:23.272944+00:00"
+              },
+              {
+                "execution_id": "d11ab90f-093a-4632-8176-22a9ec3d7d7a",
+                "agent": "reviewer",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00020400003995746374,
+                "timestamp": "2026-10-08T16:33:23.272944+00:00"
+              }
+            ],
+            "error_events": []
+          },
+          "case_status": "NEEDS_FIX",
+          "source_hashes": {
+            "03_edge_cases/E008_bearing.txt": "d36ed0707065f2db702d6b37483af5d34c5a2876e4e33b6aaab64b8e1c2f8a3d"
+          },
+          "expected_outcome": "semantic_error",
+          "observed_outcome": "valid",
+          "outcome_matches": false,
+          "saved_products": 0,
+          "integration_after_human": null,
+          "calls": [
+            {
+              "task": "extraction",
+              "prompt_version": "2.1.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 16.714317700010724
+            },
+            {
+              "task": "ontology",
+              "prompt_version": "3.0.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 19.29875760001596
+            }
+          ],
+          "truth_review": "manifest_candidate; lexical reference anchors checked; no independent human review",
+          "extraction_retry_count": 0,
+          "ontology_retry_count": 0
+        },
+        {
+          "ground_truth": {
+            "case_id": "E009-003",
+            "source_sha256": "42e2f11f308c542c3aa26b4c713261ff5201fcdfefd9eda9a0616ecfb250354b",
+            "ground_truth_sha256": "0b1735889a6d46e1792059373e06929e7256739b49f9fab4d9cd667534efb7a0",
+            "product": {
+              "product_name": "DEMO-E009",
+              "product_class": "Bearing",
+              "attributes": {}
+            },
+            "relevant_duplicates": []
+          },
+          "outputs": {
+            "parsed_documents": [
+              {
+                "source_file": "E009_bearing.txt",
+                "text": "Synthetic product data. Not a commercial datasheet.\nProduct Name: DEMO-E009\nProduct Class: Bearing\nConstruction: Rolling bearing\n\nInner Diameter: 30 mm\nOuter Diameter: 20 mm\n",
+                "page": null
+              }
+            ],
+            "extracted_product": {
+              "product_name": "DEMO-E009",
+              "candidate_class": "Bearing",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 30,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": "Inner Diameter: 30 mm",
+                  "source_file": "E009_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "outer_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": "Outer Diameter: 20 mm",
+                  "source_file": "E009_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "normalized_product": {
+              "product_name": "DEMO-E009",
+              "product_class": "MechanicalPart",
+              "attributes": {
+                "inner_diameter": {
+                  "value": 30,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": "Inner Diameter: 30 mm",
+                  "source_file": "E009_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                },
+                "outer_diameter": {
+                  "value": 20,
+                  "unit": "mm",
+                  "confidence": null,
+                  "evidence": "Outer Diameter: 20 mm",
+                  "source_file": "E009_bearing.txt",
+                  "page": null,
+                  "provenance": "AI"
+                }
+              }
+            },
+            "ontology_mapping": {
+              "product_class": "MechanicalPart",
+              "confidence": 0.61,
+              "required_properties": {},
+              "optional_properties": {}
+            },
+            "validation_result": {
+              "valid": true,
+              "issues": [
+                {
+                  "field": "attributes.inner_diameter",
+                  "code": "UNKNOWN_PROPERTY",
+                  "message": "Property is outside this ontology class",
+                  "severity": "warning"
+                },
+                {
+                  "field": "attributes.outer_diameter",
+                  "code": "UNKNOWN_PROPERTY",
+                  "message": "Property is outside this ontology class",
+                  "severity": "warning"
+                }
+              ]
+            },
+            "duplicate_candidates": [],
+            "review_result": {
+              "decision": "NEEDS_FIX",
+              "reason": "Ontology retry limit reached.",
+              "retry_fields": [],
+              "can_register": false
+            },
+            "agent_logs": [
+              {
+                "execution_id": "e65142c3-84cf-4ee8-aa7e-809aa4af57df",
+                "agent": "parser",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:23.361201+00:00"
+              },
+              {
+                "execution_id": "e65142c3-84cf-4ee8-aa7e-809aa4af57df",
+                "agent": "parser",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.002069000038318336,
+                "timestamp": "2026-10-08T16:33:23.363202+00:00"
+              },
+              {
+                "execution_id": "ebee6f84-8d97-41a0-9db0-d9355a57aa62",
+                "agent": "extraction",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:23.364200+00:00"
+              },
+              {
+                "execution_id": "ebee6f84-8d97-41a0-9db0-d9355a57aa62",
+                "agent": "extraction",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 15.45668080006726,
+                "timestamp": "2026-10-08T16:33:38.820269+00:00"
+              },
+              {
+                "execution_id": "6b452c77-c967-4e2c-bfe5-7295c4175e42",
+                "agent": "ontology",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:38.822241+00:00"
+              },
+              {
+                "execution_id": "6b452c77-c967-4e2c-bfe5-7295c4175e42",
+                "agent": "ontology",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 11.719735299935564,
+                "timestamp": "2026-10-08T16:33:50.541755+00:00"
+              },
+              {
+                "execution_id": "2b150591-9811-40e4-a36a-242594270e23",
+                "agent": "duplicate",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:50.545734+00:00"
+              },
+              {
+                "execution_id": "2b150591-9811-40e4-a36a-242594270e23",
+                "agent": "duplicate",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.060764299938455224,
+                "timestamp": "2026-10-08T16:33:50.606945+00:00"
+              },
+              {
+                "execution_id": "afb4cc5a-a8fa-4a08-ab0d-771505764def",
+                "agent": "validation",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:50.546739+00:00"
+              },
+              {
+                "execution_id": "afb4cc5a-a8fa-4a08-ab0d-771505764def",
+                "agent": "validation",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.05832319997716695,
+                "timestamp": "2026-10-08T16:33:50.604979+00:00"
+              },
+              {
+                "execution_id": "894c9827-6a0a-49a3-b783-cde3ded07469",
+                "agent": "reviewer",
+                "status": "running",
+                "message": "Agent started",
+                "attempt": 1,
+                "execution_time": null,
+                "timestamp": "2026-10-08T16:33:50.607946+00:00"
+              },
+              {
+                "execution_id": "894c9827-6a0a-49a3-b783-cde3ded07469",
+                "agent": "reviewer",
+                "status": "success",
+                "message": "Agent completed",
+                "attempt": 1,
+                "execution_time": 0.00016169995069503784,
+                "timestamp": "2026-10-08T16:33:50.608978+00:00"
+              }
+            ],
+            "error_events": []
+          },
+          "case_status": "NEEDS_FIX",
+          "source_hashes": {
+            "03_edge_cases/E009_bearing.txt": "d9cd209a5b54f0f482f0fb2d3a01140beec901e689593d6f47c6e27b0b5ea42d"
+          },
+          "expected_outcome": "semantic_error",
+          "observed_outcome": "valid",
+          "outcome_matches": false,
+          "saved_products": 0,
+          "integration_after_human": null,
+          "calls": [
+            {
+              "task": "extraction",
+              "prompt_version": "2.1.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 15.455327200004831
+            },
+            {
+              "task": "ontology",
+              "prompt_version": "3.0.0",
+              "provider": "openai",
+              "model": "gpt-5",
+              "status": "success",
+              "seconds": 11.718258999986574
+            }
+          ],
+          "truth_review": "manifest_candidate; lexical reference anchors checked; no independent human review",
+          "extraction_retry_count": 0,
+          "ontology_retry_count": 0
+        }
+      ]
+    }
+  ]
+}

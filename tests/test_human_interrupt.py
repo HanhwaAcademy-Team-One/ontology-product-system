@@ -7,7 +7,10 @@ from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
 from conftest import count_runs
 
-EDIT_SPEED = {"action": "EDIT", "edits": {"attributes.rated_speed": {"value": 3000, "unit": "rpm"}}}
+EDIT_SPEED = {
+    "action": "EDIT",
+    "edits": {"attributes.rated_speed": {"value": 3000, "unit": "rpm"}},
+}
 
 
 def test_real_interrupt_edit_revalidate_approve(config):
@@ -24,8 +27,13 @@ def test_real_interrupt_edit_revalidate_approve(config):
     assert result["__interrupt__"][0].value["review"]["can_register"] is True
     state = graph.get_state(config).values
     assert count_runs(state, "validation") == count_runs(state, "duplicate") == 3
-    assert state["normalized_product"]["attributes"]["rated_speed"]["provenance"] == "HUMAN"
-    assert state["normalized_product"]["attributes"]["rated_speed"]["confidence"] is None
+    assert (
+        state["normalized_product"]["attributes"]["rated_speed"]["provenance"]
+        == "HUMAN"
+    )
+    assert (
+        state["normalized_product"]["attributes"]["rated_speed"]["confidence"] is None
+    )
     assert "attributes.rated_speed" in state["locked_fields"]
     assert state["manual_overrides"]["attributes.rated_speed"]["value"] == 3000
     assert state["review_result"]["retry_fields"] == []
@@ -37,12 +45,20 @@ def test_real_interrupt_edit_revalidate_approve(config):
     json.dumps(graph.get_state(config).values, allow_nan=False)
 
 
-@pytest.mark.parametrize("command", [
-    {"action": "APPROVE"}, {"action": "EDIT"}, {"action": "INVALID"},
-    {"action": "EDIT", "changed_class": "UnknownClass"},
-    {"action": "EDIT", "edits": {"attributes.typo": {"value": 1}}},
-    {"action": "EDIT", "edits": {"attributes.rated_speed": {"value": {"nested": 1}}}},
-])
+@pytest.mark.parametrize(
+    "command",
+    [
+        {"action": "APPROVE"},
+        {"action": "EDIT"},
+        {"action": "INVALID"},
+        {"action": "EDIT", "changed_class": "UnknownClass"},
+        {"action": "EDIT", "edits": {"attributes.typo": {"value": 1}}},
+        {
+            "action": "EDIT",
+            "edits": {"attributes.rated_speed": {"value": {"nested": 1}}},
+        },
+    ],
+)
 def test_invalid_resume_reinterrupts_without_registration(config, command):
     graph = build_workflow()
     graph.invoke(initial_state(), config)

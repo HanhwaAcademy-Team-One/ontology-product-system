@@ -1,17 +1,51 @@
 from pathlib import Path
-from math import isfinite
 
 import yaml
 
 from ontoproduct.schemas.ontology import OntologyDefinition, PropertyDefinition
+from ontoproduct.services.mapping_service import UnitService
+from ontoproduct.services.product_ontology_service import ProductOntology
 
 
 class OntologyService:
-    def __init__(self, path: str | Path | None = None, *, definition: dict | None = None):
+    def __init__(
+        self,
+        path: str | Path | None = None,
+        *,
+        definition: dict | None = None,
+        unit_service: UnitService | None = None,
+        semantic_model: ProductOntology | None = None,
+    ):
+        use_default = path is None and definition is None
         if definition is None:
-            path = Path(path) if path else Path(__file__).parents[1] / "ontology" / "ontology.yaml"
+            path = (
+                Path(path)
+                if path
+                else Path(__file__).parents[1] / "ontology" / "ontology.yaml"
+            )
             definition = yaml.safe_load(path.read_text(encoding="utf-8"))
         self.definition = OntologyDefinition.model_validate(definition)
+        self.unit_service = (
+            unit_service
+            if unit_service is not None
+            else semantic_model.units
+            if semantic_model is not None
+            else UnitService()
+        )
+        self.semantic_model = semantic_model
+        if use_default and self.semantic_model is None:
+            self.semantic_model = ProductOntology(units=self.unit_service)
+        if self.semantic_model is not None:
+            if self.semantic_model.units.catalog != self.unit_service.catalog:
+                raise ValueError(
+                    "Operational and semantic ontology must share the same unit catalog"
+                )
+            projected = self.semantic_model.operational_definition()
+            if projected != self.definition:
+                raise ValueError(
+                    "ontology.yaml differs from the product semantic model projection"
+                )
+            self.definition = projected
 
     def get_class(self, name: str):
         if name not in self.definition.classes:
@@ -51,29 +85,29 @@ class OntologyService:
         required, optional = self._resolve(name)
         return {**required, **optional}
 
-    def normalize_unit(self, property: PropertyDefinition | dict, value, unit: str | None):
-        prop = PropertyDefinition.model_validate(property) if isinstance(property, dict) else property
-        if prop.canonical_unit is None:
-            if unit is not None:
-                raise ValueError(f"Unit {unit} is not allowed for a unitless property")
-            return value, None
-        if unit not in prop.units:
-            raise ValueError(f"Unsupported unit {unit}; expected one of {prop.units}")
-        if isinstance(value, bool) or not isinstance(value, (int, float)):
-            raise ValueError("Unit conversion requires a numeric value")
-        if isinstance(value, float) and not isfinite(value):
-            raise ValueError("Unit conversion requires a finite value")
-        if unit == prop.canonical_unit:
-            return value, unit
-        factors = {("kW", "W"): 1000, ("g", "kg"): 0.001,
-                   ("W", "kW"): 0.001, ("kg", "g"): 1000}
-        factor = factors.get((unit, prop.canonical_unit))
-        if factor is None:
-            raise ValueError(f"No conversion from {unit} to {prop.canonical_unit}")
-        try:
-            converted = value * factor
-        except OverflowError as exc:
-            raise ValueError("Unit conversion overflow") from exc
-        if isinstance(converted, float) and not isfinite(converted):
-            raise ValueError("Unit conversion overflow")
-        return converted, prop.canonical_unit
+    def normalize_unit(
+        self, property: PropertyDefinition | dict, value, unit: str | None
+    ):
+        return self.unit_service.normalize(property, value, unit)
+
+    def _rdf_service(self):
+        if self.semantic_model is None:
+            raise ValueError(
+                "RDF operations require an explicitly aligned product semantic model"
+            )
+        from ontoproduct.services.rdf_ontology_service import RdfOntologyService
+
+        return RdfOntologyService(self.semantic_model)
+
+    def to_rdf(
+        self, product, *, record_id, item_id=None, manufacturer_is_organization=False
+    ):
+        return self._rdf_service().product_graph(
+            product,
+            record_id=record_id,
+            item_id=item_id,
+            manufacturer_is_organization=manufacturer_is_organization,
+        )
+
+    def validate_semantics(self, product, *, record_id="validation"):
+        return self._rdf_service().validate_product(product, record_id=record_id)
