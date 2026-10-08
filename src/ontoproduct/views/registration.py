@@ -1,6 +1,7 @@
 import streamlit as st
 
 from ontoproduct.schemas.product import ProductAttribute
+from ontoproduct.services.evidence_service import evidence_candidates, is_conflict
 from ontoproduct.services.settings import Settings
 from ontoproduct.views.presentation import (
     CLASS_LABELS,
@@ -68,7 +69,7 @@ def _mode_caption(settings):
     else:
         model = f"추출 {models['extraction']} · 분류 {models['ontology']}"
     return (
-        "실제 문서 분석 (Parser·Extraction·Ontology 실제, 이후 단계 Mock)"
+        "실제 문서 분석 (Parser·Extraction·Ontology·Validation 실제, Reviewer Mock)"
         f" · 모델: {settings.provider}/{model}"
     )
 
@@ -117,9 +118,19 @@ def _upload_form(runtime, *, demo):
 def _edit_form(runtime, thread_id, state):
     product = state["normalized_product"]
     revision = len(state.get("agent_logs", []))
+    flagged = {
+        field.removeprefix("attributes.")
+        for field in state["review_result"].get("retry_fields", [])
+    }
     with st.expander(
         "제품 정보 수정", expanded=not state["review_result"]["can_register"]
     ):
+        if flagged:
+            st.warning(
+                "AI 신뢰도가 낮거나 없는 항목: "
+                + ", ".join(LABELS.get(key, key) for key in sorted(flagged))
+                + " — 원문과 비교해 값이 맞으면 'AI 값 확인'을 체크하세요."
+            )
         selected_class = st.selectbox(
             "제품 분류",
             options=list(runtime.ontology.definition.classes),
@@ -132,6 +143,13 @@ def _edit_form(runtime, thread_id, state):
         properties = runtime.ontology.resolve_properties(selected_class)
         required = runtime.ontology.resolve_required_properties(selected_class)
         with st.form(f"edit_product_{thread_id}"):
+            confirm_class = (
+                "product_class" not in state.get("locked_fields", [])
+                and st.checkbox(
+                    "AI 분류 확정 (현재 분류가 맞습니다)",
+                    key=f"confirm_class_{thread_id}_{revision}",
+                )
+            )
             name = st.text_input(
                 "제품명",
                 value=product.get("product_name") or "",
@@ -171,7 +189,15 @@ def _edit_form(runtime, thread_id, state):
                         index=prop.units.index(current_unit),
                         key=f"edit_unit_{thread_id}_{revision}_{selected_class}_{key}",
                     )
-                inputs[key] = (text, unit, prop.type)
+                confirm = (
+                    left.checkbox(
+                        "AI 값 확인",
+                        key=f"confirm_{thread_id}_{revision}_{selected_class}_{key}",
+                    )
+                    if key in flagged and value is not None
+                    else False
+                )
+                inputs[key] = (text, unit, prop.type, confirm)
             submitted = st.form_submit_button(
                 "수정 후 재검증", type="primary", key="submit_edit"
             )
@@ -182,10 +208,10 @@ def _edit_form(runtime, thread_id, state):
                     if not name.strip():
                         raise ValueError("제품명은 비워둘 수 없습니다.")
                     edits["product_name"] = name.strip()
-                for key, (text, unit, property_type) in inputs.items():
+                for key, (text, unit, property_type, confirm) in inputs.items():
                     value = parse_value(text, property_type)
                     old = product["attributes"].get(key, {})
-                    if value != old.get("value") or (
+                    if confirm or value != old.get("value") or (
                         value is not None and unit != old.get("unit")
                     ):
                         edits[f"attributes.{key}"] = ProductAttribute(
@@ -193,7 +219,7 @@ def _edit_form(runtime, thread_id, state):
                         ).model_dump(mode="json")
                 changed_class = (
                     selected_class
-                    if selected_class != product["product_class"]
+                    if selected_class != product["product_class"] or confirm_class
                     else None
                 )
                 if not edits and not changed_class:
@@ -220,6 +246,24 @@ def _review(runtime, thread_id, state, payload):
         st.warning("수정이 필요한 항목이 있습니다. 필수 값을 보완한 뒤 재검증하세요.")
     if payload.get("feedback"):
         st.error(payload["feedback"])
+    conflicts = []
+    for key, raw in state["normalized_product"]["attributes"].items():
+        attr = ProductAttribute.model_validate(raw)
+        if is_conflict(attr):
+            conflicts.extend(
+                {
+                    "항목": LABELS.get(key, key),
+                    "값": candidate.value,
+                    "단위": candidate.unit,
+                    "출처": candidate.source_file,
+                    "페이지": candidate.page,
+                    "근거": candidate.evidence,
+                }
+                for candidate in evidence_candidates(attr)
+            )
+    if conflicts:
+        st.error("문서마다 값이 다른 항목이 있습니다. 원문을 확인해 올바른 값을 입력하세요.")
+        st.dataframe(conflicts, hide_index=True, width="stretch")
     issues = state.get("validation_result", {}).get("issues", [])
     if issues:
         with st.expander("검증 결과", expanded=not review["can_register"]):
