@@ -6,7 +6,14 @@
 
 제품을 살펴보고 “정보를 다시 뽑자”, “분류를 다시 하자”, “사람이 고쳐야 한다”, “사람에게 승인을 받자”를 결정합니다.
 
-현재 ReviewerMock은 실제 규칙으로 판단합니다. 실제 ReviewerAgent로 분리할 수 있습니다. 문서 근거/중복 후보를 더 깊게 종합하는 LLM 판단은 팀 목표에 따라 추가합니다.
+현재 Real 모드는 [ReviewerAgent](../../src/ontoproduct/agents/reviewer_agent.py)의 규칙 판단을 사용하며 기본 Mock 모드의 ReviewerMock은 유지합니다. LLM Reviewer는 추가하지 않았습니다. 아래 초기 구현 순서는 이력이며 현재 우선순위는 다음과 같습니다.
+
+1. 필수 문서 충돌, HUMAN/locked 필수 null, 누락 이외의 검증 오류(TYPE·UNIT·RANGE·CLASS)는 NEEDS_FIX입니다. 관계 오류나 충돌과 낮은 confidence/일반 누락이 함께 있어도 사람 수정을 먼저 요청하고 retry_fields는 비웁니다.
+2. 그 밖의 필수 누락·낮거나 없는 AI confidence는 기존 0.70 기준으로 RE_EXTRACT입니다. HUMAN/locked 값은 재추출하지 않습니다.
+3. 낮은 분류 confidence는 수동 분류가 아니면 REMAP_ONTOLOGY입니다. 검증 오류가 남으면 승인하지 않습니다.
+4. 정상 제품은 READY_FOR_HUMAN이며 중복 후보의 실제 DB ID·이름·verdict·reason·필드별 evidence를 판단 이유에 포함합니다. 점수만으로 자동 저장/거절하지 않습니다.
+
+충돌만 남은 D003의 추가 추출 0회, 관계 오류의 confidence보다 높은 우선순위, 사람 수정·복원·승인 보호는 `test_real_reviewer.py`, `test_real_workflow.py`, `test_shacl_registration.py`로 확인합니다. 실행 결과는 [순차 기록](04_EXECUTION_LOG.md)에 있습니다.
 
 ## 2. 위치
 
@@ -219,7 +226,7 @@ registry.register(ReviewerAgent(), replace=True)
 registry.validate_complete()
 ```
 
-이 예시는 신규 `src/ontoproduct/agents/reviewer_agent.py`에 ReviewerAgent를 구현한 뒤 실행합니다. 현재 저장소에는 이 신규 파일이 없습니다.
+이 예시는 현재 구현으로 실행할 수 있습니다. `build_document_registry`도 ReviewerAgent를 연결합니다.
 
 LLM을 사용하는 구현이면 생성자에 llm_service를 넣는 형태로 합의합니다. 기존 Graph의 routing/human_review를 새로 만들지 않습니다.
 

@@ -3,6 +3,7 @@ from uuid import uuid4
 
 import pytest
 import yaml
+from real_llm_helpers import HonestLlm
 from streamlit.testing.v1 import AppTest
 
 from ontoproduct.agents.real_registry import build_document_registry
@@ -14,7 +15,6 @@ from ontoproduct.services.parser_service import ParserService
 from ontoproduct.services.settings import CONFIG_PATH, Settings
 from ontoproduct.services.workflow_runtime import WorkflowRuntime
 from ontoproduct.views import resources
-from real_llm_helpers import HonestLlm
 
 FIXTURES = Path(__file__).parent / "fixtures" / "documents"
 APP = Path(__file__).resolve().parents[1] / "app.py"
@@ -65,7 +65,7 @@ def test_document_registry_replaces_only_document_slots(tmp_path):
         "ontology": False,
         "validation": False,
         "duplicate": True,
-        "reviewer": True,
+        "reviewer": False,
         "registration": True,
     }
     registry.validate_complete()
@@ -162,6 +162,7 @@ def test_runtime_runs_real_documents_to_human_review_without_saving(
         "ontology",
         "validation",
         "duplicate",
+        "reviewer",
         "registration",
     ]
 
@@ -239,4 +240,4 @@ def test_real_mode_with_injected_llm_processes_uploads(real_app, monkeypatch):
         "extraction": "Real",
         "ontology": "Real",
     }
-    assert (modes["validation"], modes["reviewer"]) == ("Real", "Mock")
+    assert (modes["validation"], modes["reviewer"]) == ("Real", "Real")

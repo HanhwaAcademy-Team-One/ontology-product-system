@@ -69,7 +69,7 @@ def _mode_caption(settings):
     else:
         model = f"추출 {models['extraction']} · 분류 {models['ontology']}"
     return (
-        "실제 문서 분석 (Parser·Extraction·Ontology·Validation 실제, Reviewer Mock)"
+        "실제 문서 분석 (Parser·Extraction·Ontology·Validation·Reviewer 실제)"
         f" · 모델: {settings.provider}/{model}"
     )
 
