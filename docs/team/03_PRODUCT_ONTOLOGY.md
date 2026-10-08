@@ -187,6 +187,6 @@ uv run pytest tests/test_ontology_visualization.py tests/test_phase3_ui.py::test
 
 ## 운영 연결과 검증 한계
 
-기본 OntologyService와 실제 02/03 Agent는 이 모델을 사용한다. RDF/SHACL API는 실행·검증 가능하다. UI Real Registry/runtime의 Parser·Extraction·Ontology 연결은 구현되어 있다([통합 가이드](08_INTEGRATION.md)). RDF DB 저장과 Graph의 Validation 노드에서 SHACL 결과를 업무 정책과 합치는 작업은 아직 하지 않았다. 현재 운영 앱의 기존 Validation은 베어링 내경<외경 제약을 자동 적용하지 않는다.
+기본 OntologyService와 실제 02/03 Agent는 이 모델을 사용한다. UI Real Validation과 RegistrationService의 승인 직전 재검증은 같은 `validate_registration_product`로 규칙·SHACL을 결합하며 내경≥외경을 차단한다. URI·빈 경로 비교·중복 오류 정책은 [SHACL 등록 검증 정책](04_SHACL_INTEGRATION_SPEC.md)에 있다. ValidationMock과 단독 `validate_product`는 기존 속성 규칙만 지원하며, semantic_model 없는 사용자 정의 ontology에도 임의의 기본 SHACL 모델을 주입하지 않는다. RDF 지속 DB 저장은 아직 지원하지 않는다.
 
 외부 표준과의 상호운용(다른 QUDT·GoodRelations 기반 데이터와 바로 합치기)은 내재화로 기본 제공되지 않는다. 필요하면 대응표로 별도 정렬 그래프를 만든다. SHACL은 데이터 제약을 확인하며 원문 사실의 진실성이나 모든 물리적 타당성을 보장하지 않는다. 테스트 결과와 남은 통합 작업은 [인계 문서](02_03_IMPLEMENTATION_HANDOFF.md)를 따른다.

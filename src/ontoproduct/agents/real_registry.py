@@ -16,6 +16,6 @@ def build_document_registry(ontology, *, parser_service, llm_services):
         ExtractionAgent(llm_services["extraction"], ontology=ontology), replace=True
     )
     registry.register(OntologyAgent(ontology, llm_services["ontology"]), replace=True)
-    registry.register(ValidationAgent(), replace=True)
+    registry.register(ValidationAgent(ontology), replace=True)
     registry.validate_complete()
     return registry
