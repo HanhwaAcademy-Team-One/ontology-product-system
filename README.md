@@ -34,9 +34,9 @@ Mock 모드는 업로드 내용 대신 DM-500 고정 예제를 사용합니다. 
 | --- | --- | --- |
 | Parser | 고정 예제 | 텍스트 PDF·XLSX·TXT 실제 파싱 |
 | Extraction · Ontology | 고정/규칙 예제 | OpenAI 모델 기반 추출·분류, 공통 규칙으로 정규화 |
-| Validation · Reviewer | Mock Agent에서 규칙 실행 | 동일 |
+| Validation · Reviewer | Mock Agent에서 규칙 실행 | ValidationAgent에서 Python 규칙 검증, Reviewer는 Mock |
 | Duplicate · Registration | 실제 SQLite 비교·저장, JSON Export | 동일 |
 
-Real 모드의 팀 기본 설정은 [llm.yaml](src/ontoproduct/config/llm.yaml)의 `openai / gpt-5`입니다. 업로드 문서 원문은 OpenAI API로 전송됩니다. 스캔 PDF의 OCR, 실제 Validation·Reviewer Agent 교체, 운영 인증, 대규모 DB 성능 개선은 추가 구현 범위입니다. SHACL 검사는 온톨로지 탐색에서 실행하며 등록 흐름의 Validation에 자동 적용되지 않습니다.
+Real 모드의 팀 기본 설정은 [llm.yaml](src/ontoproduct/config/llm.yaml)의 `openai / gpt-5`입니다. 업로드 문서 원문은 OpenAI API로 전송됩니다. 스캔 PDF의 OCR, 실제 Reviewer Agent 교체, 운영 인증, 대규모 DB 성능 개선은 추가 구현 범위입니다. SHACL 검사는 온톨로지 탐색에서 실행하며 등록 흐름의 Validation에 자동 적용되지 않습니다.
 
 현재 앱은 인증 없이 사용하는 로컬 교육용입니다. 단계별 완료 보고서는 당시 상태를 기록한 이력이며, 현재 실행 방법은 위 매뉴얼을 기준으로 확인하세요.

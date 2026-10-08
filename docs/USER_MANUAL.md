@@ -24,7 +24,7 @@
 | 모드 | 문서 처리 | 검토·저장 |
 | --- | --- | --- |
 | Mock (기본) | 원본은 보관하고 DM-500 고정 fixture로 추출 | 실제 규칙 검증·SQLite 중복 조회·저장 |
-| Real | 실제 파싱, OpenAI 기반 Extraction·Ontology | Validation·Reviewer는 기존 Mock 규칙, SQLite 조회·저장은 실제 |
+| Real | 실제 파싱, OpenAI 기반 Extraction·Ontology | Validation은 실제 Python 규칙 Agent, Reviewer는 기존 Mock 규칙, SQLite 조회·저장은 실제 |
 
 Real 모드에서는 원문이 OpenAI API로 전송되며 Mock 예제 버튼은 표시하지 않습니다. 설정이 빠지거나 잘못되면 오류를 표시하고 실행을 멈춥니다.
 
@@ -72,6 +72,56 @@ Streamlit rerun이나 서버 재시작 후에도 같은 데이터 폴더를 사�
 4. 오류 대기 작업은 원인을 확인한 뒤 **오류 재시도 / 작업 중단**을 선택합니다.
 
 등록 화면의 `?case={thread_id}` 링크로도 복원할 수 있습니다. DB 저장 뒤 Export가 실패했다면 오류 재시도로 기존 제품의 JSON을 복구합니다.
+
+## 새 DB로 테스트와 초기화
+
+DB를 초기화하는 별도 명령은 없습니다. 지정한 데이터 폴더에 DB가 없으면 앱이 시작할 때 빈 DB와 테이블을 자동으로 만듭니다. 아래 명령은 PowerShell 기준이며, cmd에서 환경 변수를 정하는 방법은 [터미널별 명령](QUICK_START.md#터미널별-명령)에 있습니다.
+
+### 기존 DB를 두고 새 폴더로 테스트 (권장)
+
+실행 중인 서버를 `Ctrl+C`로 끈 뒤 테스트용 데이터 폴더를 지정하고 다시 시작합니다.
+
+```powershell
+$env:AGENT_MODE = "real"   # Mock으로 테스트하려면 "mock"
+$env:ONTOPRODUCT_DATA_DIR = "D:\ontology-product-system\runtime\test-1"
+.venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8502
+```
+
+- 테스트 폴더는 **`runtime\` 안에** 만듭니다. `runtime/`은 `.gitignore`에 있어 업로드 원본·DB·Export가 git 변경으로 잡히지 않습니다.
+- 등록 화면, 제품 데이터베이스, 대시보드가 빈 상태로 시작합니다. 기존 `runtime\data`의 제품과 작업은 그대로 남습니다.
+- 다시 처음부터 하려면 서버를 끄고 테스트 폴더를 지우거나(`Remove-Item -Recurse -Force runtime\test-1`, cmd는 `rmdir /s /q runtime\test-1`) `test-2`처럼 새 이름을 씁니다.
+- 원래 DB로 돌아가려면 `Remove-Item Env:\ONTOPRODUCT_DATA_DIR`로 지정을 해제하거나 새 터미널에서 실행합니다.
+
+### 기본 DB 초기화
+
+`runtime\data` 안의 두 DB는 **함께** 비웁니다. `checkpoints.db`만 지우면 최근 작업 목록에는 남아 있지만 불러올 수 없는 작업이 생깁니다. 서버가 켜져 있으면 Windows가 DB 파일을 잠그므로 반드시 먼저 끕니다.
+
+되돌릴 수 있도록 이름을 바꿔 보관하는 방법을 권합니다.
+
+```powershell
+Rename-Item runtime\data data-backup
+Rename-Item runtime\uploads uploads-backup
+Rename-Item runtime\exports exports-backup
+```
+
+완전히 지우려면 `Remove-Item -Recurse -Force runtime\data, runtime\uploads, runtime\exports`를 실행합니다. 되돌릴 수 없습니다. 초기화하면 중복 검토용 예제 제품도 함께 사라지므로 필요하면 [예제를 다시 추가](#중복-검토용-예제-추가)합니다. 예제는 그때 지정된 데이터 폴더에 들어갑니다.
+
+`pytest`는 매번 임시 폴더에 DB를 새로 만들므로 `runtime/`의 데이터와 관계없습니다.
+
+### inputdata 샘플로 확인하는 순서
+
+[inputdata](../inputdata/README.md)의 가상 문서로 아래 순서를 권합니다. 사례별 기대값과 오류 유형은 `inputdata/manifest.json`에 있습니다. 한 작업에는 한 제품의 파일만 올립니다.
+
+| 순서 | 업로드 | 확인할 내용 |
+| --- | --- | --- |
+| 1 | `01_normal_motors\M001_bldcmotor.txt` | BLDCMotor, 48 V · 600 W · 3000 rpm · 0.75 kg로 정규화되고 승인 가능 |
+| 2 | 같은 M001의 `.pdf` 또는 `.xlsx` | 형식이 달라도 같은 값. 근거에 PDF 페이지나 Excel 시트·행 위치 표시 |
+| 3 | `02_normal_bearings\B001_bearing.txt` | Bearing 분류, 내경·외경 mm |
+| 4 | `03_edge_cases\E002_bldcmotor.txt` | 전압 누락 → 재추출 후 사람 수정 단계로 이동 |
+| 5 | `04_multi_document\D002\`의 두 파일을 함께 | 0.6 kW와 600 W, 750 g과 0.75 kg이 같은 값으로 병합되고 두 근거 유지 |
+| 6 | M001을 새 작업으로 한 번 더 | 앞서 등록한 제품이 중복 후보로 표시 |
+
+Real 모드는 문서마다 추출과 분류에 OpenAI를 최소 두 번 호출합니다. 호출마다 시간과 비용이 들므로 처음에는 1~2개 사례로 확인한 뒤 늘립니다. Mock 모드에서는 어떤 파일을 올려도 DM-500 예제가 나오므로 이 표의 기대값을 확인할 수 없습니다.
 
 ## 온톨로지와 평가 확인
 

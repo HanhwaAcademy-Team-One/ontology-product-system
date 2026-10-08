@@ -109,7 +109,7 @@ API Key를 매번 입력하지 않으려면 Windows 사용자 환경 변수로 �
 
 명령으로 등록하면 키가 터미널 입력 기록에 남을 수 있으므로 위 화면에서 등록하는 방법을 권합니다. Linux·macOS에서는 `~/.bashrc`나 `~/.zshrc`에 `export OPENAI_API_KEY=...`를 넣습니다.
 
-Real 모드는 Parser·Extraction·Ontology를 실제 구현으로 교체합니다. Validation·Reviewer는 기존 Mock의 규칙 판단을 사용하고, 중복 조회·등록은 실제 SQLite Agent를 사용합니다. Mock 예제 버튼은 숨겨집니다.
+Real 모드는 Parser·Extraction·Ontology를 실제 구현으로 교체합니다. Validation은 실제 Python 규칙 Agent, Reviewer는 기존 Mock의 규칙 판단을 사용하고, 중복 조회·등록은 실제 SQLite Agent를 사용합니다. Mock 예제 버튼은 숨겨집니다.
 
 - 텍스트 PDF, XLSX, TXT(UTF-8·CP949)를 업로드할 수 있습니다. 파일당 최대 **20 MB**입니다.
 - 여러 문서는 **제품 하나의 자료**로 함께 처리합니다.
@@ -130,8 +130,10 @@ Real 모드는 Parser·Extraction·Ontology를 실제 구현으로 교체합니�
 | 저장 | 제품 데이터베이스에서 제품 조회 가능 |
 | 작업 복원 | 최근 작업에서 선택 후 기존 결과 표시 |
 
-기본 저장 위치는 `runtime/`입니다. 테스트용 데이터를 분리하려면 서버 실행 전에 아래처럼 지정합니다. 상세 경로는 [저장과 작업 복원](USER_MANUAL.md#저장과-작업-복원)을 참고하세요.
+기본 저장 위치는 `runtime/`입니다. 테스트용 데이터를 분리하려면 서버 실행 전에 아래처럼 지정합니다. 폴더는 git에 잡히지 않도록 `runtime\` 안에 만듭니다. 상세 경로는 [저장과 작업 복원](USER_MANUAL.md#저장과-작업-복원)을 참고하세요.
 
 ```powershell
-$env:ONTOPRODUCT_DATA_DIR = "D:\ontology-product-system\runtime-demo"
+$env:ONTOPRODUCT_DATA_DIR = "D:\ontology-product-system\runtime\demo"
 ```
+
+빈 DB로 다시 테스트하는 방법, 기본 DB 초기화, inputdata 샘플로 확인하는 순서는 [새 DB로 테스트와 초기화](USER_MANUAL.md#새-db로-테스트와-초기화)에 있습니다.

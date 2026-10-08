@@ -2,7 +2,7 @@
 
 [문서 목차](../README.md) · [공통 약속](00_COMMON.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
-현재 UI는 `AGENT_MODE=real`에서 Parser·Extraction·Ontology를 실제 구현으로 연결합니다. Validation·Reviewer는 기존 Mock 규칙을 사용하고, Duplicate·Registration은 두 모드 모두 runtime의 실제 SQLite Agent입니다. 설치와 실행 명령은 [Quick start](../QUICK_START.md)를 따릅니다.
+현재 UI는 `AGENT_MODE=real`에서 Parser·Extraction·Ontology를 실제 구현으로 연결합니다. Validation은 실제 Python 규칙 Agent, Reviewer는 기존 Mock 규칙을 사용하고, Duplicate·Registration은 두 모드 모두 runtime의 실제 SQLite Agent입니다. 설치와 실행 명령은 [Quick start](../QUICK_START.md)를 따릅니다.
 
 ## 현재 연결 위치
 
@@ -64,7 +64,7 @@ def registry_factory(ontology):
 
 `parser_service`와 `llm_services`는 `views/resources.py`의 `get_runtime()`이 생성해 closure로 전달합니다. `ParserService`에는 해당 runtime의 `ApplicationPaths.uploads`를 전달합니다.
 
-`build_document_registry()`는 parser·extraction·ontology만 교체합니다. 이를 `build_workflow()`에 직접 전달하면 Duplicate·Registration은 Mock으로 남습니다. UI처럼 실제 DB에 저장하려면 `WorkflowRuntime(paths, registry_factory=registry_factory)`을 사용해야 합니다. runtime이 case_id별 RegistrationAgent와 SQLite DuplicateAgent를 연결합니다.
+`build_document_registry()`는 parser·extraction·ontology·validation을 교체합니다. 이를 `build_workflow()`에 직접 전달하면 Duplicate·Registration은 Mock으로 남습니다. UI처럼 실제 DB에 저장하려면 `WorkflowRuntime(paths, registry_factory=registry_factory)`을 사용해야 합니다. runtime이 case_id별 RegistrationAgent와 SQLite DuplicateAgent를 연결합니다.
 
 모든 화면과 앱 진입점은 `current_runtime()`을 사용합니다. Real 설정은 `get_runtime` cache key에 포함됩니다(API Key 제외). Mock 모드는 기존 기본 runtime을 사용합니다. 테스트는 `get_runtime.clear()`로 cache를 정리합니다.
 
@@ -83,7 +83,7 @@ def registry_factory(ontology):
 
 ## 추가 Agent 교체와 스키마 변경
 
-Validation·Reviewer 교체는 남은 구현 범위입니다. 전용 Agent와 테스트를 만들고 Registry에 `replace=True`로 등록합니다. `mocks/agents.py`를 직접 바꿔 기존 데모·평가를 함께 변경하지 않습니다.
+Validation은 Real 모드에서 기존 Python 규칙을 실행하는 ValidationAgent로 연결되며, 기본 Mock 모드는 ValidationMock을 유지합니다. Reviewer 교체는 남은 구현 범위입니다. 전용 Agent와 테스트를 만들고 Registry에 `replace=True`로 등록합니다. `mocks/agents.py`를 직접 바꿔 기존 데모·평가를 함께 변경하지 않습니다.
 
 1. 새 Agent의 입력·출력과 기존 CONTRACTS 일치 여부를 확인합니다.
 2. 관련 단위 테스트, `validate_contract`·`execute_agent` 검사, 부분 교체 Graph 테스트를 실행합니다.

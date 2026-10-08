@@ -4,7 +4,7 @@
 
 온톨로지는 이 과정에서 **“이 제품은 어떤 종류이고, 어떤 속성이 필요하며, 어떤 단위와 값으로 저장해야 하는가”를 정의하는 공통 기준**입니다. 업무 속성 기준은 [ontology.yaml](../src/ontoproduct/ontology/ontology.yaml)에 있으며, 기본 OntologyService는 [product_model.yaml](../src/ontoproduct/ontology/product_model.yaml)의 의미 모델 투영과 일치하는지 검사합니다. 자체 제품 모델·RDF/OWL·SHACL 정의와 확장 방법은 [제품 온톨로지 매뉴얼](team/03_PRODUCT_ONTOLOGY.md)에 있습니다.
 
-기본 Mock 모드는 고정 예제를 사용하며, Real 모드는 실제 Parser·Extraction·Ontology를 사용합니다. 온톨로지 정의 읽기, 상속 속성 계산, 단위 변환, 규칙 검증, 수동 수정, UI의 SQLite 중복 조회·저장은 두 모드에서 실제 코드로 동작합니다. Validation·Reviewer는 기존 Mock의 규칙 판단을 사용합니다. 실행은 [Quick start](QUICK_START.md), 설정과 연결은 [통합 가이드](team/08_INTEGRATION.md)를 참고하세요.
+기본 Mock 모드는 고정 예제를 사용하며, Real 모드는 실제 Parser·Extraction·Ontology를 사용합니다. 온톨로지 정의 읽기, 상속 속성 계산, 단위 변환, 규칙 검증, 수동 수정, UI의 SQLite 중복 조회·저장은 두 모드에서 실제 코드로 동작합니다. Validation은 Mock 모드에서 ValidationMock, Real 모드에서 실제 Python 규칙 Agent를 사용하며, Reviewer는 기존 Mock의 규칙 판단을 사용합니다. 실행은 [Quick start](QUICK_START.md), 설정과 연결은 [통합 가이드](team/08_INTEGRATION.md)를 참고하세요.
 
 **1. 온톨로지에는 무엇이 들어 있나요?**
 
@@ -74,7 +74,7 @@ Agent는 각 단계의 입구이고, Service는 실제 작업 함수입니다. �
 | Extraction | parsed_documents → extracted_product | 표준 속성과 연결할 원문 정보·분류 후보 준비 | Mock: DM-500 / Real: LLM으로 원문 속성·근거 추출 |
 | Ontology | extracted_product → ontology_mapping, base_normalized_product | 분류 존재 확인, 상속 속성 계산, 지원 단위 변환 | Mock: 고정 분류 판단 / Real: 실제 분류·매핑; 공통 OntologyService로 정규화 |
 | 수동 수정 병합 | 기본 제품 + 사람 수정 → normalized_product | 현재 분류의 속성에 수정 적용, 수정 단위 정규화 | 실제 규칙 처리 |
-| Validation | normalized_product + ontology_mapping → validation_result | 필수값·타입·표준 단위·범위·분류 일치 검사 | ValidationMock이 실제 validate_product 호출 |
+| Validation | normalized_product + ontology_mapping → validation_result | 필수값·타입·표준 단위·범위·분류 일치 검사 | Mock: ValidationMock / Real: ValidationAgent; 모두 실제 validate_product 호출 |
 | Duplicate | 정규화 제품 → duplicate_candidates | 표준화된 분류·값·단위가 비교 기준 | 실제 SQLite 규칙 비교 |
 | Reviewer | 제품 + 검증 + 후보 + 매핑 → review_result | 필수 속성과 신뢰도를 보고 재추출·재매핑·수정·승인 대기 판단 | ReviewerMock의 규칙 처리 |
 | Registration | 제품 + 사람 승인 → final_product | OntologyService의 속성 정의로 최종 검증 | 실제 SQLite 저장·JSON Export |
@@ -149,6 +149,6 @@ Real 모드에서는 Parser가 원문을 읽고 Extraction이 실제 속성·근
 
 이때 온톨로지는 여러 제조사의 서로 다른 표기를 공통 분류·속성·단위로 정리하는 기준이 됩니다. 제품 데이터가 같은 규칙을 따르므로 검색·비교·검증에 재사용할 수 있습니다. 분류 판단의 근거와 신뢰도를 만드는 일은 실제 분류·추출 기능의 책임입니다. 온톨로지 규칙을 통과했다는 사실만으로 원문 추출값이 정확하다는 뜻은 아니므로 근거 확인과 실제 문서 평가가 함께 필요합니다.
 
-SHACL 검사는 온톨로지 탐색에서 실행할 수 있지만 Graph의 Validation에 자동 연결되어 있지 않습니다. Validation·Reviewer Agent 교체와 SHACL 업무 정책 통합, RDF DB 저장은 추가 구현 범위입니다.
+SHACL 검사는 온톨로지 탐색에서 실행할 수 있지만 Graph의 Validation에 자동 연결되어 있지 않습니다. Real 모드의 ValidationAgent는 기존 Python 규칙 검증을 사용합니다. Reviewer Agent 교체와 SHACL 업무 정책 통합, RDF DB 저장은 추가 구현 범위입니다.
 
 구현 분담과 교체·테스트 방법은 [팀 협업 가이드](MOCK_REPLACEMENT_PLAN.md)를 참고하세요.
