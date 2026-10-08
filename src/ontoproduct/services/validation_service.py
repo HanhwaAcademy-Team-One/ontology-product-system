@@ -1,6 +1,7 @@
 from ontoproduct.schemas.ontology import OntologyMapping
 from ontoproduct.schemas.product import NormalizedProduct
 from ontoproduct.schemas.validation import ValidationIssue, ValidationResult
+from ontoproduct.services.evidence_service import is_conflict
 
 
 def validate_product(product, mapping):
@@ -21,7 +22,12 @@ def validate_product(product, mapping):
         attr = product.attributes.get(key)
         if attr is None or attr.value is None:
             if key in mapping.required_properties:
-                issue(field, "MISSING_REQUIRED", f"Required property {key} is missing")
+                detail = (
+                    "has conflicting document values"
+                    if attr is not None and is_conflict(attr)
+                    else "is missing"
+                )
+                issue(field, "MISSING_REQUIRED", f"Required property {key} {detail}")
             else:
                 issue(
                     field,
@@ -47,7 +53,7 @@ def validate_product(product, mapping):
                 issue(field, "RANGE", f"Value is below {prop.minimum}")
             if prop.maximum is not None and value > prop.maximum:
                 issue(field, "RANGE", f"Value exceeds {prop.maximum}")
-    for key in product.attributes.keys() - props.keys():
+    for key in sorted(product.attributes.keys() - props.keys()):
         issue(
             f"attributes.{key}",
             "UNKNOWN_PROPERTY",
