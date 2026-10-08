@@ -1,7 +1,7 @@
 # OntoProduct Evaluation
 
-Run: b9cc2744-ba70-40d2-9f64-911c6182db59
-Generated (UTC): 2026-10-05T10:28:06.899788+00:00
+Run: 5553e130-4d72-4604-8fb1-e9e8723b0fd5
+Generated (UTC): 2026-10-07T07:30:43.945382+00:00
 
 Dataset: OntoProduct synthetic teaching fixtures (3 cases)
 
@@ -22,6 +22,7 @@ Unmodified Mock workflow, no manual edits, zero automatic retries.
 | Required Field Detection Accuracy | 0.8000 | 8 / 10 |
 | Duplicate Precision@3 | 0.0000 | 0 / 9 |
 | Duplicate Recall@3 | 0.0000 | 0 / 2 |
+| Duplicate Candidate Precision | N/A | 0 / 0 |
 | Negative Query Accuracy | 1.0000 | 1 / 1 |
 
 Agents: parser (mock, Mock), extraction (mock, Mock), ontology (mock, Mock), validation (mock, Mock), duplicate (mock, Mock), reviewer (mock, Mock), registration (mock, Mock)
@@ -38,6 +39,7 @@ Canonical ground-truth query directly to the real SQLite DuplicateAgent; isolate
 | --- | ---: | ---: |
 | Duplicate Precision@3 | 0.2222 | 2 / 9 |
 | Duplicate Recall@3 | 1.0000 | 2 / 2 |
+| Duplicate Candidate Precision | 1.0000 | 2 / 2 |
 | Negative Query Accuracy | 1.0000 | 1 / 1 |
 
 Agents: duplicate (sqlite-rule-engine, Real)
@@ -52,4 +54,4 @@ Agents: duplicate (sqlite-rule-engine, Real)
 - value: Correct canonical normalized values / all non-null truth attributes; missing is wrong.
 - unit: Correct canonical units / unit-bearing truth attributes; missing is wrong.
 - required: Per truth-class required property, compare missing normalized values with MISSING_REQUIRED issues.
-- duplicate: Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels. Empty denominators are null.
+- duplicate: Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels; Candidate Precision = hits/returned candidates. Empty denominators are null.

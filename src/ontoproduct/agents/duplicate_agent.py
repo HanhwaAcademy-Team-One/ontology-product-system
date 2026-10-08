@@ -5,7 +5,7 @@ from ontoproduct.agents.registry import CONTRACTS
 class DuplicateAgent(BaseAgent):
     name = "duplicate"
     provider = "sqlite-rule-engine"
-    version = "0.2.0"
+    version = "0.3.0"
     is_mock = False
 
     def __init__(self, service):
@@ -14,4 +14,4 @@ class DuplicateAgent(BaseAgent):
         self.service = service
 
     def run(self, state):
-        return {"duplicate_candidates": self.service.find(state["normalized_product"])}
+        return {"duplicate_candidates": self.service.find(state["normalized_product"], state["ontology_mapping"])}

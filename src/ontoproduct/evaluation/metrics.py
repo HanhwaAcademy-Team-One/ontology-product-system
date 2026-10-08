@@ -82,5 +82,7 @@ def evaluate_duplicate(samples, *, k=3):
     # Precision@K uses K slots per query, including empty slots; recall is micro over relevant labels.
     return {f"Duplicate Precision@{k}": ratio(hits, k * len(samples)),
             f"Duplicate Recall@{k}": ratio(hits, relevant_total),
+            # Share of returned candidates that are real duplicates; exposes false positives Precision@K hides.
+            "Duplicate Candidate Precision": ratio(hits, retrieved_total),
             "Negative Query Accuracy": ratio(negative_correct, negative_total),
             "retrieved_count": retrieved_total, "queries": per_query}

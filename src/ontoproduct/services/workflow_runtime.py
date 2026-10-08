@@ -47,7 +47,7 @@ class WorkflowRuntime:
             if thread_id not in self._graphs:
                 registry = self.registry_factory(self.ontology)
                 registry.register(RegistrationAgent(thread_id, self.registration), replace=True)
-                registry.register(DuplicateAgent(DuplicateService(self.products)), replace=True)
+                registry.register(DuplicateAgent(DuplicateService(self.products, self.ontology)), replace=True)
                 self._registries[thread_id] = registry
                 self._graphs[thread_id] = build_workflow(registry, ontology=self.ontology, checkpointer=self.checkpointer)
                 self._locks[thread_id] = Lock()
@@ -112,7 +112,7 @@ class WorkflowRuntime:
             return self._registries[thread_id].metadata()
         registry = self.registry_factory(self.ontology)
         registry.register(RegistrationAgent("metadata", self.registration), replace=True)
-        registry.register(DuplicateAgent(DuplicateService(self.products)), replace=True)
+        registry.register(DuplicateAgent(DuplicateService(self.products, self.ontology)), replace=True)
         return registry.metadata()
 
     def compiled_diagram(self):

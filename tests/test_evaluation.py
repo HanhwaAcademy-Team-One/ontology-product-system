@@ -33,6 +33,7 @@ def test_measured_report_uses_unmodified_outputs_and_separates_modes(measured_re
     assert mock["metrics"]["Duplicate Recall@3"]["value"] == 0
     assert rule["metrics"]["Duplicate Precision@3"]["value"] == pytest.approx(2 / 9)
     assert rule["metrics"]["Duplicate Recall@3"]["value"] == 1
+    assert rule["metrics"]["Duplicate Candidate Precision"] == {"value": 1, "correct": 2, "total": 2}
     assert all(sample["case_status"] == "NEEDS_FIX" for sample in mock["samples"])
 
 
@@ -74,6 +75,7 @@ def test_duplicate_slots_negatives_and_duplicate_hits_are_explicit():
     result = evaluate_duplicate(samples, k=3)
     assert result["Duplicate Precision@3"] == {"value": 1 / 6, "correct": 1, "total": 6}
     assert result["Duplicate Recall@3"]["value"] == 1
+    assert result["Duplicate Candidate Precision"] == {"value": 1 / 2, "correct": 1, "total": 2}
     assert result["Negative Query Accuracy"]["value"] == 1
     assert evaluate_duplicate([], k=3)["Duplicate Recall@3"]["value"] is None
     with pytest.raises(ValueError):
