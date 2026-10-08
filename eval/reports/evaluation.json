@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "run_id": "b9cc2744-ba70-40d2-9f64-911c6182db59",
-  "generated_at": "2026-10-05T10:28:06.899788+00:00",
+  "run_id": "5553e130-4d72-4604-8fb1-e9e8723b0fd5",
+  "generated_at": "2026-10-07T07:30:43.945382+00:00",
   "dataset": {
     "name": "OntoProduct synthetic teaching fixtures",
     "case_count": 3,
@@ -12,7 +12,7 @@
     "value": "Correct canonical normalized values / all non-null truth attributes; missing is wrong.",
     "unit": "Correct canonical units / unit-bearing truth attributes; missing is wrong.",
     "required": "Per truth-class required property, compare missing normalized values with MISSING_REQUIRED issues.",
-    "duplicate": "Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels. Empty denominators are null."
+    "duplicate": "Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels; Candidate Precision = hits/returned candidates. Empty denominators are null."
   },
   "suites": [
     {
@@ -187,6 +187,11 @@
           "value": 0.0,
           "correct": 0,
           "total": 2
+        },
+        "Duplicate Candidate Precision": {
+          "value": null,
+          "correct": 0,
+          "total": 0
         },
         "Negative Query Accuracy": {
           "value": 1.0,
@@ -414,112 +419,112 @@
             "duplicate_candidates": [],
             "agent_logs": [
               {
-                "execution_id": "842bdaa4-2f29-4ef8-8880-0e33294d0f1e",
+                "execution_id": "a2378e51-6e09-466f-b294-38b5225beeb1",
                 "agent": "parser",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+                "timestamp": "2026-10-07T07:30:43.862400+00:00"
               },
               {
-                "execution_id": "842bdaa4-2f29-4ef8-8880-0e33294d0f1e",
+                "execution_id": "a2378e51-6e09-466f-b294-38b5225beeb1",
                 "agent": "parser",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0003437000559642911,
-                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+                "execution_time": 0.00029610004276037216,
+                "timestamp": "2026-10-07T07:30:43.862400+00:00"
               },
               {
-                "execution_id": "0f39cfcb-1397-4dcd-b54b-6eec47da7616",
+                "execution_id": "7ddffa11-704b-4da9-856d-5c7709fb41b6",
                 "agent": "extraction",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+                "timestamp": "2026-10-07T07:30:43.863400+00:00"
               },
               {
-                "execution_id": "0f39cfcb-1397-4dcd-b54b-6eec47da7616",
+                "execution_id": "7ddffa11-704b-4da9-856d-5c7709fb41b6",
                 "agent": "extraction",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0001574999769218266,
-                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+                "execution_time": 0.0001479999627918005,
+                "timestamp": "2026-10-07T07:30:43.863400+00:00"
               },
               {
-                "execution_id": "a268416b-a054-4f3f-ab24-451f2f1c49ab",
+                "execution_id": "78a6b945-03cf-45cf-aa19-a3c63679c6a9",
                 "agent": "ontology",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.802028+00:00"
+                "timestamp": "2026-10-07T07:30:43.864502+00:00"
               },
               {
-                "execution_id": "a268416b-a054-4f3f-ab24-451f2f1c49ab",
+                "execution_id": "78a6b945-03cf-45cf-aa19-a3c63679c6a9",
                 "agent": "ontology",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0007696000393480062,
-                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+                "execution_time": 0.00041290000081062317,
+                "timestamp": "2026-10-07T07:30:43.864502+00:00"
               },
               {
-                "execution_id": "bad4254f-d9cf-48b0-b86f-871194910a90",
+                "execution_id": "74dd3aa6-8ef7-432c-96e2-4ebce5f5aced",
                 "agent": "duplicate",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+                "timestamp": "2026-10-07T07:30:43.865503+00:00"
               },
               {
-                "execution_id": "bad4254f-d9cf-48b0-b86f-871194910a90",
+                "execution_id": "74dd3aa6-8ef7-432c-96e2-4ebce5f5aced",
                 "agent": "duplicate",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.00034899997990578413,
-                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+                "execution_time": 0.0003698000218719244,
+                "timestamp": "2026-10-07T07:30:43.866982+00:00"
               },
               {
-                "execution_id": "f11af158-0593-4ed7-9ea6-3493a8221774",
+                "execution_id": "bcfbd432-2561-4a21-90c7-b442da2f4829",
                 "agent": "validation",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+                "timestamp": "2026-10-07T07:30:43.866982+00:00"
               },
               {
-                "execution_id": "f11af158-0593-4ed7-9ea6-3493a8221774",
+                "execution_id": "bcfbd432-2561-4a21-90c7-b442da2f4829",
                 "agent": "validation",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0002584999892860651,
-                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+                "execution_time": 0.0005055000074207783,
+                "timestamp": "2026-10-07T07:30:43.868065+00:00"
               },
               {
-                "execution_id": "a2829648-7d27-4d6f-aaa4-35ea0ce87ab2",
+                "execution_id": "40d667cd-5b46-4ebc-8777-edf6f4c62c8c",
                 "agent": "reviewer",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+                "timestamp": "2026-10-07T07:30:43.869249+00:00"
               },
               {
-                "execution_id": "a2829648-7d27-4d6f-aaa4-35ea0ce87ab2",
+                "execution_id": "40d667cd-5b46-4ebc-8777-edf6f4c62c8c",
                 "agent": "reviewer",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0002305000089108944,
-                "timestamp": "2026-10-05T10:28:06.816458+00:00"
+                "execution_time": 0.0002634999109432101,
+                "timestamp": "2026-10-07T07:30:43.869249+00:00"
               }
             ]
           },
@@ -719,112 +724,112 @@
             "duplicate_candidates": [],
             "agent_logs": [
               {
-                "execution_id": "12ab3214-17d4-4ea9-9579-3dfd65536b33",
+                "execution_id": "8b366179-80b4-431e-b03c-6aabe2d2aa9b",
                 "agent": "parser",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.829739+00:00"
+                "timestamp": "2026-10-07T07:30:43.880437+00:00"
               },
               {
-                "execution_id": "12ab3214-17d4-4ea9-9579-3dfd65536b33",
+                "execution_id": "8b366179-80b4-431e-b03c-6aabe2d2aa9b",
                 "agent": "parser",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.000256099971011281,
-                "timestamp": "2026-10-05T10:28:06.829739+00:00"
+                "execution_time": 0.0004759000148624182,
+                "timestamp": "2026-10-07T07:30:43.882621+00:00"
               },
               {
-                "execution_id": "ebccd0fa-d7bc-4f95-a420-d3ae3b4999f0",
+                "execution_id": "377de229-9f10-488e-b666-027a7b882d9d",
                 "agent": "extraction",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.829739+00:00"
+                "timestamp": "2026-10-07T07:30:43.882621+00:00"
               },
               {
-                "execution_id": "ebccd0fa-d7bc-4f95-a420-d3ae3b4999f0",
+                "execution_id": "377de229-9f10-488e-b666-027a7b882d9d",
                 "agent": "extraction",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0002778000198304653,
-                "timestamp": "2026-10-05T10:28:06.830652+00:00"
+                "execution_time": 0.0001284000463783741,
+                "timestamp": "2026-10-07T07:30:43.882621+00:00"
               },
               {
-                "execution_id": "5e801418-78d2-4c72-9f5d-b5adeadf8fce",
+                "execution_id": "755cd458-300e-4108-9632-2a0e78a4bc96",
                 "agent": "ontology",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.830989+00:00"
+                "timestamp": "2026-10-07T07:30:43.884127+00:00"
               },
               {
-                "execution_id": "5e801418-78d2-4c72-9f5d-b5adeadf8fce",
+                "execution_id": "755cd458-300e-4108-9632-2a0e78a4bc96",
                 "agent": "ontology",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0004941999795846641,
-                "timestamp": "2026-10-05T10:28:06.832064+00:00"
+                "execution_time": 0.00042940001003444195,
+                "timestamp": "2026-10-07T07:30:43.884127+00:00"
               },
               {
-                "execution_id": "41151d94-8d9f-4d38-81aa-1701089dc295",
+                "execution_id": "a3fced22-11cf-4570-ae78-e8017641fa91",
                 "agent": "duplicate",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.833064+00:00"
+                "timestamp": "2026-10-07T07:30:43.885985+00:00"
               },
               {
-                "execution_id": "41151d94-8d9f-4d38-81aa-1701089dc295",
+                "execution_id": "a3fced22-11cf-4570-ae78-e8017641fa91",
                 "agent": "duplicate",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0003572999848984182,
-                "timestamp": "2026-10-05T10:28:06.834066+00:00"
+                "execution_time": 0.0004811000544577837,
+                "timestamp": "2026-10-07T07:30:43.885985+00:00"
               },
               {
-                "execution_id": "ddd20a22-2946-4344-ba3b-a9d223a049c2",
+                "execution_id": "cc6d4900-656c-4ad4-96eb-0e13555a7943",
                 "agent": "validation",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.834066+00:00"
+                "timestamp": "2026-10-07T07:30:43.885985+00:00"
               },
               {
-                "execution_id": "ddd20a22-2946-4344-ba3b-a9d223a049c2",
+                "execution_id": "cc6d4900-656c-4ad4-96eb-0e13555a7943",
                 "agent": "validation",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0003478999715298414,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "execution_time": 0.00037839997094124556,
+                "timestamp": "2026-10-07T07:30:43.885985+00:00"
               },
               {
-                "execution_id": "344c3f28-ba29-4cb2-83f5-8dc12fc2491b",
+                "execution_id": "8365a2f9-8308-47e4-96a7-c1acb9a5c990",
                 "agent": "reviewer",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "timestamp": "2026-10-07T07:30:43.889855+00:00"
               },
               {
-                "execution_id": "344c3f28-ba29-4cb2-83f5-8dc12fc2491b",
+                "execution_id": "8365a2f9-8308-47e4-96a7-c1acb9a5c990",
                 "agent": "reviewer",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.00021180004114285111,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "execution_time": 0.0003032999811694026,
+                "timestamp": "2026-10-07T07:30:43.889855+00:00"
               }
             ]
           },
@@ -1004,112 +1009,112 @@
             "duplicate_candidates": [],
             "agent_logs": [
               {
-                "execution_id": "1d0ad723-8d96-4c53-8c37-5178b4ea47f5",
+                "execution_id": "5b135f75-fa7a-4f1a-a732-9d61a4d908bf",
                 "agent": "parser",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "timestamp": "2026-10-07T07:30:43.896722+00:00"
               },
               {
-                "execution_id": "1d0ad723-8d96-4c53-8c37-5178b4ea47f5",
+                "execution_id": "5b135f75-fa7a-4f1a-a732-9d61a4d908bf",
                 "agent": "parser",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.00024989998200908303,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "execution_time": 0.00021650001872330904,
+                "timestamp": "2026-10-07T07:30:43.896722+00:00"
               },
               {
-                "execution_id": "6c57d103-f141-410e-a58c-81f2316db58b",
+                "execution_id": "2b982fef-b122-45a3-b53c-33772dd8f15c",
                 "agent": "extraction",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "timestamp": "2026-10-07T07:30:43.896722+00:00"
               },
               {
-                "execution_id": "6c57d103-f141-410e-a58c-81f2316db58b",
+                "execution_id": "2b982fef-b122-45a3-b53c-33772dd8f15c",
                 "agent": "extraction",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.00013379997108131647,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "execution_time": 0.00011220003943890333,
+                "timestamp": "2026-10-07T07:30:43.896722+00:00"
               },
               {
-                "execution_id": "d6b80550-d1ce-4fe3-8083-531461e0e1be",
+                "execution_id": "f8467be6-e1b8-49b1-8a66-18edd02db825",
                 "agent": "ontology",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "timestamp": "2026-10-07T07:30:43.896722+00:00"
               },
               {
-                "execution_id": "d6b80550-d1ce-4fe3-8083-531461e0e1be",
+                "execution_id": "f8467be6-e1b8-49b1-8a66-18edd02db825",
                 "agent": "ontology",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.00047259998973459005,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "execution_time": 0.00044380000326782465,
+                "timestamp": "2026-10-07T07:30:43.900825+00:00"
               },
               {
-                "execution_id": "fba9d717-374b-4e7e-81b0-fd1949e9b538",
+                "execution_id": "a81f7fb5-b80d-4181-b6b1-f8e9b0ca26f6",
                 "agent": "duplicate",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "timestamp": "2026-10-07T07:30:43.901869+00:00"
               },
               {
-                "execution_id": "fba9d717-374b-4e7e-81b0-fd1949e9b538",
+                "execution_id": "a81f7fb5-b80d-4181-b6b1-f8e9b0ca26f6",
                 "agent": "duplicate",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0003386000171303749,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "execution_time": 0.00037260004319250584,
+                "timestamp": "2026-10-07T07:30:43.901869+00:00"
               },
               {
-                "execution_id": "e1c0ece8-6a2c-403d-a777-f5f9e76623c6",
+                "execution_id": "9e243b8e-39f6-4b7c-b39f-bba04b730b4a",
                 "agent": "validation",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "timestamp": "2026-10-07T07:30:43.902974+00:00"
               },
               {
-                "execution_id": "e1c0ece8-6a2c-403d-a777-f5f9e76623c6",
+                "execution_id": "9e243b8e-39f6-4b7c-b39f-bba04b730b4a",
                 "agent": "validation",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0002416000352241099,
-                "timestamp": "2026-10-05T10:28:06.834860+00:00"
+                "execution_time": 0.0002367000561207533,
+                "timestamp": "2026-10-07T07:30:43.902974+00:00"
               },
               {
-                "execution_id": "a264dcf0-d093-472b-9e02-1edafd103549",
+                "execution_id": "3c77a432-52dc-4fbe-ac0d-bddef9f6ee55",
                 "agent": "reviewer",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.849772+00:00"
+                "timestamp": "2026-10-07T07:30:43.904062+00:00"
               },
               {
-                "execution_id": "a264dcf0-d093-472b-9e02-1edafd103549",
+                "execution_id": "3c77a432-52dc-4fbe-ac0d-bddef9f6ee55",
                 "agent": "reviewer",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.00020970002515241504,
-                "timestamp": "2026-10-05T10:28:06.849772+00:00"
+                "execution_time": 0.0002816000487655401,
+                "timestamp": "2026-10-07T07:30:43.905066+00:00"
               }
             ]
           },
@@ -1124,7 +1129,7 @@
         {
           "name": "duplicate",
           "provider": "sqlite-rule-engine",
-          "version": "0.2.0",
+          "version": "0.3.0",
           "is_mock": false,
           "required_reads": [
             "normalized_product",
@@ -1148,19 +1153,22 @@
           "correct": 2,
           "total": 2
         },
+        "Duplicate Candidate Precision": {
+          "value": 1.0,
+          "correct": 2,
+          "total": 2
+        },
         "Negative Query Accuracy": {
           "value": 1.0,
           "correct": 1,
           "total": 1
         },
-        "retrieved_count": 5,
+        "retrieved_count": 2,
         "queries": [
           {
             "case_id": "product_001",
             "retrieved": [
-              "DM-500A",
-              "DM-510",
-              "MX-500"
+              "DM-500A"
             ],
             "relevant": [
               "DM-500A"
@@ -1170,8 +1178,7 @@
           {
             "case_id": "product_002",
             "retrieved": [
-              "DM-510",
-              "DM-500A"
+              "DM-510"
             ],
             "relevant": [
               "DM-510"
@@ -1244,42 +1251,68 @@
           "outputs": {
             "duplicate_candidates": [
               {
-                "product_id": "5016edea-4f28-454a-8f5f-ed65e94fbd88",
+                "product_id": "3f622afd-b3d7-4189-bdba-e6f5524d0ab5",
                 "product_name": "DM-500A",
-                "score": 0.9692307692307693,
-                "reason": "Rule similarity of class, name, and shared canonical attributes."
-              },
-              {
-                "product_id": "9c66f6ff-f24b-4936-8687-0b85bbfa819e",
-                "product_name": "DM-510",
-                "score": 0.7333333333333334,
-                "reason": "Rule similarity of class, name, and shared canonical attributes."
-              },
-              {
-                "product_id": "ac80a359-f60f-485f-bb1d-5a0ca5876b2e",
-                "product_name": "MX-500",
-                "score": 0.7333333333333334,
-                "reason": "Rule similarity of class, name, and shared canonical attributes."
+                "score": 0.9636,
+                "reason": "중복 가능성 높음; 제품명 유사(91%); 핵심 사양 4/4 일치",
+                "verdict": "LIKELY_DUPLICATE",
+                "evidence": [
+                  {
+                    "field": "product_name",
+                    "status": "NEAR",
+                    "query_value": "DM-500",
+                    "candidate_value": "DM-500A",
+                    "unit": null
+                  },
+                  {
+                    "field": "manufacturer",
+                    "status": "MATCH",
+                    "query_value": "ABC Motors",
+                    "candidate_value": "ABC Motors",
+                    "unit": null
+                  },
+                  {
+                    "field": "rated_power",
+                    "status": "MATCH",
+                    "query_value": 500,
+                    "candidate_value": 500,
+                    "unit": "W"
+                  },
+                  {
+                    "field": "rated_speed",
+                    "status": "MATCH",
+                    "query_value": 3000,
+                    "candidate_value": 3000,
+                    "unit": "rpm"
+                  },
+                  {
+                    "field": "rated_voltage",
+                    "status": "MATCH",
+                    "query_value": 24,
+                    "candidate_value": 24,
+                    "unit": "V"
+                  }
+                ]
               }
             ],
             "agent_logs": [
               {
-                "execution_id": "f8142631-03a2-4031-b558-680fda6da895",
+                "execution_id": "cd82936f-6d8d-42bc-aaa6-bebfc72625d3",
                 "agent": "duplicate",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.884152+00:00"
+                "timestamp": "2026-10-07T07:30:43.934268+00:00"
               },
               {
-                "execution_id": "f8142631-03a2-4031-b558-680fda6da895",
+                "execution_id": "cd82936f-6d8d-42bc-aaa6-bebfc72625d3",
                 "agent": "duplicate",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.004047900030855089,
-                "timestamp": "2026-10-05T10:28:06.889216+00:00"
+                "execution_time": 0.005905000027269125,
+                "timestamp": "2026-10-07T07:30:43.940885+00:00"
               }
             ],
             "error_events": []
@@ -1342,36 +1375,68 @@
           "outputs": {
             "duplicate_candidates": [
               {
-                "product_id": "9c66f6ff-f24b-4936-8687-0b85bbfa819e",
+                "product_id": "0b678a04-bb10-4b19-b19a-6637936c1e70",
                 "product_name": "DM-510",
                 "score": 1.0,
-                "reason": "Rule similarity of class, name, and shared canonical attributes."
-              },
-              {
-                "product_id": "5016edea-4f28-454a-8f5f-ed65e94fbd88",
-                "product_name": "DM-500A",
-                "score": 0.7076923076923077,
-                "reason": "Rule similarity of class, name, and shared canonical attributes."
+                "reason": "중복 가능성 높음; 제품명 동일; 핵심 사양 4/4 일치",
+                "verdict": "LIKELY_DUPLICATE",
+                "evidence": [
+                  {
+                    "field": "product_name",
+                    "status": "MATCH",
+                    "query_value": "DM-510",
+                    "candidate_value": "DM-510",
+                    "unit": null
+                  },
+                  {
+                    "field": "manufacturer",
+                    "status": "MATCH",
+                    "query_value": "ABC Motors",
+                    "candidate_value": "ABC Motors",
+                    "unit": null
+                  },
+                  {
+                    "field": "rated_power",
+                    "status": "MATCH",
+                    "query_value": 510,
+                    "candidate_value": 510,
+                    "unit": "W"
+                  },
+                  {
+                    "field": "rated_speed",
+                    "status": "MATCH",
+                    "query_value": 3200,
+                    "candidate_value": 3200,
+                    "unit": "rpm"
+                  },
+                  {
+                    "field": "rated_voltage",
+                    "status": "MATCH",
+                    "query_value": 24,
+                    "candidate_value": 24,
+                    "unit": "V"
+                  }
+                ]
               }
             ],
             "agent_logs": [
               {
-                "execution_id": "8ee5bd96-2c3e-4060-9477-372fc3aa354e",
+                "execution_id": "235b904a-e629-4db2-81e3-f0adbc22a9c8",
                 "agent": "duplicate",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.893211+00:00"
+                "timestamp": "2026-10-07T07:30:43.940885+00:00"
               },
               {
-                "execution_id": "8ee5bd96-2c3e-4060-9477-372fc3aa354e",
+                "execution_id": "235b904a-e629-4db2-81e3-f0adbc22a9c8",
                 "agent": "duplicate",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.002847399970050901,
-                "timestamp": "2026-10-05T10:28:06.895414+00:00"
+                "execution_time": 0.0024328000145033,
+                "timestamp": "2026-10-07T07:30:43.943076+00:00"
               }
             ],
             "error_events": []
@@ -1415,22 +1480,22 @@
             "duplicate_candidates": [],
             "agent_logs": [
               {
-                "execution_id": "99238cee-6e02-4f10-ad16-6cd90c52414a",
+                "execution_id": "d80bfe02-96cc-4ebd-ade0-bcbf08bcf065",
                 "agent": "duplicate",
                 "status": "running",
                 "message": "Agent started",
                 "attempt": 1,
                 "execution_time": null,
-                "timestamp": "2026-10-05T10:28:06.896415+00:00"
+                "timestamp": "2026-10-07T07:30:43.943076+00:00"
               },
               {
-                "execution_id": "99238cee-6e02-4f10-ad16-6cd90c52414a",
+                "execution_id": "d80bfe02-96cc-4ebd-ade0-bcbf08bcf065",
                 "agent": "duplicate",
                 "status": "success",
                 "message": "Agent completed",
                 "attempt": 1,
-                "execution_time": 0.0031589000136591494,
-                "timestamp": "2026-10-05T10:28:06.898789+00:00"
+                "execution_time": 0.0012156999437138438,
+                "timestamp": "2026-10-07T07:30:43.944193+00:00"
               }
             ],
             "error_events": []

@@ -105,7 +105,7 @@ def run_evaluation(directory, output_directory=None):
         repository = ProductRepository(Database(Path(temporary) / "reference.db"))
         seed_products(repository)
         duplicate_registry = AgentRegistry()
-        duplicate_registry.register(DuplicateAgent(DuplicateService(repository)))
+        duplicate_registry.register(DuplicateAgent(DuplicateService(repository, ontology)))
         for truth in cases:
             cls = truth["product"]["product_class"]
             mapping = {
@@ -130,39 +130,24 @@ def run_evaluation(directory, output_directory=None):
                 raise RuntimeError("Duplicate evaluation failed")
             rule_samples.append({"ground_truth": truth, "outputs": output})
         rule_metadata = duplicate_registry.metadata()
-    report = {
-        "schema_version": 1,
-        "run_id": str(uuid4()),
-        "generated_at": datetime.now(timezone.utc).isoformat(),
-        "dataset": {
-            "name": "OntoProduct synthetic teaching fixtures",
-            "case_count": len(cases),
-            "limitations": "Three authored fixtures; not real document extraction or production accuracy.",
-        },
-        "definitions": {
-            "detection": "Micro precision/recall/F1 of non-null raw extracted attribute names.",
-            "value": "Correct canonical normalized values / all non-null truth attributes; missing is wrong.",
-            "unit": "Correct canonical units / unit-bearing truth attributes; missing is wrong.",
-            "required": "Per truth-class required property, compare missing normalized values with MISSING_REQUIRED issues.",
-            "duplicate": "Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels. Empty denominators are null.",
-        },
-        "suites": [
-            {
-                "label": "MOCK EVALUATION",
-                "agents": registry.metadata(),
-                "metrics": mock_metrics,
-                "samples": mock_samples,
-                "input_mode": "Unmodified Mock workflow, no manual edits, zero automatic retries.",
-            },
-            {
-                "label": "RULE ENGINE EVALUATION",
-                "agents": rule_metadata,
-                "metrics": evaluate_duplicate(rule_samples),
-                "samples": rule_samples,
-                "input_mode": "Canonical ground-truth query directly to the real SQLite DuplicateAgent; isolated seed catalog.",
-            },
-        ],
-    }
+    report = {"schema_version": 1, "run_id": str(uuid4()),
+              "generated_at": datetime.now(timezone.utc).isoformat(),
+              "dataset": {"name": "OntoProduct synthetic teaching fixtures", "case_count": len(cases),
+                          "limitations": "Three authored fixtures; not real document extraction or production accuracy."},
+              "definitions": {
+                  "detection": "Micro precision/recall/F1 of non-null raw extracted attribute names.",
+                  "value": "Correct canonical normalized values / all non-null truth attributes; missing is wrong.",
+                  "unit": "Correct canonical units / unit-bearing truth attributes; missing is wrong.",
+                  "required": "Per truth-class required property, compare missing normalized values with MISSING_REQUIRED issues.",
+                  "duplicate": "Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels; Candidate Precision = hits/returned candidates. Empty denominators are null.",
+              },
+              "suites": [
+                  {"label": "MOCK EVALUATION", "agents": registry.metadata(), "metrics": mock_metrics,
+                   "samples": mock_samples, "input_mode": "Unmodified Mock workflow, no manual edits, zero automatic retries."},
+                  {"label": "RULE ENGINE EVALUATION", "agents": rule_metadata,
+                   "metrics": evaluate_duplicate(rule_samples), "samples": rule_samples,
+                   "input_mode": "Canonical ground-truth query directly to the real SQLite DuplicateAgent; isolated seed catalog."}
+              ]}
     if output_directory is not None:
         output = Path(output_directory)
         output.mkdir(parents=True, exist_ok=True)

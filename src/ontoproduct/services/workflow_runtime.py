@@ -55,12 +55,8 @@ class WorkflowRuntime:
         with self._guard:
             if thread_id not in self._graphs:
                 registry = self.registry_factory(self.ontology)
-                registry.register(
-                    RegistrationAgent(thread_id, self.registration), replace=True
-                )
-                registry.register(
-                    DuplicateAgent(DuplicateService(self.products)), replace=True
-                )
+                registry.register(RegistrationAgent(thread_id, self.registration), replace=True)
+                registry.register(DuplicateAgent(DuplicateService(self.products, self.ontology)), replace=True)
                 self._registries[thread_id] = registry
                 self._graphs[thread_id] = build_workflow(
                     registry, ontology=self.ontology, checkpointer=self.checkpointer
@@ -152,9 +148,7 @@ class WorkflowRuntime:
             self.graph(thread_id)
             return self._registries[thread_id].metadata()
         registry = self.registry_factory(self.ontology)
-        registry.register(
-            RegistrationAgent("metadata", self.registration), replace=True
-        )
+        registry.register(RegistrationAgent("metadata", self.registration), replace=True)
         registry.register(DuplicateAgent(DuplicateService(self.products)), replace=True)
         return registry.metadata()
 
