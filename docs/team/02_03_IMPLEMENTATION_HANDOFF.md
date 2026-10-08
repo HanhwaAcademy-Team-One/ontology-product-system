@@ -1,5 +1,7 @@
 # 02 Extraction · 03 Ontology 구현 인계
 
+> **현재 연결 상태:** Parser·Extraction·Ontology와 OpenAI adapter·UI Real Registry 연결은 이후 구현되어 있습니다. 아래 “운영 목업 교체 미완료” 등의 문구는 각 단계 당시의 인계 이력입니다. 현재 실행·연결은 [Quick start](../QUICK_START.md)와 [08 통합 가이드](08_INTEGRATION.md)를 따릅니다. Graph Validation의 SHACL 자동 연결과 RDF DB 저장은 여전히 남은 범위입니다.
+
 최초 작성: 2026-10-07.
 
 상세 정책과 완료 조건은 [구현 명세](02_03_IMPLEMENTATION_SPEC.md)를 따른다. **1~7단계 구현과 오프라인 검증을 완료했다. 운영 앱의 목업 교체는 미완료다.** 실제 Parser·LLM adapter·Registry/runtime 연결은 통합 담당자에게 남아 있다. 실제 모델 품질과 PDF/XLSX 파싱을 검증한 결과가 아니다.

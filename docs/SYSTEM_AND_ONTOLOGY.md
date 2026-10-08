@@ -2,9 +2,9 @@
 
 이 시스템의 목표는 제조 제품 문서에서 정보를 얻고, 제품 분류에 맞는 공통 속성·단위로 정리한 뒤, 검증과 사람의 승인을 거쳐 제품 DB에 등록하는 것입니다.
 
-온톨로지는 이 과정에서 **“이 제품은 어떤 종류이고, 어떤 속성이 필요하며, 어떤 단위와 값으로 저장해야 하는가”를 정의하는 공통 기준**입니다. 현재 코드에서 쓰는 기준은 [ontology.yaml](../src/ontoproduct/ontology/ontology.yaml)에 있습니다.
+온톨로지는 이 과정에서 **“이 제품은 어떤 종류이고, 어떤 속성이 필요하며, 어떤 단위와 값으로 저장해야 하는가”를 정의하는 공통 기준**입니다. 업무 속성 기준은 [ontology.yaml](../src/ontoproduct/ontology/ontology.yaml)에 있으며, 기본 OntologyService는 [product_model.yaml](../src/ontoproduct/ontology/product_model.yaml)의 의미 모델 투영과 일치하는지 검사합니다. 자체 제품 모델·RDF/OWL·SHACL 정의와 확장 방법은 [제품 온톨로지 매뉴얼](team/03_PRODUCT_ONTOLOGY.md)에 있습니다.
 
-현재 문서 읽기와 정보 추출은 Mock입니다. 온톨로지 정의 읽기, 상속 속성 계산, 지원 단위 변환, 규칙 검증, 수동 수정 처리, UI의 SQLite 중복 조회·저장은 실제 코드로 동작합니다. 아래에서 현재 동작과 앞으로 구현할 문서 분석을 구분합니다.
+기본 Mock 모드는 고정 예제를 사용하며, Real 모드는 실제 Parser·Extraction·Ontology를 사용합니다. 온톨로지 정의 읽기, 상속 속성 계산, 단위 변환, 규칙 검증, 수동 수정, UI의 SQLite 중복 조회·저장은 두 모드에서 실제 코드로 동작합니다. Validation·Reviewer는 기존 Mock의 규칙 판단을 사용합니다. 실행은 [Quick start](QUICK_START.md), 설정과 연결은 [통합 가이드](team/08_INTEGRATION.md)를 참고하세요.
 
 **1. 온톨로지에는 무엇이 들어 있나요?**
 
@@ -67,12 +67,12 @@ Agent는 각 단계의 입구이고, Service는 실제 작업 함수입니다. �
 
 **3. 각 단계에서 온톨로지는 어떻게 쓰이나요?**
 
-| 단계 | 받는 자료 → 넘기는 자료 | 온톨로지의 역할 | 현재 기본 UI 동작 |
+| 단계 | 받는 자료 → 넘기는 자료 | 온톨로지의 역할 | 현재 UI 동작 |
 | --- | --- | --- | --- |
 | 업로드 | 파일 bytes → source_documents | 다음 단계가 읽을 파일을 준비 | 원본 파일 실제 보관 |
-| Parser | source_documents → parsed_documents | 제품 규칙 적용 전 문서 텍스트 준비 | ParserMock, 파일 내용 파싱 없음 |
-| Extraction | parsed_documents → extracted_product | 앞으로 표준 속성과 연결할 원문 정보·분류 후보 준비 | ExtractionMock, DM-500 고정 예제 |
-| Ontology | extracted_product → ontology_mapping, base_normalized_product | 분류 존재 확인, 상속 속성 계산, 지원 단위 변환 | OntologyMock이 실제 OntologyService 사용; 분류 판단·confidence는 Mock 방식 |
+| Parser | source_documents → parsed_documents | 제품 규칙 적용 전 문서 텍스트 준비 | Mock: 고정 예제 / Real: PDF·XLSX·TXT 실제 파싱 |
+| Extraction | parsed_documents → extracted_product | 표준 속성과 연결할 원문 정보·분류 후보 준비 | Mock: DM-500 / Real: LLM으로 원문 속성·근거 추출 |
+| Ontology | extracted_product → ontology_mapping, base_normalized_product | 분류 존재 확인, 상속 속성 계산, 지원 단위 변환 | Mock: 고정 분류 판단 / Real: 실제 분류·매핑; 공통 OntologyService로 정규화 |
 | 수동 수정 병합 | 기본 제품 + 사람 수정 → normalized_product | 현재 분류의 속성에 수정 적용, 수정 단위 정규화 | 실제 규칙 처리 |
 | Validation | normalized_product + ontology_mapping → validation_result | 필수값·타입·표준 단위·범위·분류 일치 검사 | ValidationMock이 실제 validate_product 호출 |
 | Duplicate | 정규화 제품 → duplicate_candidates | 표준화된 분류·값·단위가 비교 기준 | 실제 SQLite 규칙 비교 |
@@ -83,7 +83,7 @@ Duplicate는 ontology_mapping을 입력 계약으로 받지만, 현재 [Duplicat
 
 **4. 제품 정보는 실제로 어떻게 바뀌나요?**
 
-앞으로 실제 Parser·Extraction을 구현한 뒤 처리할 입력의 설명용 예시입니다.
+Real 모드에서 처리할 문서의 설명용 예시입니다. 실제 모델의 추출 결과는 근거와 함께 확인해야 합니다.
 
 ```text
 제품명: DM-600
@@ -94,7 +94,7 @@ Duplicate는 ontology_mapping을 입력 계약으로 받지만, 현재 [Duplicat
 정격 속도: 3200 rpm
 ```
 
-Extraction은 이 원문에서 product_name, candidate_class, attributes와 근거를 추출해야 합니다. Ontology 단계는 선택한 BLDCMotor 분류가 정의에 존재하는지 확인하고 필수·선택 속성을 계산합니다. 원문 항목을 manufacturer, rated_voltage, rated_power, rated_speed 같은 표준 키에 연결하는 실제 분류·매핑 기능도 새 Agent에서 구현해야 합니다.
+Real ExtractionAgent는 이 원문에서 product_name, candidate_class, attributes와 근거를 추출합니다. Ontology 단계는 선택한 BLDCMotor 분류가 정의에 존재하는지 확인하고 필수·선택 속성을 계산합니다. 실제 Extraction·Ontology Agent가 원문 항목을 manufacturer, rated_voltage, rated_power, rated_speed 같은 표준 키와 제품 분류에 연결합니다.
 
 온톨로지상 rated_power의 표준 단위는 W입니다. 따라서 기존 [normalize_unit](../src/ontoproduct/services/ontology_service.py)으로 `0.6 kW → 600.0 W`를 처리할 수 있습니다. [normalize_attributes](../src/ontoproduct/services/normalization_service.py)가 제품 속성별로 이 변환을 호출합니다. 지원하지 않는 단위는 원래 값을 보존하여 후속 검증에서 오류를 표시합니다.
 
@@ -107,7 +107,7 @@ Ontology 단계가 만드는 결과는 두 가지입니다.
 
 위 예시에는 필수값이 모두 있으므로 검증을 통과합니다. weight가 없어도 선택 항목이므로 경고만 발생합니다. 반면 rated_speed가 없으면 MISSING_REQUIRED 오류가 발생하며 valid=false입니다. 검증 함수의 현재 메시지는 영어 고정 문자열입니다.
 
-실제 문서에서 위 결과를 얻는 것은 아직 구현 목표입니다. 현재 UI에 이 문서를 업로드해도 ExtractionMock은 DM-500 예제를 반환합니다.
+Mock 모드에 이 문서를 업로드하면 DM-500 예제를 반환합니다. Real 모드는 실제 문서를 읽고 모델로 추출하므로 결과와 근거를 직접 검토합니다.
 
 **5. 사람이 수정하거나 분류를 바꾸면 어떻게 되나요?**
 
@@ -129,7 +129,7 @@ Ontology 단계가 만드는 결과는 두 가지입니다.
 
 중간 상태는 제품 DB와 별도의 SQLite checkpoint에 저장합니다. 따라서 사람 수정·승인 대기와 오류 처리 중에 서버를 재시작해도 작업을 이어갈 수 있습니다.
 
-**7. 현재 코드를 실제 실행해 확인한 흐름**
+**7. Mock 모드 실행 확인 기록**
 
 기본 WorkflowRuntime과 별도 임시 데이터 폴더로 확인했습니다. 업로드한 TXT에는 다른 제품명과 0.6 kW, 3200 rpm을 넣었지만, 실제 결과는 현재 Mock 정의를 따랐습니다.
 
@@ -143,10 +143,12 @@ Ontology 단계가 만드는 결과는 두 가지입니다.
 
 이 실행은 온톨로지 규칙부터 검증·사람 수정·승인·DB 저장까지의 연결을 확인한 것입니다. 실제 원문 분석이나 LLM 추출 품질을 검증한 것은 아닙니다.
 
-**8. 실제 문서 기능이 완성되면 달라지는 부분**
+**8. Real 모드와 남은 구현 범위**
 
-Parser가 업로드 원문을 읽고, Extraction이 실제 속성·근거를 추출하며, OntologyAgent가 실제 분류·표준 속성 매핑을 수행하게 됩니다. 각 신규 Agent를 Runtime의 Registry에 연결해야 UI가 그 구현을 사용합니다. 온톨로지 정의·상속·정규화·검증·사람 수정·승인·저장 흐름은 기존 구현을 재사용할 수 있습니다.
+Real 모드에서는 Parser가 원문을 읽고 Extraction이 실제 속성·근거를 추출하며 OntologyAgent가 실제 분류·표준 속성 매핑을 수행합니다. 현재 UI runtime의 Registry에 연결되어 있습니다. 온톨로지 정의·상속·정규화·검증·사람 수정·승인·저장 흐름은 공통 구현을 재사용합니다.
 
-이때 온톨로지는 여러 제조사의 서로 다른 표기를 공통 분류·속성·단위로 정리하는 기준이 됩니다. 제품 데이터가 같은 규칙을 따르므로 검색·비교·검증에 재사용할 수 있습니다. 분류 판단의 근거와 신뢰도를 실제로 만드는 일은 새 분류·추출 기능의 책임입니다. 온톨로지 규칙을 통과했다는 사실만으로 원문 추출값이 정확하다는 뜻은 아니므로 근거 확인과 실제 문서 평가가 함께 필요합니다.
+이때 온톨로지는 여러 제조사의 서로 다른 표기를 공통 분류·속성·단위로 정리하는 기준이 됩니다. 제품 데이터가 같은 규칙을 따르므로 검색·비교·검증에 재사용할 수 있습니다. 분류 판단의 근거와 신뢰도를 만드는 일은 실제 분류·추출 기능의 책임입니다. 온톨로지 규칙을 통과했다는 사실만으로 원문 추출값이 정확하다는 뜻은 아니므로 근거 확인과 실제 문서 평가가 함께 필요합니다.
+
+SHACL 검사는 온톨로지 탐색에서 실행할 수 있지만 Graph의 Validation에 자동 연결되어 있지 않습니다. Validation·Reviewer Agent 교체와 SHACL 업무 정책 통합, RDF DB 저장은 추가 구현 범위입니다.
 
 구현 분담과 교체·테스트 방법은 [팀 협업 가이드](MOCK_REPLACEMENT_PLAN.md)를 참고하세요.

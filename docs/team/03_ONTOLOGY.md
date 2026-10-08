@@ -1,5 +1,7 @@
 # 03. Ontology 담당자: 분류·속성·단위를 우리 기준에 맞추기
 
+> **현재 상태:** 이 Agent는 구현되어 UI Real 모드에 연결되어 있습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
+
 [공통 약속](00_COMMON.md) · [Extraction](02_EXTRACTION.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
 ## 1. 내가 맡는 일
