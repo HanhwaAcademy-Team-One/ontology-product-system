@@ -1,0 +1,6 @@
+# 문서 바이너리는 줄바꿈 변환 없이 그대로 보관한다 (PDF 내부 바이트 오프셋 보호).
+*.pdf binary
+*.xlsx binary
+
+# 샘플 입력은 verification.json의 SHA-256과 일치하도록 바이트 그대로 체크아웃한다.
+inputdata/** -text
