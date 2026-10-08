@@ -6,7 +6,7 @@ Python **3.12**가 필요합니다. 처음에는 API Key 없이 동작하는 **M
 
 ## Quick start
 
-Windows PowerShell에서 저장소 루트를 열고 실행합니다. `uv`가 설치되어 있어야 합니다.
+Windows PowerShell에서 저장소 루트를 열고 실행합니다. `uv`가 설치되어 있어야 합니다. 명령 프롬프트(cmd)나 Linux·macOS에서는 환경 변수 문법이 다르므로 [터미널별 명령](docs/QUICK_START.md#터미널별-명령)을 먼저 확인하세요.
 
 ```powershell
 cd D:\ontology-product-system

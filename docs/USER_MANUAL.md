@@ -89,6 +89,7 @@ Streamlit rerun이나 서버 재시작 후에도 같은 데이터 폴더를 사�
 | `ModuleNotFoundError` | 저장소 루트에서 설치하고 `.venv\Scripts\python.exe`로 실행했는지 확인 |
 | 8502 포트를 사용 중 | 기존 서버에 접속하거나 실행 명령과 접속 주소의 포트를 함께 변경 |
 | Real 설정 오류 | `AGENT_MODE=real`, `OPENAI_API_KEY`, YAML·환경 변수 확인 후 서버 재시작. `.env`는 자동 로드하지 않음 |
+| `$env:...` 입력 시 `파일 이름, 디렉터리 이름 또는 볼륨 레이블 구문이 잘못되었습니다.` | PowerShell이 아니라 명령 프롬프트(cmd)입니다. `set AGENT_MODE=real`을 쓰거나 PowerShell 터미널로 바꿉니다. [터미널별 명령](QUICK_START.md#터미널별-명령) 참고 |
 | 업로드한 제품 대신 DM-500 표시 | 현재 모드가 Mock인지 확인하고 실제 분석은 Real 모드로 재시작 |
 | PDF 파싱 오류 | 텍스트가 포함된 PDF인지 확인. 스캔 PDF는 OCR 미지원 |
 | API timeout·모델 응답 오류 | 모니터의 오류와 [LLM 설정](team/08_INTEGRATION.md#실행-설정)을 확인하고 원인 해결 후 오류 재시도 |

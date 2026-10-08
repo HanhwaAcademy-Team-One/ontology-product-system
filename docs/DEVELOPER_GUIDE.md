@@ -2,7 +2,7 @@
 
 [문서 목차](README.md) · [Quick start](QUICK_START.md) · [팀 협업 가이드](MOCK_REPLACEMENT_PLAN.md)
 
-설치·UI 실행은 Quick start를 따릅니다. 이 문서의 명령은 Windows PowerShell, 저장소 루트 기준입니다.
+설치·UI 실행은 Quick start를 따릅니다. 이 문서의 명령은 Windows PowerShell, 저장소 루트 기준입니다. cmd·Linux·macOS 문법은 [터미널별 명령](QUICK_START.md#터미널별-명령)을 참고하세요.
 
 ## 구조와 계약
 

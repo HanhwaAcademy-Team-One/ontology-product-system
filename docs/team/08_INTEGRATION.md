@@ -22,7 +22,7 @@
 
 ## 실행 설정
 
-`Settings.from_environment()`가 설정을 읽습니다. `AGENT_MODE`는 환경 변수로만 정하며, **`.env` 파일은 자동으로 읽지 않습니다.** API Key는 Settings나 YAML에 담지 않습니다.
+`Settings.from_environment()`가 설정을 읽습니다. `AGENT_MODE`는 환경 변수로만 정하며, **`.env` 파일은 자동으로 읽지 않습니다.** API Key는 Settings나 YAML에 담지 않습니다. 이 문서의 명령 예시는 PowerShell 기준이며, cmd·Linux·macOS에서 환경 변수를 정하는 문법은 [터미널별 명령](../QUICK_START.md#터미널별-명령)에 있습니다.
 
 | 환경 변수 | 의미 | 현재 기본값 |
 | --- | --- | --- |
