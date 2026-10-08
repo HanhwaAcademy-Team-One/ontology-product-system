@@ -6,13 +6,23 @@
 
 각 담당자의 “동작한다”는 말을 실제 문서와 사람이 검수한 정답으로 확인합니다. 어떤 값을 맞혔고 틀렸는지, 사람 수정 전과 후가 어떻게 다른지 재현 가능한 결과를 남깁니다.
 
-현재 보고서는 합성 TXT 3개의 Mock 평가와 별도 SQLite 규칙 중복 평가입니다. 실제 PDF/Excel 추출 성능을 나타내지 않습니다.
+기존 합성 TXT 3개 Mock/SQLite 평가를 유지하며 [document_runner.py](../../src/ontoproduct/evaluation/document_runner.py)가 inputdata의 80개 TXT/PDF/XLSX·75 업로드 조합을 격리 Real runtime으로 평가합니다. 기본 실행은 통신만 고정 참조 응답으로 대체한 `offline_reference`이며 실제 LLM 정확도가 아닙니다. 순차 실행 기록·정답 범위·실패 분모는 [04 실행 기록](04_EXECUTION_LOG.md)에 있습니다. 아래 초기 Real 평가 구현 계획은 현재 구현과 대조해 읽습니다.
+
+```powershell
+$env:ONTOPRODUCT_LIVE_LLM = "0"
+.venv\Scripts\python.exe -m ontoproduct.evaluation.document_runner --dataset inputdata --output eval/document_reports
+```
+
+manifest의 기대값은 정답 후보이며 independent human review는 아직 false입니다. 파일은 verification의 SHA-256으로 확인하고 형식 대안은 각기 별도 작업, together 문서는 한 작업으로 처리합니다. 기존 보고서를 덮어쓰지 않고 실행 UUID 폴더에 JSON/Markdown을 남깁니다. 실제 모델은 별도 승인 후 `--live --cases ... --format ... --max-calls ... --time-limit-seconds ...`로 실행하며 현재 모델 설정을 재사용합니다. 호출·시간 한도는 service call 직전에 검사하고 진행 중 SDK 요청은 기존 timeout/retry를 유지합니다.
+
+2026-10-09 사용자 요청으로 대표 TXT 4건을 gpt-5에서 Extraction 2.0.0/2.1.0으로 비교했습니다. [실모델 비교 보고서](../../eval/confidence_reports/20261009-0b4fe5df-6275-4095-aa12-3299b56c37d8/comparison.md)에 실제 16회 호출과 지표·실패를 기록했습니다. confidence 누락 감소 효과는 확인하지 못했으며 E008/E009의 상위 분류 선택으로 관계 오류를 놓쳤습니다. 전체 inputdata 실모델 평가 완료를 뜻하지 않습니다.
 
 ## 2. 파일 위치
 
 | 위치 | 현재 기능 | 앞으로 할 일 |
 | --- | --- | --- |
 | [evaluation/runner.py](../../src/ontoproduct/evaluation/runner.py) | Mock workflow와 실제 규칙 Duplicate 별도 실행 | Real 실행 경로 추가 |
+| [evaluation/document_runner.py](../../src/ontoproduct/evaluation/document_runner.py) | inputdata 오프라인·승인 후 실모델 평가 경로, 대표 TXT 4건 비교 실행 | 전체 실모델 평가·정답 독립 검수·분류 실패 보완 |
 | [evaluation/metrics.py](../../src/ontoproduct/evaluation/metrics.py) | 지표 계산 | 기본 계산 재사용, 새 요구는 정의부터 합의 |
 | [evaluation/report.py](../../src/ontoproduct/evaluation/report.py) | Markdown 보고서 | provider/model/prompt 정보 추가 |
 | [views/evaluation.py](../../src/ontoproduct/views/evaluation.py) | 평가 실행/조회/다운로드 | Mock/Real 데이터·모드 구분 |
@@ -20,7 +30,7 @@
 | eval/ground_truth/ | JSON 정답 3개 | 검수한 실제 문서 정답 |
 | eval/reports/ | 기존 평가 결과 | Real 결과를 별도 경로/실행 ID로 저장 |
 | tests/test_evaluation.py | 지표/출력 기록 검사 | 실제 데이터/실행 모드 테스트 추가 |
-| 신규 tests/test_real_workflow.py | 없음 | 실제 문서부터 저장까지 통합 |
+| tests/test_real_workflow.py | 실제 문서·평가·충돌·복원·저장 통합 회귀 | 승인 범위의 실제 모델 확인 |
 | 필요 시 신규 eval/ground_truth_real/ | 없음 | Mock용 정답과 실제용 정답 분리 |
 
 ## 3. Ground Truth가 무엇인가요?

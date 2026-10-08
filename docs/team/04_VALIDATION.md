@@ -2,7 +2,7 @@
 
 [공통 약속](00_COMMON.md) · [Ontology](03_ONTOLOGY.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
-**현재 상태 (2026-10-08):** ValidationAgent와 규칙 검증 함수가 구현되어 있으며, UI Real 모드의 Registry에도 연결되어 있습니다. 기본 Mock 모드는 ValidationMock을 사용하고 두 adapter는 같은 `validate_product`를 호출합니다. LLM 검증과 SHACL 자동 연결은 포함되지 않습니다. 이번 점검 결과와 남은 작업은 [§9](#9-점검-결과와-남은-작업)에 정리했습니다.
+**현재 상태 (2026-10-09):** UI Real Validation과 RegistrationService는 공통 `validate_registration_product`에서 규칙·SHACL을 결합합니다. 내경≥외경을 차단하고 필수 충돌·범위 오류의 중복 안내를 제거하며 독립 위반을 보존합니다. ValidationMock과 ontology 없이 생성한 기존 ValidationAgent는 `validate_product` 계약을 유지합니다. LLM 검증은 사용하지 않습니다. 정책은 [SHACL 명세](04_SHACL_INTEGRATION_SPEC.md), 순차 작업의 구현·검증과 남은 의존성은 [실행 기록](04_EXECUTION_LOG.md)에 있습니다. 아래 초기 adapter 구현 예시와 §9의 과거 점검 기록은 작성 당시 이력입니다.
 
 ## 1. 내가 맡는 일
 
@@ -225,7 +225,7 @@ from ontoproduct.agents.validation_agent import ValidationAgent
 
 ontology = OntologyService()
 registry = mock_registry(ontology)
-registry.register(ValidationAgent(), replace=True)
+registry.register(ValidationAgent(ontology), replace=True)
 registry.validate_complete()
 ```
 
@@ -288,6 +288,8 @@ $env:ONTOPRODUCT_LIVE_LLM = "0"
 pytest 실행 시 `ONTOPRODUCT_LIVE_LLM=0`을 사용했습니다. skip은 기존 live LLM 테스트 2개이며, 전체 실행의 기존 rdflib DeprecationWarning 1개는 유지됩니다. 화면 수동 확인과 실제 모델 호출은 미실시입니다. 새 패키지를 추가하지 않았으며 기존 staged 작업을 보존하고 스테이징·커밋하지 않았습니다.
 
 ### 남은 작업과 완료 조건
+
+2026-10-09 순차 작업에서 SHACL 정책·공통 등록 검증, Real Reviewer, inputdata 오프라인 평가, 결정적 문서 충돌의 새 작업 해결 경로를 구현했습니다. 아래 표는 이번 실행 이전의 후속 목록입니다. 현재 완료/대기 구분과 검증 결과는 [실행 기록](04_EXECUTION_LOG.md)을 기준으로 확인합니다. 이후 사용자 요청으로 대표 TXT 4건의 confidence 실모델 비교를 수행했으나 개선 효과는 확인하지 못했습니다. 두 버전 모두 E008/E009를 상위 분류로 바꿔 SHACL 관계 판정을 놓친 문제가 남았습니다. OCR·목표 규모·RDF 저장 요구는 사용자 확인 대기입니다.
 
 후속 작업에 사용할 복사용 지시문은 [남은 작업 구현 프롬프트](04_REMAINING_WORK_PROMPTS.md)에 있습니다. 공통 지시문과 선택한 작업 하나를 함께 사용합니다.
 

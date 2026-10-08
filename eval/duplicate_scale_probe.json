@@ -1,0 +1,50 @@
+{
+  "kind": "preliminary_synthetic_probe",
+  "python": "3.12.10",
+  "platform": "Windows-11-10.0.26200-SP0",
+  "measurements": [
+    {
+      "products": 100,
+      "query_seconds": [
+        0.03664370009209961,
+        0.039746600086800754,
+        0.03787260001990944
+      ],
+      "python_peak_bytes": [
+        287142,
+        269542,
+        269470
+      ],
+      "returned_candidates": 3
+    },
+    {
+      "products": 1000,
+      "query_seconds": [
+        0.2880481999600306,
+        0.2799493999918923,
+        0.2772725000977516
+      ],
+      "python_peak_bytes": [
+        2871154,
+        2784498,
+        2784426
+      ],
+      "returned_candidates": 3
+    },
+    {
+      "products": 5000,
+      "query_seconds": [
+        1.6833764999173582,
+        1.482428599963896,
+        1.6252117999829352
+      ],
+      "python_peak_bytes": [
+        14158602,
+        14154442,
+        14154802
+      ],
+      "returned_candidates": 3
+    }
+  ],
+  "limitations": "Single sequential query, identical Bearing specs; tracemalloc Python allocations, not process RSS. No agreed target scale, concurrency, SLA or representative production corpus."
+}

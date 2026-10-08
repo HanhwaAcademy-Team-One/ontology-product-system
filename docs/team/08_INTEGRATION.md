@@ -2,7 +2,7 @@
 
 [문서 목차](../README.md) · [공통 약속](00_COMMON.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
-현재 UI는 `AGENT_MODE=real`에서 Parser·Extraction·Ontology를 실제 구현으로 연결합니다. Validation은 실제 Python 규칙 Agent, Reviewer는 기존 Mock 규칙을 사용하고, Duplicate·Registration은 두 모드 모두 runtime의 실제 SQLite Agent입니다. 설치와 실행 명령은 [Quick start](../QUICK_START.md)를 따릅니다.
+현재 UI는 `AGENT_MODE=real`에서 Parser·Extraction·Ontology·Validation·Reviewer를 실제 구현으로 연결합니다. Validation과 승인 직전 RegistrationService는 공통 규칙·SHACL 정책을 사용합니다. Duplicate·Registration은 두 모드 모두 runtime의 실제 SQLite Agent입니다. 기본 Mock의 문서·Validation·Reviewer는 유지합니다. 설치와 실행 명령은 [Quick start](../QUICK_START.md)를 따릅니다.
 
 ## 현재 연결 위치
 
@@ -12,7 +12,7 @@
 | [config/llm.yaml](../../src/ontoproduct/config/llm.yaml) | 공급자·모델·timeout·retry 팀 기본값 |
 | [services/llm_protocol.py](../../src/ontoproduct/services/llm_protocol.py) | 공통 LlmService 인터페이스 |
 | [services/llm_service.py](../../src/ontoproduct/services/llm_service.py) | OpenAI adapter, Agent별 서비스 생성 |
-| [agents/real_registry.py](../../src/ontoproduct/agents/real_registry.py) | 01~03 실제 문서 Agent 교체 |
+| [agents/real_registry.py](../../src/ontoproduct/agents/real_registry.py) | 실제 문서·Validation·Reviewer Agent 교체 |
 | [views/resources.py](../../src/ontoproduct/views/resources.py) | 설정에 따른 cached runtime 생성·조회 |
 | [services/workflow_runtime.py](../../src/ontoproduct/services/workflow_runtime.py) | 작업별 Graph, checkpoint, 실제 SQLite Agent 연결 |
 | [agents/registry.py](../../src/ontoproduct/agents/registry.py) | CONTRACTS 검사 |
@@ -64,7 +64,7 @@ def registry_factory(ontology):
 
 `parser_service`와 `llm_services`는 `views/resources.py`의 `get_runtime()`이 생성해 closure로 전달합니다. `ParserService`에는 해당 runtime의 `ApplicationPaths.uploads`를 전달합니다.
 
-`build_document_registry()`는 parser·extraction·ontology·validation을 교체합니다. 이를 `build_workflow()`에 직접 전달하면 Duplicate·Registration은 Mock으로 남습니다. UI처럼 실제 DB에 저장하려면 `WorkflowRuntime(paths, registry_factory=registry_factory)`을 사용해야 합니다. runtime이 case_id별 RegistrationAgent와 SQLite DuplicateAgent를 연결합니다.
+`build_document_registry()`는 parser·extraction·ontology·validation·reviewer를 교체합니다. 이를 `build_workflow()`에 직접 전달하면 Duplicate·Registration은 Mock으로 남습니다. UI처럼 실제 DB에 저장하려면 `WorkflowRuntime(paths, registry_factory=registry_factory)`을 사용해야 합니다. runtime이 case_id별 RegistrationAgent와 SQLite DuplicateAgent를 연결합니다.
 
 모든 화면과 앱 진입점은 `current_runtime()`을 사용합니다. Real 설정은 `get_runtime` cache key에 포함됩니다(API Key 제외). Mock 모드는 기존 기본 runtime을 사용합니다. 테스트는 `get_runtime.clear()`로 cache를 정리합니다.
 
@@ -83,7 +83,7 @@ def registry_factory(ontology):
 
 ## 추가 Agent 교체와 스키마 변경
 
-Validation은 Real 모드에서 기존 Python 규칙을 실행하는 ValidationAgent로 연결되며, 기본 Mock 모드는 ValidationMock을 유지합니다. Reviewer 교체는 남은 구현 범위입니다. 전용 Agent와 테스트를 만들고 Registry에 `replace=True`로 등록합니다. `mocks/agents.py`를 직접 바꿔 기존 데모·평가를 함께 변경하지 않습니다.
+Validation은 Real 모드에서 공통 규칙·SHACL 정책을 사용하는 ValidationAgent로 연결되며 기본 Mock 모드는 ValidationMock을 유지합니다. Real ReviewerAgent는 충돌·검증 오류·confidence·중복 근거를 규칙으로 판단합니다. 추가 Agent는 전용 구현과 테스트를 만들고 Registry에 `replace=True`로 등록합니다. `mocks/agents.py`를 직접 바꿔 기존 데모·평가를 함께 변경하지 않습니다.
 
 1. 새 Agent의 입력·출력과 기존 CONTRACTS 일치 여부를 확인합니다.
 2. 관련 단위 테스트, `validate_contract`·`execute_agent` 검사, 부분 교체 Graph 테스트를 실행합니다.
@@ -93,7 +93,7 @@ Validation은 Real 모드에서 기존 Python 규칙을 실행하는 ValidationA
 
 스키마를 바꿀 때는 Parser/Extraction/Ontology/Review/UI/Checkpoint/Evaluation 중 소비자를 확인하고 자료형·누락 정책·호환성을 합의합니다. 스키마·계약·모든 소비자·테스트를 함께 반영합니다.
 
-UI는 모드·모델·실제 근거를 표시하고 `EDIT / APPROVE / REJECT / RETRY / STOP`을 runtime.resume으로 전달합니다. UI에서 모델을 직접 호출하지 않습니다. SHACL 결과를 Graph Validation의 업무 정책에 합치는 작업은 별도 구현 범위입니다.
+UI는 모드·모델·실제 근거를 표시하고 `EDIT / APPROVE / REJECT / RETRY / STOP`을 runtime.resume으로 전달합니다. UI에서 모델을 직접 호출하지 않습니다. SHACL 결과는 [공통 등록 검증 정책](04_SHACL_INTEGRATION_SPEC.md)에 따라 Graph와 직접 등록에 적용됩니다. 결정적 문서 충돌은 반복 RETRY를 차단하고 기존 STOP·새 등록 작업으로 정정 문서를 처리합니다([오류 해결 명세](08_ERROR_RESOLUTION_SPEC.md)).
 
 ## 검증
 
