@@ -77,18 +77,28 @@ git diff --check
 - agents/validation_agent.py, schemas/validation.py, schemas/ontology.py
 - src/ontoproduct/ontology/product_model.yaml의 comparisons 정의
 - tests/test_rdf_product_ontology.py, tests/test_registration_idempotency.py
+- inputdata/manifest.json·verification.json의 E007·E008·E009·D003 사례
 
 재현: 내경 32 mm·외경 12 mm인 정상 구조의 Bearing 제품을 같은 입력으로 검사한다.
 기본 validate_product는 valid=true, validate_semantics는 valid=false인 차이를 기록한다.
 정상 12/32, 역전 32/12, 동일 치수 12/12의 SHACL 판정은
 기존 test_bearing_dimensions_have_actual_cross_property_constraint를 실행하고 인용한다.
 이 테스트를 새로운 재현으로 다시 작성하지 않는다. 사용자 DB를 변경하지 않는다.
+inputdata의 실제 문서 사례도 재현 입력으로 쓴다. 새 fixture는 부족할 때만 만든다.
+- E008(내경=외경)·E009(내경>외경): 규칙 검증 통과, SHACL 비교 위반(path 빈 값).
+- E007(음수 질량): 규칙 검증 attributes.weight RANGE 오류와 SHACL 위반이 함께 발생.
+  SHACL path는 업무 field가 아닌 urn:ontoproduct:ontology:mass이고
+  message는 "Value does not conform to Shape [...]"인 일반 문구이다.
+- D003(필수 출력 충돌): 두 문서를 함께 올리는 필수 충돌 사례.
+verification.json의 issue는 작성 당시 기록이다. 현재 코드로 다시 실행한 결과를 근거로 쓴다.
 
 산출물: docs/team/04_SHACL_INTEGRATION_SPEC.md에 아래 결정표와 예시를 적는다.
 1. 현재 SHACL 출력은 {valid, issues, report}이고 issue는
    focus_node/path/message/constraint이다. 업무 code/field/severity는 없다.
 2. 실제 발생하는 constraint·경로별 기존 ValidationIssue 매핑 후보와 근거.
    베어링 비교처럼 path가 비어 있는 결과의 field 표현도 명시한다.
+   E007처럼 path가 있어도 업무 field와 다른 온톨로지 URI(mass ↔ attributes.weight)인
+   경우의 대응 기준을 명시한다. 이 대응은 온톨로지 정의에서 얻고 message에서 추측하지 않는다.
    비교 위반의 constraint는 SPARQLConstraintComponent라 비교 규칙을 구분할 수 없다.
    현재 결과에 비교 규칙 식별자가 없어 영어 message가 사실상 구분 수단이라는 한계를 기록한다.
    product_model.yaml의 comparisons(left/right/operator) 정의와 제품 값을 이용해
@@ -98,7 +108,9 @@ git diff --check
    기존 필수 충돌 message와 선택 속성 누락 warning이 어떻게 유지되는지 예시로 확인한다.
    필수 문서 충돌이 MISSING_REQUIRED와 SHACL 필수값 위반으로 두 번 보고되는 경우를
    구체적인 중복 제거 예시로 넣는다. 기존
-   test_missing_required_conflict_preserves_candidates_but_fails_shacl를 근거로 사용한다.
+   test_missing_required_conflict_preserves_candidates_but_fails_shacl과 D003을 근거로 사용한다.
+   E007의 RANGE와 SHACL 위반처럼 같은 값을 두 검사가 다른 field 표현으로 보고하는 경우도
+   중복 제거 예시로 넣는다.
    같은 필드의 다른 위반까지 지우지 않고 충돌 후보 근거를 보존하는 기준을 정한다.
 4. 위반(valid=false)과 검증 엔진 실행 실패(예외)를 구분한다.
    실패를 valid=true 또는 warning으로 숨기지 않는다.
@@ -141,6 +153,8 @@ tests/test_parallel_workflow.py, tests/test_real_registry.py.
 먼저 작성할 테스트:
 - 정상 Bearing 내경 12 / 외경 32 통과.
 - 내경 32 / 외경 12와 내경 12 / 외경 12의 등록 불가.
+- inputdata의 E008·E009를 실제 Parser 입력으로 처리해도 같은 위반으로 등록 불가.
+- E007의 RANGE와 SHACL 위반은 확정된 정책대로 하나의 업무 field로 보고된다.
 - Graph에서 NEEDS_FIX/사람 검토로 이동하며 승인 전 DB·Export 추가 없음.
 - 사람이 32/12를 12/32로 수정한 뒤 재검증·승인·DB 1개·JSON 일치.
 - RegistrationService에 APPROVE로 직접 전달해도 위반 제품 저장 거부.
@@ -192,8 +206,10 @@ agents/real_registry.py, graph/nodes.py와 routing.py.
 Real metadata, Mock 유지, 승인 전 DB 저장 없음.
 SHACL 관계 오류가 있는 완전한 제품 및 낮은 속성/분류 confidence를 동반한 제품은
 NEEDS_FIX로 이동하고 불필요한 재추출·재매핑이 실행되지 않는지 확인한다.
-아직 1B가 적용되지 않았다면 합의된 관계 검증 issue를 고정 입력으로 단위 테스트하고,
-1B와의 통합 검증 미실시를 따로 보고한다.
+아직 1B가 적용되지 않았다면 04_SHACL_INTEGRATION_SPEC.md에 정한 관계 검증 issue의
+code·field 형태를 고정 입력으로 단위 테스트하고, 1B와의 통합 검증 미실시를 따로 보고한다.
+1A 정책 문서도 없으면 가정한 code·field를 테스트와 보고서에 명시하고
+1A 확정 후 다시 맞춰야 하는 항목으로 남긴다.
 
 검증: 새 tests/test_real_reviewer.py 작성 후 실행하고
 test_validation.py, test_workflow.py, test_human_interrupt.py,
@@ -220,6 +236,13 @@ tests/test_evaluation.py·test_real_registry.py·test_live_llm.py.
    자료를 처음부터 새로 만들거나 기존 파일·기대값을 평가 결과에 맞춰 덮어쓰지 않는다.
    원문 검수 여부·근거를 기록하고, verification.json은 파일 hash와 오프라인 검사 이력으로
    활용한다. 이 기록을 실모델 정확도나 독립적인 정답 검수의 증거로 취급하지 않는다.
+   verification.json을 만든 스크립트는 저장소에 없어 다시 실행할 수 없는 기록이다.
+   3a의 runner가 첫 재현 도구이며 기존 기록과 차이가 나면 차이를 보고한다.
+   기록의 issue message는 작성 당시 코드 기준이다. 예: D003은 "is missing"으로 기록됐지만
+   현재 코드는 "has conflicting document values"를 반환한다. message를 기대값으로 쓰지 않는다.
+   manifest expected_outcome과 관측 결과의 대응표를 산출물로 먼저 정한다.
+   기존 기록은 equivalent_values→valid, optional_conflict·identity_conflict→document_conflict로
+   관측하면서 75개 조합이 모두 일치했다고 적었지만 이 대응 규칙은 문서화되지 않았다.
    manifest의 upload_mode에 따라 형식별 대안과 함께 올리는 다중 문서를 구분한다.
    80개 파일이나 서로 다른 제품을 한 등록 작업에 모두 넣지 않는다.
    합성 자료임을 보고서에 표시하고, 필요한 평가 정답 형식으로 최소 변환해 사용한다.
@@ -242,7 +265,8 @@ tests/test_evaluation.py·test_real_registry.py·test_live_llm.py.
 승인 후 DB/JSON·재시도·복원·metadata를 확인한다.
 tests/test_real_workflow.py 등 필요한 회귀 파일을 먼저 작성하고
 test_evaluation.py, test_real_registry.py, test_phase3_integration.py 및 전체 pytest를 실행한다.
-manifest의 형식 선택/다중 문서 그룹화, 기존 기대값 변환, verification의 hash 불일치,
+manifest의 형식 선택/다중 문서 그룹화, 기존 기대값 변환, expected_outcome 대응표,
+verification의 hash 불일치,
 필수·선택·제품명 충돌과 일반 누락의 구분도 테스트한다.
 
 완료 기준: 기존 자료와 검수 기록을 재사용한 격리 평가·보고서 경로가
@@ -287,7 +311,8 @@ docs/team/09_EVALUATION.md, inputdata/README.md·manifest.json·verification.jso
 graph/execution.py·nodes.py, services/workflow_runtime.py·document_service.py,
 views/registration.py, tests/test_error_handler.py·test_real_document_graph.py.
 
-먼저 재현: 선택 속성 충돌과 제품명 충돌 fixture를 각각 만들고
+먼저 재현: inputdata의 D004(선택 질량 충돌)와 D005(제품명 충돌)를 재현 입력으로 쓴다.
+두 사례는 verification.json에 document_conflict로 기록되어 있다. 부족할 때만 새 fixture를 만든다.
 RETRY 후 같은 오류, STOP 종료를 확인한다. 네트워크 일시 실패와 구분한다.
 
 설계 산출물: docs/team/08_ERROR_RESOLUTION_SPEC.md.
