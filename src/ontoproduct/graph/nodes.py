@@ -1,8 +1,10 @@
-from typing import Literal
 from copy import deepcopy
+from typing import Literal
+
 from langgraph.graph import END
 from langgraph.types import Command, interrupt
 from pydantic import ValidationError
+
 from ontoproduct.graph.execution import execute_agent
 from ontoproduct.graph.routing import retry_target
 from ontoproduct.schemas.error import unresolved_errors
@@ -157,11 +159,15 @@ class WorkflowNodes:
         ]
     ]:
         errors = unresolved_errors(state.get("error_events", []))
+        recoverable = bool(errors) and all(
+            e["recoverable"] and e.get("exception_type") != "DocumentConflictError"
+            for e in errors
+        )
         raw = interrupt(
             {
                 "kind": "error",
                 "errors": errors,
-                "actions": ["RETRY", "STOP"],
+                "actions": (["RETRY"] if recoverable else []) + ["STOP"],
                 "feedback": state.get("human_review", {}).get("feedback"),
             }
         )
@@ -169,7 +175,7 @@ class WorkflowNodes:
             command = ErrorRetryCommand.model_validate(raw)
             if command.action == "STOP":
                 return Command(update={"case_status": "STOPPED"}, goto=END)
-            if not errors or not all(e["recoverable"] for e in errors):
+            if not recoverable:
                 raise ValueError("No recoverable error is available for retry")
             return Command(
                 update={"case_status": "RETRYING_ERROR"}, goto=retry_target(errors[0])

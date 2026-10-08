@@ -1,6 +1,13 @@
 from copy import deepcopy
 
 import pytest
+from conftest import count_runs
+from extraction_ontology_helpers import (
+    RecordingTransport,
+    attribute,
+    document,
+    motor_response,
+)
 from langgraph.types import Command
 
 from ontoproduct.agents.extraction_agent import ExtractionAgent
@@ -15,13 +22,6 @@ from ontoproduct.services.normalization_service import (
     merge_extraction_retry,
 )
 from ontoproduct.services.ontology_service import OntologyService
-from conftest import count_runs
-from extraction_ontology_helpers import (
-    RecordingTransport,
-    attribute,
-    document,
-    motor_response,
-)
 
 
 def document_registry(ontology, docs, transport, *, classify_with_llm=False):
@@ -171,7 +171,7 @@ def test_human_class_change_rechecks_required_to_optional_or_outside_conflict(
         }
         ontology = OntologyService(definition=definition)
         target = "OptionalSpeedMotor"
-    graph, _, transport = conflicted_graph(ontology, config)
+    graph, _, _transport = conflicted_graph(ontology, config)
     result = graph.invoke(
         Command(resume={"action": "EDIT", "changed_class": target}), config
     )
@@ -186,7 +186,7 @@ def test_human_class_change_rechecks_required_to_optional_or_outside_conflict(
     graph.invoke(Command(resume={"action": "STOP"}), config)
 
 
-def test_deterministic_optional_conflict_retry_reproduces_error_then_stop(
+def test_deterministic_optional_conflict_retry_is_blocked_then_stop(
     ontology, config
 ):
     docs = [
@@ -198,16 +198,16 @@ def test_deterministic_optional_conflict_retry_reproduces_error_then_stop(
         document_registry(ontology, docs, transport), ontology=ontology
     )
     first = graph.invoke(initial_state(), config)
-    assert first["__interrupt__"][0].value["actions"] == ["RETRY", "STOP"]
+    assert first["__interrupt__"][0].value["actions"] == ["STOP"]
     assert (
         unresolved_errors(first["error_events"])[0]["exception_type"]
         == "DocumentConflictError"
     )
     retried = graph.invoke(Command(resume={"action": "RETRY"}), config)
     assert retried["__interrupt__"][0].value["kind"] == "error"
-    assert len(unresolved_errors(retried["error_events"])) == 2
-    assert all(e["recoverable"] for e in unresolved_errors(retried["error_events"]))
-    assert retried["extraction_retry_count"] == 0 and len(transport.calls) == 4
+    assert len(unresolved_errors(retried["error_events"])) == 1
+    assert not any(e["recoverable"] for e in unresolved_errors(retried["error_events"]))
+    assert retried["extraction_retry_count"] == 0 and len(transport.calls) == 2
     stopped = graph.invoke(Command(resume={"action": "STOP"}), config)
     assert stopped["case_status"] == "STOPPED" and "final_product" not in stopped
     assert not graph.get_state(config).next

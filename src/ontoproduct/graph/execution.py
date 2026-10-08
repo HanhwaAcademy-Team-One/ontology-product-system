@@ -1,18 +1,21 @@
 import json
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from time import perf_counter
 from uuid import uuid4
+
 from langgraph.config import get_stream_writer
 from pydantic import TypeAdapter
+
 from ontoproduct.agents.base import AgentContractError
 from ontoproduct.agents.registry import validate_contract
 from ontoproduct.schemas.agent import AgentExecution, CustomStreamEvent
 from ontoproduct.schemas.error import WorkflowErrorEvent, unresolved_errors
+from ontoproduct.services.agent_errors import DocumentConflictError
 
 
 def timestamp():
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def execute_agent(registry, name, state, *, writer=None):
@@ -75,7 +78,7 @@ def execute_agent(registry, name, state, *, writer=None):
                     ).model_dump(mode="json")
                 )
         status, message = "success", "Agent completed"
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - the wrapper records every Agent failure in the Graph contract
         result = {}
         status, message = "error", str(exc)
         errors.append(
@@ -85,7 +88,7 @@ def execute_agent(registry, name, state, *, writer=None):
                 attempt=attempt,
                 status="OPEN",
                 message=message,
-                recoverable=True,
+                recoverable=not isinstance(exc, DocumentConflictError),
                 exception_type=type(exc).__name__,
                 timestamp=timestamp(),
             ).model_dump(mode="json")

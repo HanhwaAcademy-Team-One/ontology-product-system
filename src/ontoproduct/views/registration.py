@@ -317,7 +317,17 @@ def _error_review(runtime, thread_id, payload):
     if payload.get("feedback"):
         st.warning(payload["feedback"])
     left, right = st.columns(2)
-    if left.button("오류 재시도", type="primary", key="retry_error", width="stretch"):
+    recoverable = "RETRY" in payload.get("actions", []) and all(
+        e["recoverable"] and e.get("exception_type") != "DocumentConflictError"
+        for e in payload["errors"]
+    )
+    if not recoverable:
+        st.info(
+            "같은 문서 재시도로 해결되지 않습니다. 후보를 확인해 문서를 수정한 뒤 작업을 중단하고 사이드바의 '새 등록 작업'으로 올리세요."
+        )
+    if recoverable and left.button(
+        "오류 재시도", type="primary", key="retry_error", width="stretch"
+    ):
         _resume(runtime, thread_id, {"action": "RETRY"})
     if right.button("작업 중단", key="stop_error", width="stretch"):
         _resume(runtime, thread_id, {"action": "STOP"})
