@@ -75,7 +75,7 @@ def run_evaluation(directory, output_directory=None):
         repository = ProductRepository(Database(Path(temporary) / "reference.db"))
         seed_products(repository)
         duplicate_registry = AgentRegistry()
-        duplicate_registry.register(DuplicateAgent(DuplicateService(repository)))
+        duplicate_registry.register(DuplicateAgent(DuplicateService(repository, ontology)))
         for truth in cases:
             cls = truth["product"]["product_class"]
             mapping = {"product_class": cls, "confidence": 1,
@@ -96,7 +96,7 @@ def run_evaluation(directory, output_directory=None):
                   "value": "Correct canonical normalized values / all non-null truth attributes; missing is wrong.",
                   "unit": "Correct canonical units / unit-bearing truth attributes; missing is wrong.",
                   "required": "Per truth-class required property, compare missing normalized values with MISSING_REQUIRED issues.",
-                  "duplicate": "Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels. Empty denominators are null.",
+                  "duplicate": "Precision@K = hits/(K*query_count); Recall@K = hits/all relevant labels; Candidate Precision = hits/returned candidates. Empty denominators are null.",
               },
               "suites": [
                   {"label": "MOCK EVALUATION", "agents": registry.metadata(), "metrics": mock_metrics,
