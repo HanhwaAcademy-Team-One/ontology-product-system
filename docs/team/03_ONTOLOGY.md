@@ -203,6 +203,8 @@ OntologyMock은 candidate_class를 그대로 사용하고 confidence를 0.95로 
 
 예시 confidence=0.82는 설명용입니다. 실제 판단 정책으로 계산하거나 명시적인 불확실 처리 정책을 사용하세요. OntologyMapping.confidence는 현재 schema에서 null을 허용하지 않습니다.
 
+**AI 분류 점검 (2026-10-09):** LLM이 분류를 고르면 원문 근거로 검증된 속성 조합의 규칙 분류와 비교합니다. 규칙 분류가 명확한데 AI 선택과 다르면 `ontology_mapping.classification_check`에 AI 선택(`ai_class`), 근거 분류(`evidence_class`), 유형(`category`), 속성별 원문 인용(`evidence`)을 기록합니다. 유형은 `PARENT_CLASS`(근거보다 넓은 상위 분류, 예: 치수가 틀린 베어링을 MechanicalPart로 선택), `UNSUPPORTED_SUBCLASS`(근거 없는 하위 분류), `OTHER_BRANCH`(다른 계열)입니다. AI 선택을 자동으로 바꾸지 않으며 Reviewer가 사람 수정으로 보내고 화면에 근거를 표시합니다. 규칙으로 판단할 수 없거나 같은 분류이면 null이고, 수동 분류에는 점검하지 않습니다. 기존 checkpoint에는 필드가 없으므로 null로 읽습니다. 실모델 근거는 [실행 기록](04_EXECUTION_LOG.md)에 있습니다.
+
 **normalized_product는 반환하지 않습니다.** 그 값은 Graph의 apply_manual_overrides가 base_normalized_product에 사람 수정값을 합쳐서 만듭니다.
 
 ## 5. 구현 순서

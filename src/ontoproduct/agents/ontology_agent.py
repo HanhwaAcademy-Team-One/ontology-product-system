@@ -4,7 +4,7 @@ from ontoproduct.agents.base import BaseAgent
 from ontoproduct.agents.registry import CONTRACTS
 from ontoproduct.prompts.ontology import INSTRUCTIONS, VERSION
 from ontoproduct.schemas.common import DomainModel
-from ontoproduct.schemas.ontology import OntologyMapping
+from ontoproduct.schemas.ontology import ClassificationCheck, OntologyMapping
 from ontoproduct.schemas.product import ExtractedProduct, NormalizedProduct
 from ontoproduct.services.agent_errors import OntologyClassificationError
 from ontoproduct.services.attribute_merge import enforce_conflicts, merge_attributes
@@ -54,12 +54,41 @@ class OntologyAgent(BaseAgent):
             "No unambiguous rule classification; supply a supported manual class or LLM adapter"
         )
 
+    def _classification_check(self, selected, candidate, attributes):
+        """Compare the AI class with the rule class from evidence-checked attributes."""
+        try:
+            evidence_class = self._rule_class(candidate, attributes)
+        except OntologyClassificationError:
+            return None  # No unambiguous evidence: the confidence policy applies.
+        if (
+            evidence_class == selected
+            or evidence_class not in self.ontology.definition.classes
+        ):
+            return None
+        if selected in self.ontology.get_ancestors(evidence_class):
+            category = "PARENT_CLASS"
+        elif evidence_class in self.ontology.get_ancestors(selected):
+            category = "UNSUPPORTED_SUBCLASS"
+        else:
+            category = "OTHER_BRANCH"
+        return ClassificationCheck(
+            ai_class=selected,
+            evidence_class=evidence_class,
+            category=category,
+            evidence={
+                k: a.evidence
+                for k, a in attributes.items()
+                if a.value is not None or is_conflict(a)
+            },
+        )
+
     def run(self, state):
         extracted = ExtractedProduct.model_validate(state["extracted_product"])
         attrs = merge_attributes(
             [extracted.attributes], self.aliases, self.ontology.unit_service
         )
         overrides = state.get("manual_overrides", {})
+        check = None
         if (
             "product_class" in state.get("locked_fields", [])
             and "product_class" not in overrides
@@ -99,6 +128,7 @@ class OntologyAgent(BaseAgent):
                 raise OntologyClassificationError(
                     f"Model did not select a supported class: {cls!r}"
                 )
+            check = self._classification_check(cls, extracted.candidate_class, attrs)
         else:
             cls, confidence = self._rule_class(extracted.candidate_class, attrs), 1.0
             if cls not in self.ontology.definition.classes:
@@ -129,6 +159,7 @@ class OntologyAgent(BaseAgent):
             confidence=confidence,
             required_properties=required,
             optional_properties=optional,
+            classification_check=check,
         )
         product = NormalizedProduct(
             product_name=extracted.product_name,

@@ -41,14 +41,32 @@ class ReviewerAgent(BaseAgent):
         errors = [
             i for i in state["validation_result"]["issues"] if i["severity"] == "error"
         ]
+        # The AI class contradicts the evidence; a human decides, so no remap/retry.
+        check = state["ontology_mapping"].get("classification_check")
+        if check and "product_class" in locked:
+            check = None
         if (
-            conflicts
+            check
+            or conflicts
             or protected_missing
             or any(i["code"] != "MISSING_REQUIRED" for i in errors)
         ):
             decision = "NEEDS_FIX"
             detail = "; ".join(
                 [
+                    *(
+                        [
+                            f"AI classification {check['category']}: selected "
+                            f"{check['ai_class']} but evidence supports "
+                            f"{check['evidence_class']} ("
+                            + ", ".join(
+                                f"{k}={v!r}" for k, v in check["evidence"].items()
+                            )
+                            + ")"
+                        ]
+                        if check
+                        else []
+                    ),
                     *(f"Conflicting document values: {k}" for k in conflicts),
                     *(
                         f"Protected required value is missing: {k}"

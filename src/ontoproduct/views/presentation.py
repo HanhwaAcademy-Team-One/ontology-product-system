@@ -17,6 +17,11 @@ CLASS_LABELS = {
     "ElectricalPart": "전기 부품",
     "MechanicalPart": "기계 부품",
 }
+CHECK_LABELS = {
+    "PARENT_CLASS": "근거보다 넓은 상위 분류를 선택",
+    "UNSUPPORTED_SUBCLASS": "근거 없이 더 좁은 하위 분류를 선택",
+    "OTHER_BRANCH": "근거와 다른 계열의 분류를 선택",
+}
 STATUS_LABELS = {
     "NEEDS_FIX": "수정 필요",
     "READY_FOR_HUMAN": "승인 대기",

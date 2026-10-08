@@ -4,6 +4,7 @@ from ontoproduct.schemas.product import ProductAttribute
 from ontoproduct.services.evidence_service import evidence_candidates, is_conflict
 from ontoproduct.services.settings import Settings
 from ontoproduct.views.presentation import (
+    CHECK_LABELS,
     CLASS_LABELS,
     LABELS,
     STATUS_LABELS,
@@ -264,6 +265,22 @@ def _review(runtime, thread_id, state, payload):
     if conflicts:
         st.error("문서마다 값이 다른 항목이 있습니다. 원문을 확인해 올바른 값을 입력하세요.")
         st.dataframe(conflicts, hide_index=True, width="stretch")
+    check = state["ontology_mapping"].get("classification_check")
+    if check and "product_class" not in state.get("locked_fields", []):
+        st.warning(
+            f"AI 분류가 원문 근거와 다릅니다: {CHECK_LABELS[check['category']]}. "
+            f"AI 선택 {CLASS_LABELS.get(check['ai_class'], check['ai_class'])}, "
+            f"근거상 {CLASS_LABELS.get(check['evidence_class'], check['evidence_class'])}. "
+            "'제품 정보 수정'에서 분류를 정하세요."
+        )
+        st.dataframe(
+            [
+                {"항목": LABELS.get(key, key), "원문 근거": evidence}
+                for key, evidence in check["evidence"].items()
+            ],
+            hide_index=True,
+            width="stretch",
+        )
     issues = state.get("validation_result", {}).get("issues", [])
     if issues:
         with st.expander("검증 결과", expanded=not review["can_register"]):

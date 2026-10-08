@@ -57,8 +57,18 @@ class OntologyDefinition(DomainModel):
         return self
 
 
+class ClassificationCheck(DomainModel):
+    """An AI class that contradicts the evidence-based rule class; a human decides."""
+
+    ai_class: str
+    evidence_class: str
+    category: Literal["PARENT_CLASS", "UNSUPPORTED_SUBCLASS", "OTHER_BRANCH"]
+    evidence: dict[str, str | None]
+
+
 class OntologyMapping(DomainModel):
     product_class: str
     confidence: float = Field(ge=0, le=1)
     required_properties: dict[str, PropertyDefinition]
     optional_properties: dict[str, PropertyDefinition]
+    classification_check: ClassificationCheck | None = None

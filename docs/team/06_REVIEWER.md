@@ -8,7 +8,7 @@
 
 현재 Real 모드는 [ReviewerAgent](../../src/ontoproduct/agents/reviewer_agent.py)의 규칙 판단을 사용하며 기본 Mock 모드의 ReviewerMock은 유지합니다. LLM Reviewer는 추가하지 않았습니다. 아래 초기 구현 순서는 이력이며 현재 우선순위는 다음과 같습니다.
 
-1. 필수 문서 충돌, HUMAN/locked 필수 null, 누락 이외의 검증 오류(TYPE·UNIT·RANGE·CLASS)는 NEEDS_FIX입니다. 관계 오류나 충돌과 낮은 confidence/일반 누락이 함께 있어도 사람 수정을 먼저 요청하고 retry_fields는 비웁니다.
+1. AI 분류가 원문 근거와 다른 경우(`ontology_mapping.classification_check`, 수동 분류 제외), 필수 문서 충돌, HUMAN/locked 필수 null, 누락 이외의 검증 오류(TYPE·UNIT·RANGE·CLASS)는 NEEDS_FIX입니다. 분류 불일치는 재분류(REMAP)로 같은 AI에게 다시 묻지 않고 유형·근거를 reason에 넣어 사람이 분류를 정하게 합니다. 관계 오류나 충돌과 낮은 confidence/일반 누락이 함께 있어도 사람 수정을 먼저 요청하고 retry_fields는 비웁니다.
 2. 그 밖의 필수 누락·낮거나 없는 AI confidence는 기존 0.70 기준으로 RE_EXTRACT입니다. HUMAN/locked 값은 재추출하지 않습니다.
 3. 낮은 분류 confidence는 수동 분류가 아니면 REMAP_ONTOLOGY입니다. 검증 오류가 남으면 승인하지 않습니다.
 4. 정상 제품은 READY_FOR_HUMAN이며 중복 후보의 실제 DB ID·이름·verdict·reason·필드별 evidence를 판단 이유에 포함합니다. 점수만으로 자동 저장/거절하지 않습니다.
