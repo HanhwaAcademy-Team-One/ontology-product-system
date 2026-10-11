@@ -14,7 +14,7 @@ from streamlit.delta_generator import DeltaGenerator
 from ontoproduct.services.ontology_visualization import OntologyVisualization
 from ontoproduct.services.product_ontology_service import ProductOntology
 from ontoproduct.services.rdf_ontology_service import RdfOntologyService
-from test_streamlit_app import app, fill_speed
+from test_streamlit_app import app, fill_speed, start_case
 
 
 COLORS = {
@@ -464,7 +464,7 @@ def test_ui_saved_product_graph_uses_actual_record_without_modifying_it(
     app, graph_calls
 ):
     page, runtime, root = app
-    page.button(key="start_demo").click().run()
+    start_case(page)
     fill_speed(page)
     page.button(key="approve_case").click().run()
     before = deepcopy(runtime.products.list())

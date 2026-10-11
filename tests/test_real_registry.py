@@ -6,6 +6,7 @@ import yaml
 from real_llm_helpers import HonestLlm
 from streamlit.testing.v1 import AppTest
 
+from ontoproduct.agents.base import AgentContractError
 from ontoproduct.agents.real_registry import build_document_registry
 from ontoproduct.graph.execution import execute_agent
 from ontoproduct.services.application_paths import ApplicationPaths
@@ -56,19 +57,17 @@ def attribute(product, key):
     return item["value"], item["unit"], item["source_file"], item["page"]
 
 
-def test_document_registry_replaces_only_document_slots(tmp_path):
+def test_document_registry_fills_all_but_case_specific_slots(tmp_path):
     registry = registry_for(tmp_path)
-    modes = {a["name"]: a["is_mock"] for a in registry.metadata()}
-    assert modes == {
-        "parser": False,
-        "extraction": False,
-        "ontology": False,
-        "validation": False,
-        "duplicate": True,
-        "reviewer": False,
-        "registration": True,
-    }
-    registry.validate_complete()
+    assert [a["name"] for a in registry.metadata()] == [
+        "parser",
+        "extraction",
+        "ontology",
+        "validation",
+        "reviewer",
+    ]
+    with pytest.raises(AgentContractError):
+        registry.validate_complete()
 
 
 def test_shared_ontology_instance_is_used_by_extraction_and_ontology(tmp_path):
@@ -155,8 +154,8 @@ def test_runtime_runs_real_documents_to_human_review_without_saving(
     assert state["normalized_product"]["attributes"]["rated_power"]["value"] == 600.0
     assert state["review_result"]["decision"] == "READY_FOR_HUMAN"
     assert runtime.products.count() == 0
-    modes = {a["name"]: a["is_mock"] for a in runtime.agent_metadata(thread)}
-    assert [n for n, mock in modes.items() if not mock] == [
+    names = {a["name"] for a in runtime.agent_metadata(thread)}
+    assert names == {
         "parser",
         "extraction",
         "ontology",
@@ -164,7 +163,7 @@ def test_runtime_runs_real_documents_to_human_review_without_saving(
         "duplicate",
         "reviewer",
         "registration",
-    ]
+    }
 
 
 def test_runtime_corrupt_pdf_stops_at_parser(runtime_with_fake_llm):
@@ -181,7 +180,6 @@ def test_runtime_corrupt_pdf_stops_at_parser(runtime_with_fake_llm):
 @pytest.fixture
 def real_app(tmp_path, monkeypatch):
     monkeypatch.setenv("ONTOPRODUCT_DATA_DIR", str(tmp_path))
-    monkeypatch.setenv("AGENT_MODE", "real")
     for name in (
         "LLM_PROVIDER",
         "LLM_MODEL",
@@ -199,8 +197,7 @@ def test_real_mode_without_api_key_shows_settings_error(real_app, monkeypatch):
     page = AppTest.from_file(str(APP), default_timeout=30).run()
     assert not page.exception
     assert any("OPENAI_API_KEY" in error.value for error in page.error)
-    assert not any(b.key in {"start_demo", "start_upload"} for b in page.button)
-    assert not any("Mock 추출 모드" in c.value for c in page.caption)
+    assert not any(b.key == "start_upload" for b in page.button)
 
 
 def test_real_mode_with_injected_llm_processes_uploads(real_app, monkeypatch):
@@ -216,7 +213,6 @@ def test_real_mode_with_injected_llm_processes_uploads(real_app, monkeypatch):
     label = f"{config['provider']}/{config['models']['default']}"
     captions = " ".join(c.value for c in page.caption)
     assert "실제 문서 분석" in captions and label in captions
-    assert not any(b.key == "start_demo" for b in page.button)
     names = ["motor_spec.txt", "two_page_spec.pdf"]
     page.file_uploader[0].set_value(
         [(n, (FIXTURES / n).read_bytes(), MIME[Path(n).suffix]) for n in names]
@@ -233,11 +229,6 @@ def test_real_mode_with_injected_llm_processes_uploads(real_app, monkeypatch):
     assert set(llm.calls) == {"extraction", "ontology"}
     page.switch_page("src/ontoproduct/views/agent_monitor.py").run()
     assert not page.exception
-    [table] = [f.value for f in page.dataframe if "모드" in f.value.columns]
-    modes = dict(zip(table["Agent"], table["모드"]))
-    assert {k: modes[k] for k in ("parser", "extraction", "ontology")} == {
-        "parser": "Real",
-        "extraction": "Real",
-        "ontology": "Real",
-    }
-    assert (modes["validation"], modes["reviewer"]) == ("Real", "Real")
+    [table] = [f.value for f in page.dataframe if "Provider" in f.value.columns]
+    assert len(table) == 7
+    assert "test-double" not in set(table["Provider"])

@@ -35,7 +35,6 @@ class ExtractionAgent(BaseAgent):
     name = "extraction"
     provider = "structured-llm-adapter"
     version = VERSION
-    is_mock = False
 
     def __init__(
         self,

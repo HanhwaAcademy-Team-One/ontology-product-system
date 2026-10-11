@@ -57,10 +57,8 @@ class OpenAiLlmService:
 
 
 def create_llm_services(settings, environ=None):
-    """Build one LlmService per LLM agent from validated real-mode settings."""
+    """Build one LlmService per LLM agent from validated settings."""
     env = os.environ if environ is None else environ
-    if settings.mode != "real":
-        raise SettingsError("LLM 서비스는 AGENT_MODE=real에서만 만듭니다")
     if settings.provider != "openai":
         raise SettingsError(
             f"지원하는 LLM_PROVIDER는 openai입니다 (현재 {settings.provider!r})"
@@ -68,7 +66,7 @@ def create_llm_services(settings, environ=None):
     api_key = env.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise SettingsError(
-            "AGENT_MODE=real, LLM_PROVIDER=openai 실행에는 OPENAI_API_KEY 환경변수가 필요합니다"
+            "LLM_PROVIDER=openai 실행에는 OPENAI_API_KEY 환경변수가 필요합니다"
         )
     client = OpenAI(
         api_key=api_key,

@@ -73,35 +73,3 @@ def evaluate_ontology(samples, ontology):
         "Required Field Detection Accuracy": ratio(required_correct, required_total),
     }
 
-
-def evaluate_duplicate(samples, *, k=3):
-    if type(k) is not int or k < 1:
-        raise ValueError("K must be a positive integer")
-    hits = relevant_total = retrieved_total = negative_correct = negative_total = 0
-    per_query = []
-    for sample in samples:
-        relevant = set(sample["ground_truth"]["relevant_duplicates"])
-        ranking = sample["outputs"]["duplicate_candidates"][:k]
-        names = [candidate["product_name"] for candidate in ranking]
-        matched = len(set(names) & relevant)
-        hits += matched
-        retrieved_total += len(names)
-        relevant_total += len(relevant)
-        if not relevant:
-            negative_total += 1
-            negative_correct += not names
-        per_query.append(
-            {
-                "case_id": sample["ground_truth"]["case_id"],
-                "retrieved": names,
-                "relevant": sorted(relevant),
-                "hits": matched,
-            }
-        )
-    # Precision@K uses K slots per query, including empty slots; recall is micro over relevant labels.
-    return {f"Duplicate Precision@{k}": ratio(hits, k * len(samples)),
-            f"Duplicate Recall@{k}": ratio(hits, relevant_total),
-            # Share of returned candidates that are real duplicates; exposes false positives Precision@K hides.
-            "Duplicate Candidate Precision": ratio(hits, retrieved_total),
-            "Negative Query Accuracy": ratio(negative_correct, negative_total),
-            "retrieved_count": retrieved_total, "queries": per_query}

@@ -213,7 +213,7 @@ def shipped_models():
 
 
 def test_create_llm_services_uses_configured_models_and_client_settings():
-    settings = Settings.from_environment({"AGENT_MODE": "real"})
+    settings = Settings.from_environment({})
     services = create_llm_services(settings, environ={"OPENAI_API_KEY": "sk-test-key"})
     expected = shipped_models()["default"]
     assert {agent: s.model for agent, s in services.items()} == {
@@ -229,7 +229,7 @@ def test_create_llm_services_uses_configured_models_and_client_settings():
 
 def test_create_llm_services_applies_per_agent_model():
     settings = Settings.from_environment(
-        {"AGENT_MODE": "real", "LLM_MODEL_ONTOLOGY": "cheaper-model"}
+        {"LLM_MODEL_ONTOLOGY": "cheaper-model"}
     )
     services = create_llm_services(settings, environ={"OPENAI_API_KEY": "sk-test"})
     assert services["ontology"].model == "cheaper-model"
@@ -239,14 +239,13 @@ def test_create_llm_services_applies_per_agent_model():
 @pytest.mark.parametrize(
     "environ, settings_env, message",
     [
-        ({}, {"AGENT_MODE": "real"}, "OPENAI_API_KEY"),
-        ({"OPENAI_API_KEY": "  "}, {"AGENT_MODE": "real"}, "OPENAI_API_KEY"),
+        ({}, {}, "OPENAI_API_KEY"),
+        ({"OPENAI_API_KEY": "  "}, {}, "OPENAI_API_KEY"),
         (
             {"OPENAI_API_KEY": "sk"},
-            {"AGENT_MODE": "real", "LLM_PROVIDER": "other"},
+            {"LLM_PROVIDER": "other"},
             "openai",
         ),
-        ({"OPENAI_API_KEY": "sk"}, {}, "AGENT_MODE=real"),
     ],
 )
 def test_create_llm_services_rejects_unusable_settings(environ, settings_env, message):

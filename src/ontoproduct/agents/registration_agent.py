@@ -6,7 +6,6 @@ class RegistrationAgent(BaseAgent):
     name = "registration"
     provider = "sqlite"
     version = "0.2.0"
-    is_mock = False
 
     def __init__(self, case_id, service):
         required, optional, writes = CONTRACTS[self.name]

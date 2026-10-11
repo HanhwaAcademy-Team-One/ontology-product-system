@@ -10,9 +10,7 @@ def render():
     runtime = current_runtime()
     overview = AnalyticsService(runtime).overview()
     st.title("대시보드")
-    st.caption(
-        "SQLite에 저장된 제품과 등록 작업 현황입니다. 현재 정보 추출은 Mock 모드입니다."
-    )
+    st.caption("SQLite에 저장된 제품과 등록 작업 현황입니다.")
     if st.button("현황 새로고침", key="refresh_dashboard"):
         st.rerun()
     products, cases = overview["products"], overview["cases"]

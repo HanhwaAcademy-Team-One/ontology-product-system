@@ -8,6 +8,7 @@ from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
 from ontoproduct.schemas.product import ProductAttribute
 from conftest import count_runs
+from doubles import SAMPLE_DOCUMENTS, mock_registry
 
 
 @pytest.mark.parametrize(
@@ -29,8 +30,8 @@ def test_unit_conversion_rejects_nonfinite_and_overflow(ontology, value, unit):
 
 
 def test_human_conversion_overflow_is_repairable_not_unhandled(config):
-    graph = build_workflow()
-    graph.invoke(initial_state(), config)
+    graph = build_workflow(mock_registry())
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     result = graph.invoke(
         Command(
             resume={
@@ -49,7 +50,7 @@ def test_human_conversion_overflow_is_repairable_not_unhandled(config):
 
 def test_approve_with_hidden_edits_is_blocked(complete_registry, ontology, config):
     graph = build_workflow(complete_registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     result = graph.invoke(
         Command(
             resume={
@@ -93,7 +94,7 @@ def test_graph_retry_after_human_edit_preserves_value(
 
     agent.run = review
     graph = build_workflow(complete_registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     graph.invoke(
         Command(
             resume={

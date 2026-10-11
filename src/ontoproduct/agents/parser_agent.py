@@ -10,7 +10,6 @@ class ParserAgent(BaseAgent):
     name = "parser"
     provider = "local-document-parser"
     version = "0.3.0"
-    is_mock = False
 
     def __init__(self, service: ParserService) -> None:
         required, optional, writes = CONTRACTS[self.name]

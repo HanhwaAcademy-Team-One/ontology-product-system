@@ -9,7 +9,6 @@ class ReviewerAgent(BaseAgent):
     name = "reviewer"
     provider = "python-review-rules"
     version = "0.1.0"
-    is_mock = False
 
     def __init__(self):
         required, optional, writes = CONTRACTS[self.name]

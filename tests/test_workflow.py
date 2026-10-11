@@ -8,12 +8,13 @@ from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
 from ontoproduct.schemas.agent import CustomStreamEvent
 from conftest import count_runs
+from doubles import SAMPLE_DOCUMENTS, mock_registry
 
 
 @pytest.mark.parametrize("limit", [0, 1, 2])
 def test_extraction_retry_limit_means_additional_runs(config, limit):
-    graph = build_workflow()
-    graph.invoke(initial_state(max_extraction_retries=limit), config)
+    graph = build_workflow(mock_registry())
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS, max_extraction_retries=limit), config)
     state = graph.get_state(config).values
     assert count_runs(state, "extraction") == limit + 1
     assert state["extraction_retry_count"] == limit
@@ -36,7 +37,7 @@ def test_ontology_retry_limit_is_independent(
 
     agent.run = run
     graph = build_workflow(complete_registry, ontology=ontology)
-    graph.invoke(initial_state(max_ontology_retries=limit), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS, max_ontology_retries=limit), config)
     state = graph.get_state(config).values
     assert count_runs(state, "ontology") == limit + 1
     assert (
@@ -63,7 +64,7 @@ def test_selective_retry_can_recover_missing_field(registry, ontology, config):
 
     agent.run = run
     graph = build_workflow(registry, ontology=ontology)
-    result = graph.invoke(initial_state(), config)
+    result = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     assert result["__interrupt__"][0].value["review"]["can_register"]
     state = graph.get_state(config).values
     assert (
@@ -83,7 +84,7 @@ def test_selective_retry_can_recover_missing_field(registry, ontology, config):
     ["RE_EXTRACT", "REMAP_ONTOLOGY", "NEEDS_FIX", "REJECT", "READY_FOR_HUMAN"],
 )
 def test_router_does_not_mutate_state(decision):
-    state = initial_state()
+    state = initial_state(SAMPLE_DOCUMENTS)
     state["review_result"] = {
         "decision": decision,
         "can_register": decision == "READY_FOR_HUMAN",
@@ -105,17 +106,17 @@ def test_reviewer_rejection_has_no_registration(complete_registry, ontology, con
         }
     }
     graph = build_workflow(complete_registry, ontology=ontology)
-    result = graph.invoke(initial_state(), config)
+    result = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     assert result["case_status"] == "REJECTED" and "final_product" not in result
     assert "__interrupt__" not in result
 
 
 def test_custom_stream_reports_running_and_completion(config):
-    graph = build_workflow()
+    graph = build_workflow(mock_registry())
     events = [
         data
         for mode, data in graph.stream(
-            initial_state(), config, stream_mode=["custom", "updates"]
+            initial_state(SAMPLE_DOCUMENTS), config, stream_mode=["custom", "updates"]
         )
         if mode == "custom"
     ]
@@ -134,10 +135,10 @@ def test_custom_stream_reports_running_and_completion(config):
 
 
 def test_threads_keep_cases_separate(config):
-    graph = build_workflow()
+    graph = build_workflow(mock_registry())
     other = {"configurable": {"thread_id": "case-two"}}
-    graph.invoke(initial_state(case_id="case-one"), config)
-    graph.invoke(initial_state(case_id="case-two"), other)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS, case_id="case-one"), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS, case_id="case-two"), other)
     graph.invoke(Command(resume={"action": "REJECT"}), config)
     assert graph.get_state(config).values["case_status"] == "REJECTED"
     assert graph.get_state(other).values["case_status"] == "NEEDS_FIX"
@@ -147,4 +148,4 @@ def test_threads_keep_cases_separate(config):
 @pytest.mark.parametrize("limit", [-1, True, 0.5])
 def test_retry_limits_reject_invalid_values(limit):
     with pytest.raises(ValueError):
-        initial_state(max_extraction_retries=limit)
+        initial_state(SAMPLE_DOCUMENTS, max_extraction_retries=limit)

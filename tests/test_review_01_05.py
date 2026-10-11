@@ -9,13 +9,13 @@ from uuid import uuid4
 import pytest
 from langgraph.types import Command
 from real_llm_helpers import HonestLlm
-from test_streamlit_app import app  # noqa: F401  (pytest fixture)
+from test_streamlit_app import app, start_case  # noqa: F401  (pytest fixture)
 
 from ontoproduct.agents.real_registry import build_document_registry
 from ontoproduct.agents.validation_agent import ValidationAgent
 from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
-from ontoproduct.mocks.agents import ExtractionMock, OntologyMock, mock_registry
+from doubles import SAMPLE_DOCUMENTS, ExtractionMock, OntologyMock, mock_registry
 from ontoproduct.schemas.product import ProductAttribute
 from ontoproduct.services import workflow_runtime
 from ontoproduct.services.application_paths import ApplicationPaths
@@ -93,7 +93,7 @@ def run_to_review(registry_factory):
     ontology = OntologyService()
     graph = build_workflow(registry_factory(ontology), ontology=ontology)
     config = {"configurable": {"thread_id": str(uuid4())}}
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     return graph, config
 
 
@@ -139,7 +139,7 @@ def test_graph_accepts_current_class_as_manual_classification():
 def test_ui_confirming_ai_values_releases_needs_fix(app):  # noqa: F811
     page, runtime, _ = app
     runtime.registry_factory = null_confidence_registry
-    page.button(key="start_demo").click().run()
+    start_case(page)
     assert not page.exception
     assert page.button(key="approve_case").disabled
     boxes = [box for box in page.checkbox if "AI 값 확인" in box.label]
@@ -154,7 +154,7 @@ def test_ui_confirming_ai_values_releases_needs_fix(app):  # noqa: F811
 def test_ui_confirming_ai_class_releases_needs_fix(app):  # noqa: F811
     page, runtime, _ = app
     runtime.registry_factory = low_class_confidence_registry
-    page.button(key="start_demo").click().run()
+    start_case(page)
     assert not page.exception
     assert page.button(key="approve_case").disabled
     boxes = [box for box in page.checkbox if "AI 분류 확정" in box.label]
@@ -168,7 +168,7 @@ def test_ui_confirming_ai_class_releases_needs_fix(app):  # noqa: F811
 def test_ui_shows_conflicting_document_values(app):  # noqa: F811
     page, runtime, _ = app
     runtime.registry_factory = conflict_registry
-    page.button(key="start_demo").click().run()
+    start_case(page)
     assert not page.exception
     shown = " ".join(frame.value.to_string() for frame in page.dataframe)
     assert "Rated Voltage: 24 V" in shown
@@ -231,7 +231,6 @@ def test_real_registry_runs_real_validation_agent(tmp_path):
         llm_services={"extraction": HonestLlm(), "ontology": HonestLlm()},
     )
     assert isinstance(registry.get("validation"), ValidationAgent)
-    assert not {a["name"]: a for a in registry.metadata()}["validation"]["is_mock"]
 
 
 # --- #5 Duplicate 슬롯 생성 위치 -------------------------------------------------
@@ -246,7 +245,7 @@ def test_every_duplicate_service_receives_the_runtime_ontology(tmp_path, monkeyp
         return original(repository, ontology)
 
     monkeypatch.setattr(workflow_runtime, "DuplicateService", recording)
-    runtime = WorkflowRuntime(ApplicationPaths(tmp_path))
+    runtime = WorkflowRuntime(ApplicationPaths(tmp_path), registry_factory=mock_registry)
     try:
         runtime.agent_metadata()
         runtime.graph(str(uuid4()))

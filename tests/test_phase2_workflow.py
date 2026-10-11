@@ -8,7 +8,7 @@ import pytest
 from ontoproduct.agents.registry import validate_contract
 from ontoproduct.agents.duplicate_agent import DuplicateAgent
 from ontoproduct.agents.registration_agent import RegistrationAgent
-from ontoproduct.mocks.agents import mock_registry
+from doubles import mock_registry
 from ontoproduct.schemas.error import unresolved_errors
 from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.services.duplicate_service import DuplicateService
@@ -41,14 +41,14 @@ def edit_speed(runtime, thread):
 
 @pytest.fixture
 def runtime(tmp_path):
-    value = WorkflowRuntime(ApplicationPaths(tmp_path))
+    value = WorkflowRuntime(ApplicationPaths(tmp_path), registry_factory=mock_registry)
     yield value
     value.close()
 
 
 def test_sqlite_checkpoint_reopens_before_edit_and_before_approve(tmp_path):
     paths = ApplicationPaths(tmp_path)
-    runtime = WorkflowRuntime(paths)
+    runtime = WorkflowRuntime(paths, registry_factory=mock_registry)
     thread, references = create_case(runtime)
     events = list(runtime.start(thread, references))
     assert runtime.snapshot(thread).values["case_status"] == "NEEDS_FIX"
@@ -58,12 +58,12 @@ def test_sqlite_checkpoint_reopens_before_edit_and_before_approve(tmp_path):
         for mode, event in events
     )
     runtime.close()
-    runtime = WorkflowRuntime(paths)
+    runtime = WorkflowRuntime(paths, registry_factory=mock_registry)
     edit_speed(runtime, thread)
     assert runtime.snapshot(thread).values["case_status"] == "READY_FOR_HUMAN"
     assert runtime.products.count() == 0
     runtime.close()
-    runtime = WorkflowRuntime(paths)
+    runtime = WorkflowRuntime(paths, registry_factory=mock_registry)
     list(runtime.resume(thread, {"action": "APPROVE"}))
     state = runtime.snapshot(thread).values
     assert state["case_status"] == "REGISTERED"

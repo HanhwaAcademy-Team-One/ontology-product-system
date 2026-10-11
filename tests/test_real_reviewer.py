@@ -2,7 +2,6 @@ from copy import deepcopy
 
 import pytest
 
-from ontoproduct.mocks.agents import ReviewerMock
 from ontoproduct.services.validation_service import validate_product
 
 
@@ -127,6 +126,3 @@ def test_duplicate_reason_keeps_human_approval(paused_state, verdict):
         for s in ["Existing", verdict, "rated_power", "MATCH", "actual-db-id"]
     )
 
-
-def test_mock_remains_mock():
-    assert ReviewerMock().is_mock

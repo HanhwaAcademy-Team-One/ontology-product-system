@@ -2,20 +2,45 @@ import json
 from pathlib import Path
 
 import pytest
+from real_llm_helpers import HonestLlm
 from streamlit.testing.v1 import AppTest
 
-from ontoproduct.views.resources import get_runtime
+from ontoproduct.services.settings import Settings
+from ontoproduct.views import resources
+
+# Every required motor property except rated speed, so review stops for human repair.
+MISSING_SPEED = (
+    b"Product: DM-500\nClass: BLDCMotor\nManufacturer: ABC Motors\n"
+    b"Rated Voltage: 24 V\nRated Power: 0.5 kW\n"
+)
 
 
 @pytest.fixture
 def app(tmp_path, monkeypatch):
     monkeypatch.setenv("ONTOPRODUCT_DATA_DIR", str(tmp_path))
+    for name in ("LLM_PROVIDER", "LLM_MODEL", "LLM_MODEL_EXTRACTION", "LLM_MODEL_ONTOLOGY"):
+        monkeypatch.delenv(name, raising=False)
+    llm = HonestLlm()
+    monkeypatch.setattr(
+        resources,
+        "create_llm_services",
+        lambda settings: {"extraction": llm, "ontology": llm},
+    )
+    resources.get_runtime.clear()
     value = AppTest.from_file(
         Path(__file__).resolve().parents[1] / "app.py", default_timeout=20
     ).run()
     assert not value.exception
-    yield value, get_runtime(str(tmp_path)), tmp_path
-    get_runtime.clear()
+    runtime = resources.get_runtime(
+        str(tmp_path), resources.settings_json(Settings.from_environment())
+    )
+    yield value, runtime, tmp_path
+    resources.get_runtime.clear()
+
+
+def start_case(app, content=MISSING_SPEED):
+    app.file_uploader[0].set_value([("dm500_spec.txt", content, "text/plain")]).run()
+    app.button(key="start_upload").click().run()
 
 
 def fill_speed(app, value="3000"):
@@ -27,7 +52,7 @@ def fill_speed(app, value="3000"):
 
 def test_ui_demo_edit_approve_rerun_and_download(app):
     page, runtime, root = app
-    page.button(key="start_demo").click().run()
+    start_case(page)
     thread = page.session_state["thread_id"]
     assert not page.exception
     assert page.button(key="approve_case").disabled
@@ -81,7 +106,7 @@ def test_ui_file_uploads_store_references_without_uploadedfile_in_state(app):
 
 def test_ui_invalid_numeric_edit_keeps_checkpoint(app):
     page, runtime, _ = app
-    page.button(key="start_demo").click().run()
+    start_case(page)
     thread = page.session_state["thread_id"]
     before = runtime.snapshot(thread).values["agent_logs"]
     fill_speed(page, "fast")
@@ -93,7 +118,7 @@ def test_ui_invalid_numeric_edit_keeps_checkpoint(app):
 
 def test_ui_registration_error_retry_reuses_saved_product(app):
     page, runtime, _ = app
-    page.button(key="start_demo").click().run()
+    start_case(page)
     fill_speed(page)
     original = runtime.registration.export
     calls = []
@@ -117,10 +142,10 @@ def test_ui_registration_error_retry_reuses_saved_product(app):
 
 def test_ui_reject_new_case_and_restore_saved_review(app):
     page, runtime, _ = app
-    page.button(key="start_demo").click().run()
+    start_case(page)
     first = page.session_state["thread_id"]
     page.button(key="new_case").click().run()
-    assert page.button(key="start_demo")
+    assert page.button(key="start_upload")
     page.selectbox(key="resume_case_selection").select(first).run()
     page.button(key="load_case").click().run()
     assert page.session_state["thread_id"] == first
@@ -144,12 +169,12 @@ def test_ui_product_page_seed_search_and_json_download(app):
     assert page.download_button(key="download_product")
     page.button(key="new_case").click().run()
     assert not page.exception
-    assert page.button(key="start_demo")
+    assert page.button(key="start_upload")
 
 
 def test_ui_class_change_preserves_orphaned_overrides(app):
     page, runtime, _ = app
-    page.button(key="start_demo").click().run()
+    start_case(page)
     fill_speed(page)
     next(box for box in page.selectbox if box.label == "제품 분류").select(
         "Bearing"

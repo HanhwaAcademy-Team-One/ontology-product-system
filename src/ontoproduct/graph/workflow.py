@@ -8,13 +8,11 @@ from ontoproduct.graph.routing import (
     route_stage,
 )
 from ontoproduct.graph.state import ProductState
-from ontoproduct.mocks.agents import mock_registry
 from ontoproduct.services.ontology_service import OntologyService
 
 
-def build_workflow(registry=None, *, ontology=None, checkpointer=None):
+def build_workflow(registry, *, ontology=None, checkpointer=None):
     ontology = ontology or OntologyService()
-    registry = registry if registry is not None else mock_registry(ontology)
     registry.validate_complete()
     nodes = WorkflowNodes(registry, ontology)
     graph = StateGraph(ProductState)

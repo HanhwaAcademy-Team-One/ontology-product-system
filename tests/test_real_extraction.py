@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 from ontoproduct.agents.extraction_agent import ExtractionAgent
 from ontoproduct.graph.execution import execute_agent
-from ontoproduct.mocks.agents import mock_registry
+from doubles import mock_registry
 from ontoproduct.schemas.product import (
     ExtractedProduct,
     ParsedDocument,
@@ -46,7 +46,7 @@ def test_real_motor_extraction_and_contract_do_not_mutate_inputs(ontology):
     assert (
         result["agent_logs"][-1]["status"] == "success" and not result["error_events"]
     )
-    assert not agent.is_mock and agent.health_check()
+    assert agent.health_check()
     json.dumps(result, allow_nan=False)
 
 

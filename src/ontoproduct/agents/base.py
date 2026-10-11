@@ -11,7 +11,6 @@ class BaseAgent(ABC):
     name: str
     provider: str
     version: str
-    is_mock: bool
     required_reads: set[str]
     optional_reads: set[str]
     writes: dict[str, Any]

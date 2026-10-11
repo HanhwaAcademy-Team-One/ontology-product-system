@@ -4,7 +4,6 @@ from pathlib import Path
 
 import yaml
 
-MODES = ("mock", "real")
 # Agents whose constructor accepts an LlmService. Extraction requires one;
 # Ontology falls back to rule-based classification without it.
 LLM_AGENTS = ("extraction", "ontology")
@@ -20,7 +19,6 @@ class SettingsError(ValueError):
 class Settings:
     """Startup settings. API keys stay in the provider SDK's own environment."""
 
-    mode: str = "mock"
     provider: str | None = None
     models: dict[str, str] = field(default_factory=dict)
     timeout_seconds: float = 60.0
@@ -30,16 +28,11 @@ class Settings:
     def from_environment(cls, environ=None, *, config_path=CONFIG_PATH):
         """Read config-file defaults, then let environment variables override them."""
         env = os.environ if environ is None else environ
-        mode = env.get("AGENT_MODE", "mock").strip().lower()
-        if mode not in MODES:
-            raise SettingsError(f"AGENT_MODE must be one of {MODES}, not {mode!r}")
-        if mode == "mock":
-            return cls()
         config_path = Path(config_path)
         file = _read_config(config_path)
         provider = env.get("LLM_PROVIDER", "").strip().lower() or file["provider"]
         if not provider:
-            raise SettingsError("AGENT_MODE=real requires LLM_PROVIDER")
+            raise SettingsError("LLM_PROVIDER is required")
         unknown = sorted(
             key
             for key in env
@@ -64,12 +57,11 @@ class Settings:
             )
             if not model:
                 raise SettingsError(
-                    f"AGENT_MODE=real requires LLM_MODEL or {name} "
+                    f"LLM_MODEL or {name} is required "
                     f"(or models.default / models.{agent} in {config_path.name})"
                 )
             models[agent] = model
         return cls(
-            mode=mode,
             provider=provider,
             models=models,
             timeout_seconds=_env_number(

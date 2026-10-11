@@ -5,6 +5,7 @@ from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
 from ontoproduct.schemas.error import unresolved_errors
 from conftest import count_runs, fail_once
+from doubles import SAMPLE_DOCUMENTS
 
 
 @pytest.mark.parametrize(
@@ -15,7 +16,7 @@ def test_real_error_interrupt_retry_resolves_same_error(
 ):
     fail_once(complete_registry.get(name))
     graph = build_workflow(complete_registry, ontology=ontology)
-    result = graph.invoke(initial_state(), config)
+    result = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     if name == "registration":
         result = graph.invoke(Command(resume={"action": "APPROVE"}), config)
     assert result["__interrupt__"][0].value["kind"] == "error"
@@ -53,7 +54,7 @@ def test_failed_error_retry_preserves_each_open_event_then_resolves(
 
     agent.run = run
     graph = build_workflow(registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     graph.invoke(Command(resume={"action": "RETRY"}), config)
     state = graph.get_state(config).values
     assert len(unresolved_errors(state["error_events"])) == 2
@@ -73,7 +74,7 @@ def test_failed_error_retry_preserves_each_open_event_then_resolves(
 def test_stop_retains_unresolved_history(registry, ontology, config):
     fail_once(registry.get("parser"))
     graph = build_workflow(registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     result = graph.invoke(Command(resume={"action": "STOP"}), config)
     assert result["case_status"] == "STOPPED" and "final_product" not in result
     assert len(unresolved_errors(result["error_events"])) == 1
@@ -83,7 +84,7 @@ def test_stop_retains_unresolved_history(registry, ontology, config):
 def test_invalid_error_command_remains_suspended(registry, ontology, config):
     fail_once(registry.get("parser"))
     graph = build_workflow(registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     result = graph.invoke(Command(resume={"action": "APPROVE"}), config)
     assert result["__interrupt__"][0].value["kind"] == "error"
     assert len(unresolved_errors(graph.get_state(config).values["error_events"])) == 1

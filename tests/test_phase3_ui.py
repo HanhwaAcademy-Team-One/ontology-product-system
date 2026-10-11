@@ -1,6 +1,6 @@
 import json
 
-from test_streamlit_app import app, fill_speed
+from test_streamlit_app import app, fill_speed, start_case
 
 
 def test_dashboard_empty_and_registered_stats_and_reopen(app):
@@ -9,10 +9,10 @@ def test_dashboard_empty_and_registered_stats_and_reopen(app):
     assert not page.exception
     assert [metric.value for metric in page.metric[:4]] == ["0", "0", "0", "0"]
     page.button(key="dashboard_start").click().run()
-    assert page.button(key="start_demo")
+    assert page.file_uploader
     # AppTest keeps its explicit page hash after st.switch_page; synchronize the next simulated request.
     page.switch_page("src/ontoproduct/views/registration.py").run()
-    page.button(key="start_demo").click().run()
+    start_case(page)
     case = page.session_state["thread_id"]
     fill_speed(page)
     page.button(key="approve_case").click().run()
@@ -49,13 +49,12 @@ def test_monitor_metadata_logs_and_compiled_graph(app):
     assert not page.exception
     table = page.dataframe[0].value
     assert len(table) == 7
-    assert set(table["모드"]) == {"Mock", "Real"}
     assert table["실행 수"].sum() == 0
     assert page.download_button(key="download_graph")
     page.button(key="new_case").click().run()
-    assert page.button(key="start_demo")
+    assert page.file_uploader
     page.switch_page("src/ontoproduct/views/registration.py").run()
-    page.button(key="start_demo").click().run()
+    start_case(page)
     page.switch_page("src/ontoproduct/views/agent_monitor.py").run()
     assert not page.exception
     table = page.dataframe[0].value
@@ -69,18 +68,17 @@ def test_evaluation_ui_calculates_downloads_and_leaves_products_untouched(app):
     page, runtime, root = app
     page.switch_page("src/ontoproduct/views/evaluation.py").run()
     assert not page.exception
-    page.button(key="run_evaluation").click().run()
+    page.button(key="run_evaluation").click().run(timeout=120)
     assert not page.exception
     assert runtime.products.count() == 0
-    report = json.loads(
-        (root / "evaluation" / "evaluation.json").read_text(encoding="utf-8")
-    )
-    assert report["suites"][0]["label"] == "MOCK EVALUATION"
-    assert report["suites"][1]["label"] == "RULE ENGINE EVALUATION"
+    [path] = (root / "evaluation").glob("*/evaluation.json")
+    report = json.loads(path.read_text(encoding="utf-8"))
+    assert report["suites"][0]["label"] == "OFFLINE REFERENCE EVALUATION"
+    assert report["suites"][0]["metrics"]["Expected Outcome Accuracy"]["value"] == 1
     assert page.download_button(key="download_evaluation_json")
     assert page.download_button(key="download_evaluation_report")
-    assert len(page.dataframe) == 2
-    page.selectbox(key="evaluation_sample_0").select("product_003").run()
+    assert len(page.dataframe) == 1
+    page.selectbox(key="evaluation_sample_0").select("M001-000").run()
     assert not page.exception
 
 

@@ -29,7 +29,7 @@ FIXTURES = Path(__file__).parent / "fixtures" / "documents"
 
 @pytest.mark.parametrize("name", ["motor_spec.txt", "two_page_spec.pdf"])
 def test_real_model_extracts_and_classifies_sample(tmp_path, name):
-    settings = Settings.from_environment({**os.environ, "AGENT_MODE": "real"})
+    settings = Settings.from_environment()
     ontology = OntologyService()
     registry = build_document_registry(
         ontology,

@@ -12,6 +12,7 @@ from ontoproduct.services.normalization_service import (
 )
 from conftest import count_runs
 from test_human_interrupt import EDIT_SPEED
+from doubles import SAMPLE_DOCUMENTS, mock_registry
 
 
 def test_targeted_retry_merge_preserves_metadata_unrequested_and_locked():
@@ -55,7 +56,7 @@ def test_targeted_retry_merge_preserves_metadata_unrequested_and_locked():
 
 def test_ai_retries_do_not_overwrite_effective_human_value(registry, ontology, config):
     graph = build_workflow(registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     graph.invoke(Command(resume=EDIT_SPEED), config)
     state = graph.get_state(config).values
     original = deepcopy(state)
@@ -81,7 +82,7 @@ def test_ai_retries_do_not_overwrite_effective_human_value(registry, ontology, c
 
 def test_class_change_orphans_and_restores_overrides(registry, ontology, config):
     graph = build_workflow(registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     graph.invoke(
         Command(
             resume={
@@ -126,8 +127,8 @@ def test_class_change_orphans_and_restores_overrides(registry, ontology, config)
 
 
 def test_human_units_are_canonicalized_without_fake_confidence(config):
-    graph = build_workflow()
-    graph.invoke(initial_state(), config)
+    graph = build_workflow(mock_registry())
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     graph.invoke(
         Command(
             resume={

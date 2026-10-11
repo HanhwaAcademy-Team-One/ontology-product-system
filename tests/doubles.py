@@ -1,3 +1,5 @@
+"""Deterministic agent doubles for graph routing tests; no document or LLM work."""
+
 from copy import deepcopy
 from ontoproduct.agents.base import BaseAgent
 from ontoproduct.agents.registry import AgentRegistry, CONTRACTS
@@ -8,10 +10,14 @@ from ontoproduct.services.ontology_service import OntologyService
 from ontoproduct.services.validation_service import validate_product
 
 
+SAMPLE_DOCUMENTS = [
+    {"name": "motor_spec.pdf", "text": "Sample DM-500 BLDC Motor specification"}
+]
+
+
 class MockAgent(BaseAgent):
-    provider = "mock"
+    provider = "test-double"
     version = "0.1.0"
-    is_mock = True
 
     def __init__(self):
         reads, optional, writes = CONTRACTS[self.name]

@@ -14,7 +14,7 @@ from ontoproduct.services.settings import (
     SettingsError,
 )
 
-REAL = {"AGENT_MODE": "real", "LLM_PROVIDER": "openai"}
+REAL = {"LLM_PROVIDER": "openai"}
 
 
 @pytest.fixture
@@ -27,17 +27,6 @@ def load(tmp_path):
         return Settings.from_environment(environ, config_path=path)
 
     return load
-
-
-def test_default_is_mock_mode_without_llm_settings(load):
-    settings = load({})
-    assert settings.mode == "mock"
-    assert settings.provider is None
-    assert settings.models == {}
-
-
-def test_mock_mode_ignores_incomplete_llm_settings(load):
-    assert load({"AGENT_MODE": "mock", "LLM_MODEL": "m"}).mode == "mock"
 
 
 def test_llm_agents_are_the_agents_that_accept_an_llm_service():
@@ -59,7 +48,6 @@ def test_llm_agents_are_the_agents_that_accept_an_llm_service():
 
 def test_real_mode_shares_default_model_across_llm_agents(load):
     settings = load({**REAL, "LLM_MODEL": "base-model"})
-    assert settings.mode == "real"
     assert settings.provider == "openai"
     assert settings.models == {"extraction": "base-model", "ontology": "base-model"}
     assert settings.model_for("extraction") == "base-model"
@@ -84,7 +72,7 @@ models:
 timeout_seconds: 30
 max_retries: 1
 """
-    settings = load({"AGENT_MODE": "real"}, config)
+    settings = load({}, config)
     assert settings.provider == "openai"
     assert settings.models == {"extraction": "file-model", "ontology": "file-small"}
     assert (settings.timeout_seconds, settings.max_retries) == (30.0, 1)
@@ -101,7 +89,6 @@ max_retries: 1
 """
     settings = load(
         {
-            "AGENT_MODE": "real",
             "LLM_PROVIDER": "env-provider",
             "LLM_MODEL": "env-model",
             "LLM_TIMEOUT_SECONDS": "15",
@@ -113,15 +100,14 @@ max_retries: 1
     # An environment default replaces every file model, including per-agent ones.
     assert settings.models == {"extraction": "env-model", "ontology": "env-model"}
     assert (settings.timeout_seconds, settings.max_retries) == (15.0, 0)
-    settings = load({"AGENT_MODE": "real", "LLM_MODEL_EXTRACTION": "env-x"}, config)
+    settings = load({"LLM_MODEL_EXTRACTION": "env-x"}, config)
     assert settings.models == {"extraction": "env-x", "ontology": "file-small"}
 
 
 @pytest.mark.parametrize(
     "environ, message",
     [
-        ({"AGENT_MODE": "demo"}, "AGENT_MODE"),
-        ({"AGENT_MODE": "real", "LLM_MODEL": "m"}, "LLM_PROVIDER"),
+        ({"LLM_MODEL": "m"}, "LLM_PROVIDER"),
         (REAL, "LLM_MODEL_EXTRACTION"),
         ({**REAL, "LLM_MODEL_EXTRACTION": "m"}, "LLM_MODEL_ONTOLOGY"),
         ({**REAL, "LLM_MODEL": "m", "LLM_MODEL_PARSER": "m"}, "LLM_MODEL_PARSER"),
@@ -182,14 +168,13 @@ def test_shipped_config_is_valid_and_holds_no_secrets():
         {**REAL, "LLM_MODEL": "m"}, config_path=str(CONFIG_PATH)
     )
     assert settings.models == {"extraction": "m", "ontology": "m"}
-    assert Settings.from_environment({}).mode == "mock"
 
 
 def test_shipped_config_values_are_what_real_mode_uses():
     # Expectations come from llm.yaml itself, so changing a model edits one file.
     config = yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8"))
     models = config["models"]
-    settings = Settings.from_environment({"AGENT_MODE": "real"})
+    settings = Settings.from_environment({})
     assert settings.provider == config["provider"]
     assert settings.models == {
         agent: models.get(agent) or models["default"] for agent in LLM_AGENTS

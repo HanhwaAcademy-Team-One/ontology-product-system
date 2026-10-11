@@ -24,22 +24,13 @@ def _resume(runtime, thread_id, payload):
     st.rerun()
 
 
-def _start(runtime, uploads, *, demo=False):
+def _start(runtime, uploads):
     try:
         session_id = st.session_state.session_id
-        if demo:
-            references = [
-                runtime.documents.save(
-                    session_id,
-                    "demo_motor_spec.txt",
-                    b"MOCK DM-500 BLDC Motor specification",
-                )
-            ]
-        else:
-            references = [
-                runtime.documents.save(session_id, upload.name, upload.getvalue())
-                for upload in uploads
-            ]
+        references = [
+            runtime.documents.save(session_id, upload.name, upload.getvalue())
+            for upload in uploads
+        ]
         thread_id = runtime.create_case(session_id)
         st.session_state.thread_id = thread_id
         st.query_params["case"] = thread_id
@@ -62,8 +53,6 @@ def _start(runtime, uploads, *, demo=False):
 
 
 def _mode_caption(settings):
-    if settings.mode == "mock":
-        return "Mock 추출 모드 · 업로드 파일은 보관되며, 현재 추출 결과는 DM-500 예제 데이터를 사용합니다."
     models = settings.models
     if len(set(models.values())) == 1:
         model = next(iter(models.values()))
@@ -75,7 +64,7 @@ def _mode_caption(settings):
     )
 
 
-def _upload_form(runtime, *, demo):
+def _upload_form(runtime):
     st.subheader("등록할 제품의 문서를 추가하세요")
     st.write("한 작업에 여러 문서를 올릴 수 있습니다. 등록 대상 제품은 하나입니다.")
     uploads = st.file_uploader(
@@ -103,8 +92,7 @@ def _upload_form(runtime, *, demo):
             step=1,
             key="max_ontology_retries",
         )
-    left, right = st.columns(2)
-    if left.button(
+    if st.button(
         "업로드 문서로 시작",
         disabled=not uploads,
         type="primary",
@@ -112,8 +100,6 @@ def _upload_form(runtime, *, demo):
         width="stretch",
     ):
         _start(runtime, uploads)
-    if demo and right.button("Mock 예제로 시작", key="start_demo", width="stretch"):
-        _start(runtime, [], demo=True)
 
 
 def _edit_form(runtime, thread_id, state):
@@ -358,7 +344,7 @@ def render():
     st.caption(_mode_caption(settings))
     thread_id = st.session_state.get("thread_id")
     if not thread_id:
-        _upload_form(runtime, demo=settings.mode == "mock")
+        _upload_form(runtime)
         return
     snapshot = runtime.snapshot(thread_id)
     state = snapshot.values

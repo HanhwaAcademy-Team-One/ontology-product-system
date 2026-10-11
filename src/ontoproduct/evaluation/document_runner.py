@@ -463,12 +463,10 @@ def main():
     args = parser.parse_args()
     services = None
     if args.live:
-        import os
-
         from ontoproduct.services.llm_service import create_llm_services
         from ontoproduct.services.settings import Settings
 
-        settings = Settings.from_environment({**os.environ, "AGENT_MODE": "real"})
+        settings = Settings.from_environment()
         services = create_llm_services(settings)
     report = run_document_evaluation(
         args.dataset,
