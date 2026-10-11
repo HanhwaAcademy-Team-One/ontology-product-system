@@ -1,6 +1,6 @@
 # 03. Ontology 담당자: 분류·속성·단위를 우리 기준에 맞추기
 
-> **현재 상태:** 이 Agent는 구현되어 UI Real 모드에 연결되어 있습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
+> **현재 상태:** 이 Agent는 구현되어 앱·CLI에 항상 연결되어 있습니다. Mock은 제거되었습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
 
 [공통 약속](00_COMMON.md) · [Extraction](02_EXTRACTION.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
@@ -8,13 +8,12 @@
 
 “이 제품은 BLDCMotor인가 Bearing인가”, “출력과 정격 출력은 어느 속성인가”, “0.6 kW를 표준 W로 어떻게 바꾸나”를 처리합니다.
 
-OntologyMock은 candidate_class를 그대로 사용하고 confidence를 0.95로 고정합니다. 하지만 클래스 상속과 단위 변환 service는 이미 실제로 동작합니다. 분류/이름 매핑을 실제화하면서 기존 규칙을 재사용합니다.
+OntologyAgent는 규칙과 LLM으로 분류를 고르고, 클래스 상속과 단위 변환은 기존 OntologyService 규칙을 재사용합니다.
 
 ## 2. 위치
 
 | 구분 | 위치 | 책임 |
 | --- | --- | --- |
-| 현재 Mock | [mocks/agents.py의 OntologyMock](../../src/ontoproduct/mocks/agents.py) | 후보 분류/수동 분류 선택, 고정 confidence |
 | 정의 | [ontology/ontology.yaml](../../src/ontoproduct/ontology/ontology.yaml) | 존재하는 클래스·속성·단위·범위 |
 | 기존 service | [services/ontology_service.py](../../src/ontoproduct/services/ontology_service.py) | 부모/상속 속성/단위 변환 |
 | 기존 정규화 | [services/normalization_service.py](../../src/ontoproduct/services/normalization_service.py) | normalize_attributes, apply_overrides |
@@ -227,13 +226,13 @@ OntologyMock은 candidate_class를 그대로 사용하고 confidence를 0.95로 
 ## 6. 교체
 
 ```python
-from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.services.ontology_service import OntologyService
 from ontoproduct.agents.ontology_agent import OntologyAgent
 
 ontology = OntologyService()
-registry = mock_registry(ontology)
-registry.register(OntologyAgent(ontology, llm_service), replace=True)
+registry = AgentRegistry()
+registry.register(OntologyAgent(ontology, llm_service))
 ```
 
 생성자 형태는 신규 구현의 합의 예시입니다. 실제 코드와 테스트를 같은 형태로 맞춥니다.

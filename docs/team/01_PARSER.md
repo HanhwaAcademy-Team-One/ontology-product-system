@@ -1,6 +1,6 @@
 # 01. Parser 담당자: 실제 파일을 문서 텍스트로 바꾸기
 
-> **현재 상태:** 이 Agent는 구현되어 UI Real 모드에 연결되어 있습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
+> **현재 상태:** 이 Agent는 구현되어 앱·CLI에 항상 연결되어 있습니다. Mock은 제거되었습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
 
 [공통 약속](00_COMMON.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
@@ -8,13 +8,12 @@
 
 파일을 열고 내용을 읽어 다음 Extraction 담당자에게 넘깁니다. 제품 사양을 판단하는 작업은 Extraction 담당자의 역할입니다.
 
-PDF 파일을 업로드했다는 것과 PDF 내용을 읽었다는 것은 다릅니다. 현재 업로드 원본 저장은 구현되어 있지만 ParserMock은 원본을 열지 않습니다.
+PDF 파일을 업로드했다는 것과 PDF 내용을 읽었다는 것은 다릅니다. ParserAgent는 업로드 원본을 실제로 열어 읽습니다.
 
 ## 2. 먼저 볼 파일과 만들 파일
 
 | 구분 | 위치 | 읽는 이유/할 일 |
 | --- | --- | --- |
-| 현재 Mock | [mocks/agents.py의 ParserMock](../../src/ontoproduct/mocks/agents.py) | 현재 source_documents에서 text 또는 MOCK document를 반환 |
 | 기존 파일 저장 | [services/document_service.py](../../src/ontoproduct/services/document_service.py) | 원본 보관과 FileReference 생성이 이미 있음 |
 | 기존 데이터 모양 | [schemas/product.py](../../src/ontoproduct/schemas/product.py) | FileReference, ParsedDocument 확인 |
 | 신규 | src/ontoproduct/agents/parser_agent.py | ParserAgent 입구 |
@@ -64,7 +63,7 @@ PDF 파일을 업로드했다는 것과 PDF 내용을 읽었다는 것은 다릅
 
 여러 문서는 list에 여러 항목을 넣습니다. PDF는 페이지별 항목으로 나누면 Extraction이 어느 페이지에 근거가 있는지 알 수 있습니다.
 
-신규 실제 Parser의 규칙은 TXT와 Excel의 `page: null`, PDF의 `page: 1, 2, ...`입니다. 위 출력도 이 규칙을 따릅니다. 기존 ParserMock은 TXT에도 `page: 1`을 반환하지만 Mock 구현을 변경하는 작업은 아닙니다. Schema상 둘 다 유효하므로 신규 실제 Parser 테스트에서는 여기서 정한 규칙을 명시적으로 검사합니다. Excel 시트명과 셀 위치는 현재 별도 schema 필드가 없으므로 text의 각 행 앞에 `[Sheet: Spec, Row: 3] A3=Manufacturer | B3=XYZ Motors`처럼 시트·행 번호와 셀 주소를 남깁니다. Extraction의 근거 검증도 이 `[Sheet: 이름, Row: n]` 형식을 기준으로 합니다. page에 시트 번호를 넣으면 PDF 페이지와 의미가 달라지므로 임의로 사용하지 않습니다.
+신규 실제 Parser의 규칙은 TXT와 Excel의 `page: null`, PDF의 `page: 1, 2, ...`입니다. 위 출력도 이 규칙을 따릅니다. Schema는 TXT의 `page: 1`도 허용하므로 실제 Parser 테스트에서는 여기서 정한 규칙을 명시적으로 검사합니다. Excel 시트명과 셀 위치는 현재 별도 schema 필드가 없으므로 text의 각 행 앞에 `[Sheet: Spec, Row: 3] A3=Manufacturer | B3=XYZ Motors`처럼 시트·행 번호와 셀 주소를 남깁니다. Extraction의 근거 검증도 이 `[Sheet: 이름, Row: n]` 형식을 기준으로 합니다. page에 시트 번호를 넣으면 PDF 페이지와 의미가 달라지므로 임의로 사용하지 않습니다.
 
 원본 파일명이 같은 경우 source_file을 어떻게 유일하게 표시할지 통합/Extraction 담당자와 합의합니다. 원본 file_id를 포함한 표시 문자열을 사용할 수 있으며 schema 필드를 추가하려면 함께 변경합니다.
 
@@ -82,25 +81,25 @@ PDF 파일을 업로드했다는 것과 PDF 내용을 읽었다는 것은 다릅
 
 parser_service.py의 함수명은 제안이며 팀이 합의해서 정하면 됩니다. Agent의 출력 키는 parsed_documents로 유지합니다.
 
-## 6. Mock 대신 내 기능을 붙이는 방법
+## 6. 내 기능을 Registry에 붙이는 방법
 
-공통 문서의 ParserAgent 틀을 구현한 뒤 개발용 테스트에서 다음처럼 바꿉니다.
+개발용 테스트에서는 이 슬롯만 등록한 Registry로 `execute_agent`를 실행할 수 있습니다.
 
 ```python
 from pathlib import Path
-from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.agents.parser_agent import ParserAgent
 from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.services.parser_service import ParserService
 
 paths = ApplicationPaths(Path("<데이터 폴더>"))
-registry = mock_registry()
-registry.register(ParserAgent(ParserService(paths.uploads)), replace=True)
+registry = AgentRegistry()
+registry.register(ParserAgent(ParserService(paths.uploads)))
 ```
 
-ParserService는 업로드 폴더(`ApplicationPaths.uploads`)를 생성자 인자로 받으며, 그 폴더 밖의 경로는 읽지 않습니다. 앱에서는 `AGENT_MODE=real`일 때 실제 Parser가 연결됩니다([통합 담당자 문서](08_INTEGRATION.md)).
+ParserService는 업로드 폴더(`ApplicationPaths.uploads`)를 생성자 인자로 받으며, 그 폴더 밖의 경로는 읽지 않습니다. 앱에서는 `build_document_registry()`가 실제 Parser를 연결합니다([통합 담당자 문서](08_INTEGRATION.md)).
 
-다른 슬롯은 그대로이므로 Graph 전체를 실행해도 추출 결과는 아직 DM-500일 수 있습니다. **Parser 테스트는 parsed_documents에 실제 원문이 들어오는지 검사해야 합니다.** Extraction까지 고정 데이터를 쓰는 상태에서 최종 제품명을 Parser 성능의 기준으로 삼으면 안 됩니다.
+**Parser 테스트는 parsed_documents에 실제 원문이 들어오는지 검사해야 합니다.** 최종 제품명은 Extraction 결과이므로 Parser 성능의 기준으로 삼지 않습니다.
 
 UI 연결은 [통합 담당자 문서](08_INTEGRATION.md)를 따릅니다.
 
@@ -119,7 +118,7 @@ UI 연결은 [통합 담당자 문서](08_INTEGRATION.md)를 따릅니다.
 | 텍스트 없는 스캔 PDF | OCR 수행 또는 명시한 미지원 오류 |
 | 모든 정상 출력 | ParsedDocument schema와 JSON 직렬화 통과 |
 
-기존 테스트는 b"%PDF mock" 같은 가짜 bytes를 사용하는 경우가 있습니다. 실제 Parser 테스트에서는 정상 형식의 PDF/XLSX를 준비해야 합니다. Mock fixture는 기존 데모 테스트용으로 유지합니다.
+Graph 라우팅 테스트의 `tests/doubles.py` 고정 Agent는 원본을 읽지 않으므로 가짜 bytes를 써도 통과합니다. 실제 Parser 테스트에서는 `tests/fixtures/documents/`의 정상 형식 PDF/XLSX를 사용합니다.
 
 신규 테스트 작성 후:
 

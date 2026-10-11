@@ -13,25 +13,25 @@
 | 제품 데이터베이스 | 이름·분류·등록 구분 검색, 속성·근거·JSON | `/products` |
 | 온톨로지 탐색 | 상속, 속성·단위·범위, 단위 변환, 의미 관계·제품 RDF·SHACL 검사 | `/ontology` |
 | Agent 모니터 | Registry 메타데이터·계약·Health·실행 시간·오류·compiled graph | `/agents` |
-| 평가 | Ground Truth, Mock/규칙 엔진 별도 결과, 보고서 다운로드 | `/evaluation` |
+| 평가 | inputdata 실문서 평가(참조 응답), 보고서 다운로드 | `/evaluation` |
 
 대시보드의 전체 수치는 SQL 전체 집계이며 실행 이력 집계는 최근 최대 100개 작업입니다. 제품 검색은 최신 최대 500개를 표시합니다. Agent Health는 외부 모델 연결·권한·잔액을 검증하는 지표가 아닙니다.
 
-## 실행 모드 확인
+## 실행 설정 확인
 
-등록 화면에 표시된 모드를 먼저 확인합니다. 변경 방법은 [Quick start](QUICK_START.md)에 있습니다.
+등록 화면 상단에 사용 중인 모델(기본 `openai/gpt-5`)이 표시됩니다. 모든 단계가 실제 구현으로 동작합니다.
 
-| 모드 | 문서 처리 | 검토·저장 |
-| --- | --- | --- |
-| Mock (기본) | 원본은 보관하고 DM-500 고정 fixture로 추출 | 실제 규칙 검증·SQLite 중복 조회·저장 |
-| Real | 실제 파싱, OpenAI 기반 Extraction·Ontology | Validation은 실제 Python 규칙 Agent, Reviewer는 기존 Mock 규칙, SQLite 조회·저장은 실제 |
+| 단계 | 동작 |
+| --- | --- |
+| 문서 처리 | 실제 파싱, OpenAI 기반 Extraction·Ontology |
+| 검토·저장 | Python 규칙 Validation·Reviewer, SQLite 중복 조회·저장 |
 
-Real 모드에서는 원문이 OpenAI API로 전송되며 Mock 예제 버튼은 표시하지 않습니다. 설정이 빠지거나 잘못되면 오류를 표시하고 실행을 멈춥니다.
+원문은 OpenAI API로 전송됩니다. API Key는 이 PC의 `OPENAI_API_KEY` 환경 변수에서 읽습니다([등록 방법](QUICK_START.md#2-api-key-등록)). 키나 설정이 빠지거나 잘못되면 오류를 표시하고 실행을 멈춥니다.
 
 ## 제품 등록
 
 1. **새 등록 작업**으로 시작합니다.
-2. PDF/XLSX/TXT 문서를 업로드하고 시작합니다. Mock 데모는 **Mock 예제로 시작**을 누릅니다.
+2. PDF/XLSX/TXT 문서를 업로드하고 **업로드 문서로 시작**을 누릅니다.
 3. 파싱 → 추출 → 분류·정규화 → 검증·중복 조회 → 검토 순서의 진행 상황을 확인합니다.
 4. 추출한 제품명, 분류, 속성 값·단위, 원문 근거와 중복 후보를 확인합니다.
 5. 수정할 항목이 있으면 값을 보완하고 **수정 후 재검증**을 누릅니다.
@@ -39,8 +39,6 @@ Real 모드에서는 원문이 OpenAI API로 전송되며 Mock 예제 버튼은 
 7. 완료된 JSON을 다운로드하고 제품 데이터베이스에서 결과를 조회합니다.
 
 파일당 최대 **20 MB**입니다. 여러 문서를 한 제품의 자료로 업로드할 수 있습니다. 서로 다른 제품을 한 작업에 묶지 않습니다. 지원 형식은 텍스트 PDF, XLSX, TXT(UTF-8·CP949)이며 스캔 PDF의 OCR은 지원하지 않습니다.
-
-Mock 데모의 DM-500은 필수 정격 속도가 비어 있습니다. 값 `3000`, 단위 `rpm`을 입력하고 재검증하면 승인 흐름을 확인할 수 있습니다.
 
 중복 후보는 SQLite 기존 제품의 분류·공통 속성·제품명을 비교한 규칙 결과입니다. 후보를 확인하고 등록 여부를 결정합니다. 후보가 있다는 이유만으로 등록이 자동 차단되지는 않습니다.
 
@@ -82,7 +80,6 @@ DB를 초기화하는 별도 명령은 없습니다. 지정한 데이터 폴더�
 실행 중인 서버를 `Ctrl+C`로 끈 뒤 테스트용 데이터 폴더를 지정하고 다시 시작합니다.
 
 ```powershell
-$env:AGENT_MODE = "real"   # Mock으로 테스트하려면 "mock"
 $env:ONTOPRODUCT_DATA_DIR = "D:\ontology-product-system\runtime\test-1"
 .venv\Scripts\python.exe -m streamlit run app.py --server.address 127.0.0.1 --server.port 8502
 ```
@@ -121,15 +118,15 @@ Rename-Item runtime\exports exports-backup
 | 5 | `04_multi_document\D002\`의 두 파일을 함께 | 0.6 kW와 600 W, 750 g과 0.75 kg이 같은 값으로 병합되고 두 근거 유지 |
 | 6 | M001을 새 작업으로 한 번 더 | 앞서 등록한 제품이 중복 후보로 표시 |
 
-Real 모드는 문서마다 추출과 분류에 OpenAI를 최소 두 번 호출합니다. 호출마다 시간과 비용이 들므로 처음에는 1~2개 사례로 확인한 뒤 늘립니다. Mock 모드에서는 어떤 파일을 올려도 DM-500 예제가 나오므로 이 표의 기대값을 확인할 수 없습니다.
+문서마다 추출과 분류에 OpenAI를 최소 두 번 호출합니다. 호출마다 시간과 비용이 들므로 처음에는 1~2개 사례로 확인한 뒤 늘립니다.
 
 ## 온톨로지와 평가 확인
 
 온톨로지 탐색에서 분류를 선택하면 상속된 속성, 필수 여부, 허용 단위와 범위를 확인할 수 있습니다. 저장 제품을 선택하면 의미 관계와 제품 RDF를 보고 SHACL 검사를 실행할 수 있습니다. 상세 모델과 확장은 [제품 온톨로지 매뉴얼](team/03_PRODUCT_ONTOLOGY.md)을 참고하세요.
 
-**SHACL 검사는 등록 workflow의 Validation에 자동 연결되어 있지 않습니다.** 예를 들어 베어링의 내경 < 외경 제약은 온톨로지 탐색의 SHACL 검사에서 확인합니다.
+등록 workflow의 Validation과 승인 직전 재검증은 Python 규칙과 SHACL 정책을 함께 적용합니다. 예를 들어 베어링의 내경 ≥ 외경은 검증 오류가 되어 승인할 수 없습니다. 온톨로지 탐색의 SHACL 검사로 같은 제약을 직접 확인할 수도 있습니다.
 
-평가 화면은 실행 모드가 Real이어도 기존 **Mock 평가**와 별도 **SQLite 규칙 엔진 평가**를 계산합니다. 합성 TXT 3개에 대한 결과이며 실제 PDF/XLSX·LLM 추출 품질을 나타내지 않습니다. 두 점수를 합산하지 않습니다. 지표 정의와 CLI 실행은 [개발자 매뉴얼](DEVELOPER_GUIDE.md#평가)을 참고하세요.
+평가 화면은 `inputdata`의 50개 사례를 실제 Parser·Extraction·Ontology·Validation·Reviewer Agent로 처리하고 manifest 기대값과 비교합니다. API 비용이 들지 않도록 모델 대신 정답 기반 참조 응답을 쓰므로 LLM 추출 품질이 아니라 파이프라인 동작을 측정합니다. 실행에 20초 정도 걸립니다. 실제 모델 평가와 지표 정의는 [개발자 매뉴얼](DEVELOPER_GUIDE.md#평가)을 참고하세요.
 
 ## 자주 만나는 문제
 
@@ -138,9 +135,8 @@ Real 모드는 문서마다 추출과 분류에 OpenAI를 최소 두 번 호출�
 | `uv`를 찾을 수 없음 | [pip 설치 방법](QUICK_START.md#pip-사용)을 사용하거나 uv가 설치된 터미널에서 실행 |
 | `ModuleNotFoundError` | 저장소 루트에서 설치하고 `.venv\Scripts\python.exe`로 실행했는지 확인 |
 | 8502 포트를 사용 중 | 기존 서버에 접속하거나 실행 명령과 접속 주소의 포트를 함께 변경 |
-| Real 설정 오류 | `AGENT_MODE=real`, `OPENAI_API_KEY`, YAML·환경 변수 확인 후 서버 재시작. `.env`는 자동 로드하지 않음 |
-| `$env:...` 입력 시 `파일 이름, 디렉터리 이름 또는 볼륨 레이블 구문이 잘못되었습니다.` | PowerShell이 아니라 명령 프롬프트(cmd)입니다. `set AGENT_MODE=real`을 쓰거나 PowerShell 터미널로 바꿉니다. [터미널별 명령](QUICK_START.md#터미널별-명령) 참고 |
-| 업로드한 제품 대신 DM-500 표시 | 현재 모드가 Mock인지 확인하고 실제 분석은 Real 모드로 재시작 |
+| 실행 설정 오류 | `OPENAI_API_KEY` 등록 여부, YAML·환경 변수 확인 후 서버 재시작. 키를 새로 등록했다면 VS Code·터미널을 다시 열기. `.env`는 자동 로드하지 않음 |
+| `$env:...` 입력 시 `파일 이름, 디렉터리 이름 또는 볼륨 레이블 구문이 잘못되었습니다.` | PowerShell이 아니라 명령 프롬프트(cmd)입니다. `set 이름=값` 형식을 쓰거나 PowerShell 터미널로 바꿉니다. [터미널별 명령](QUICK_START.md#터미널별-명령) 참고 |
 | PDF 파싱 오류 | 텍스트가 포함된 PDF인지 확인. 스캔 PDF는 OCR 미지원 |
 | API timeout·모델 응답 오류 | 모니터의 오류와 [LLM 설정](team/08_INTEGRATION.md#실행-설정)을 확인하고 원인 해결 후 오류 재시도 |
 | 수정 후 승인 불가 | 필수값·자료형·단위·범위 오류를 해결하고 재검증 |

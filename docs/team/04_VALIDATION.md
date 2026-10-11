@@ -2,11 +2,11 @@
 
 [공통 약속](00_COMMON.md) · [Ontology](03_ONTOLOGY.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
-**현재 상태 (2026-10-09):** UI Real Validation과 RegistrationService는 공통 `validate_registration_product`에서 규칙·SHACL을 결합합니다. 내경≥외경을 차단하고 필수 충돌·범위 오류의 중복 안내를 제거하며 독립 위반을 보존합니다. ValidationMock과 ontology 없이 생성한 기존 ValidationAgent는 `validate_product` 계약을 유지합니다. LLM 검증은 사용하지 않습니다. 정책은 [SHACL 명세](04_SHACL_INTEGRATION_SPEC.md), 순차 작업의 구현·검증과 남은 의존성은 [실행 기록](04_EXECUTION_LOG.md)에 있습니다. 아래 초기 adapter 구현 예시와 §9의 과거 점검 기록은 작성 당시 이력입니다.
+**현재 상태 (2026-10-09):** UI Real Validation과 RegistrationService는 공통 `validate_registration_product`에서 규칙·SHACL을 결합합니다. 내경≥외경을 차단하고 필수 충돌·범위 오류의 중복 안내를 제거하며 독립 위반을 보존합니다. ontology 없이 생성한 ValidationAgent는 `validate_product` 계약을 유지합니다. ValidationMock은 제거되었습니다. LLM 검증은 사용하지 않습니다. 정책은 [SHACL 명세](04_SHACL_INTEGRATION_SPEC.md), 순차 작업의 구현·검증과 남은 의존성은 [실행 기록](04_EXECUTION_LOG.md)에 있습니다. 아래 초기 adapter 구현 예시와 §9의 과거 점검 기록은 작성 당시 이력입니다.
 
 ## 1. 내가 맡는 일
 
-필수 항목이 있는지, 숫자인지, 단위가 맞는지, 범위를 벗어났는지 검사합니다. 이 기능은 기존 validation_service.py에 실제로 구현되어 있습니다. ValidationMock이라는 이름 때문에 검사도 고정 결과라고 생각하면 안 됩니다.
+필수 항목이 있는지, 숫자인지, 단위가 맞는지, 범위를 벗어났는지 검사합니다. 이 기능은 기존 validation_service.py에 실제로 구현되어 있습니다.
 
 담당자는 기존 검증 함수를 실제 Agent에 연결하고 실제 문서에서 나오는 경계 사례를 테스트합니다. 검증 함수의 정상 동작을 유지하는 것이 먼저입니다.
 
@@ -14,11 +14,10 @@
 
 | 구분 | 위치 | 할 일 |
 | --- | --- | --- |
-| 기본 Mock adapter | [mocks/agents.py의 ValidationMock](../../src/ontoproduct/mocks/agents.py) | 실제 validate_product 호출 |
 | 기존 실제 함수 | [services/validation_service.py](../../src/ontoproduct/services/validation_service.py) | 필수값·타입·단위·범위 검사 |
 | schema | [schemas/validation.py](../../src/ontoproduct/schemas/validation.py) | ValidationResult, ValidationIssue |
-| Real adapter | [agents/validation_agent.py](../../src/ontoproduct/agents/validation_agent.py) | 구현된 BaseAgent adapter |
-| Real 연결 | [agents/real_registry.py](../../src/ontoproduct/agents/real_registry.py) | ValidationAgent를 replace=True로 등록 |
+| Agent | [agents/validation_agent.py](../../src/ontoproduct/agents/validation_agent.py) | 구현된 BaseAgent adapter |
+| 연결 | [agents/real_registry.py](../../src/ontoproduct/agents/real_registry.py) | ValidationAgent 등록 |
 | 실제 Agent 테스트 | [tests/test_real_validation_agent.py](../../tests/test_real_validation_agent.py) | adapter 계약·타입·범위·실제 Duplicate와 병렬 합류 |
 | 기존 테스트 | [tests/test_validation.py](../../tests/test_validation.py) | 이미 있는 검증 동작 확인 |
 
@@ -196,7 +195,7 @@ Reviewer는 code·field·severity와 제품의 충돌 근거를 함께 읽어야
 ## 5. 구현 순서
 
 1. 기존 validate_product를 읽고 테스트를 실행합니다.
-2. BaseAgent 형태로 ValidationAgent를 만듭니다. name은 validation, is_mock은 False, provider는 실제 규칙 엔진임을 표시합니다.
+2. BaseAgent 형태로 ValidationAgent를 만듭니다. name은 validation, provider는 실제 규칙 엔진임을 표시합니다.
 3. required/optional/writes는 CONTRACTS["validation"]에서 복사합니다.
 4. run에서 기존 validate_product(normalized_product, ontology_mapping)를 호출합니다.
 5. validation_result 한 키만 반환합니다.
@@ -219,17 +218,16 @@ LLM이 “괜찮다”고 답해도 숫자 타입이나 필수값 오류를 통�
 ## 6. 교체
 
 ```python
-from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.services.ontology_service import OntologyService
 from ontoproduct.agents.validation_agent import ValidationAgent
 
 ontology = OntologyService()
-registry = mock_registry(ontology)
-registry.register(ValidationAgent(ontology), replace=True)
-registry.validate_complete()
+registry = AgentRegistry()
+registry.register(ValidationAgent(ontology))
 ```
 
-이 예시는 현재 구현으로 실행할 수 있습니다. UI Real 모드에서는 `build_document_registry()`가 같은 방식으로 연결합니다. 다른 Agent의 결과나 case_status를 직접 수정하지 않습니다. Duplicate와 병렬로 실행되므로 자기 출력만 작성해야 합니다.
+이 예시는 현재 구현으로 실행할 수 있습니다. 앱에서는 `build_document_registry()`가 같은 방식으로 연결합니다. 다른 Agent의 결과나 case_status를 직접 수정하지 않습니다. Duplicate와 병렬로 실행되므로 자기 출력만 작성해야 합니다.
 
 ## 7. 테스트
 

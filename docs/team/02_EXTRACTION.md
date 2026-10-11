@@ -1,6 +1,6 @@
 # 02. Extraction 담당자: 문서에서 제품 정보를 뽑기
 
-> **현재 상태:** 이 Agent는 구현되어 UI Real 모드에 연결되어 있습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
+> **현재 상태:** 이 Agent는 구현되어 앱·CLI에 항상 연결되어 있습니다. Mock은 제거되었습니다. 아래 구현 순서·“신규” 표시는 최초 교체 당시 계획이며, 현재 파일과 연결 방식은 [08 통합 가이드](08_INTEGRATION.md)를 기준으로 확인하세요.
 
 [공통 약속](00_COMMON.md) · [Parser](01_PARSER.md) · [분업표](../MOCK_REPLACEMENT_PLAN.md)
 
@@ -8,13 +8,12 @@
 
 Parser가 읽은 문서 텍스트에서 제품명과 사양을 찾습니다. 실제 LLM 응답을 현재 ExtractedProduct 데이터 모양으로 정리합니다.
 
-현재 ExtractionMock은 어떤 문서를 넣어도 DM-500, 24 V, 0.5 kW를 반환합니다. 이 부분을 실제 문서 내용으로 바꿉니다.
+ExtractionAgent는 LLM으로 실제 문서 내용에서 값과 원문 근거를 추출합니다.
 
 ## 2. 파일 위치
 
 | 구분 | 위치 | 책임 |
 | --- | --- | --- |
-| 현재 Mock | [mocks/agents.py의 ExtractionMock](../../src/ontoproduct/mocks/agents.py) | 고정 속성과 재추출 항목 필터 |
 | 기존 schema | [schemas/product.py](../../src/ontoproduct/schemas/product.py) | ExtractedProduct, ProductAttribute |
 | 기존 병합 | [services/normalization_service.py](../../src/ontoproduct/services/normalization_service.py) | merge_extraction_retry와 사람 수정 보호 |
 | 신규 | src/ontoproduct/agents/extraction_agent.py | 입력 준비, 모델 결과 검사, 출력 반환 |
@@ -146,19 +145,19 @@ Graph의 merge_extraction_retry가 요청 필드만 기존 추출 결과에 합�
 
 ## 6. 교체 방법
 
-LLM service와 실제 Agent 작성 후 개발용 registry에서 이 슬롯만 교체합니다.
+개발용 테스트에서는 이 슬롯만 등록한 Registry로 실행할 수 있습니다.
 
 ```python
-from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.agents.extraction_agent import ExtractionAgent
 
-registry = mock_registry()
-registry.register(ExtractionAgent(llm_service), replace=True)
+registry = AgentRegistry()
+registry.register(ExtractionAgent(llm_service))
 ```
 
-llm_service는 통합 담당자가 생성한 실제 client/service입니다. 별도 테스트에서는 외부 통신만 테스트용 응답으로 바꿀 수 있습니다.
+llm_service는 `create_llm_services()`가 만든 실제 service입니다. 테스트에서는 `tests/real_llm_helpers.py`의 HonestLlm처럼 원문 줄에서만 답하는 가짜 service를 넣어 외부 통신만 바꿉니다.
 
-ParserMock을 둔 채 모델을 실행하면 “MOCK document”를 받는 경우가 있습니다. 실제 추출 확인에는 Parser 실제 결과 또는 실제 원문으로 작성한 parsed_documents를 사용하세요.
+실제 추출 확인에는 Parser 실제 결과 또는 실제 원문으로 작성한 parsed_documents를 사용하세요.
 
 ## 7. 테스트
 

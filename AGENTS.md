@@ -65,7 +65,7 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
 
 ## Project rules
-- 테스트 명령: `pytest -q`   ← 프로젝트에 맞게 수정
+- 테스트 명령: `uv run pytest -q` (시스템 Python의 `pytest`는 의존성이 없어 수집 오류)
 - 기능을 바꾸면 테스트를 실행하고, 통과해야만 완료로 보고한다.
 - 테스트가 없는 기능은 최소 테스트 1개를 먼저 작성한다.
 - 새 패키지 추가는 이유를 설명하고 확인받는다.

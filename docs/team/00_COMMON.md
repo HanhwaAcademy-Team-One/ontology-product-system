@@ -11,11 +11,10 @@
 | src/ontoproduct/agents | “이 기능은 무엇을 받고 무엇을 돌려준다”를 구현하는 입구 |
 | src/ontoproduct/services | 문서 읽기, 모델 호출, 검증, 저장 같은 실제 작업 함수 |
 | src/ontoproduct/schemas | 팀원끼리 주고받는 데이터 모양 검사 |
-| src/ontoproduct/mocks | 기존 데모를 위한 고정/규칙 Agent |
 | src/ontoproduct/graph | 실행 순서, 병렬 처리, 재시도, 사람 검토 연결 |
 | src/ontoproduct/views | 사용자가 보는 화면 |
-| tests | 자동으로 실행하는 확인 코드 |
-| eval | 평가용 원문, 정답, 보고서 |
+| tests | 자동으로 실행하는 확인 코드. `tests/doubles.py`는 Graph 라우팅 테스트 전용 고정 Agent |
+| eval | 평가 실행 안내와 보고서 (평가 원문·정답은 inputdata) |
 | runtime | 업로드·DB·Export 등 실제 실행 데이터 |
 
 Agent는 입구, Service는 작업 도구라고 생각하면 됩니다. 화면은 Graph에 실행을 요청하고, Graph가 Agent를 실행합니다.
@@ -38,7 +37,7 @@ Parser는 `state["source_documents"]`를 읽습니다. 작업이 끝나면 다�
 }
 ```
 
-이 가이드의 신규 실제 Parser는 TXT·XLSX의 `page`를 `null`, PDF의 `page`를 1부터 시작하는 실제 페이지 번호로 통일합니다. Extraction 이후에도 이 위치 값을 유지합니다. 기존 ParserMock은 TXT에도 `page: 1`을 반환하며, schema는 두 값을 모두 허용합니다. 위 JSON은 신규 실제 Parser의 목표 출력입니다.
+이 가이드의 신규 실제 Parser는 TXT·XLSX의 `page`를 `null`, PDF의 `page`를 1부터 시작하는 실제 페이지 번호로 통일합니다. Extraction 이후에도 이 위치 값을 유지합니다. schema는 TXT의 `page: 1`도 허용하지만 실제 Parser는 `null`을 씁니다.
 
 `parsed_documents`라는 이름은 다음 Extraction 담당자가 읽기로 약속한 이름입니다. 이를 `documents`로 바꾸면 연결이 끊깁니다.
 
@@ -58,7 +57,7 @@ Wrapper는 허용된 입력만 골라 Agent에 전달합니다. Extraction이 �
 
 ## 4. 새 Agent의 기본 모양
 
-아래는 Parser 담당자가 구현할 틀입니다. ParserAgent 파일과 service는 아직 만들지 않은 신규 제안입니다.
+아래는 Agent의 기본 틀입니다. 실제 구현은 [agents/parser_agent.py](../../src/ontoproduct/agents/parser_agent.py)에 있습니다.
 
 ```python
 from ontoproduct.agents.base import BaseAgent
@@ -68,7 +67,6 @@ class ParserAgent(BaseAgent):
     name = "parser"
     provider = "local-document-parser"
     version = "0.3.0"
-    is_mock = False
 
     def __init__(self, service):
         required, optional, writes = CONTRACTS[self.name]
@@ -85,11 +83,9 @@ class ParserAgent(BaseAgent):
 - name: 교체할 슬롯 이름. UI에서 쓰는 이름과 같습니다.
 - provider: 실제 처리 도구/모델 제공자 이름.
 - version: 구현 버전. 예시 버전 번호는 팀에서 정하면 됩니다.
-- is_mock: 실제 구현은 False.
 - required_reads / optional_reads / writes: CONTRACTS에서 복사하므로 오타를 줄입니다.
 - service: 실제 작업 함수가 있는 객체. 생성자에서 받습니다.
 
-실제 기능을 만들지 않고 `is_mock=False`만 바꾸면 완료가 아닙니다.
 
 ## 5. Pydantic은 왜 쓰나요?
 
@@ -152,10 +148,10 @@ Agent 파일을 구현한 뒤 테스트 코드에서 사용할 틀입니다.
 import json
 from copy import deepcopy
 from ontoproduct.graph.execution import execute_agent
-from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.agents.registry import AgentRegistry
 
-registry = mock_registry()
-registry.register(agent, replace=True)  # agent는 내가 만든 실제 Agent
+registry = AgentRegistry()
+registry.register(agent)  # agent는 내가 만든 실제 Agent
 before = deepcopy(inputs)              # inputs는 해당 기능의 입력 dictionary
 events = []
 result = execute_agent(
