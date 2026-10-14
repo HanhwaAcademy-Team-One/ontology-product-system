@@ -101,7 +101,7 @@ Rename-Item runtime\uploads uploads-backup
 Rename-Item runtime\exports exports-backup
 ```
 
-완전히 지우려면 `Remove-Item -Recurse -Force runtime\data, runtime\uploads, runtime\exports`를 실행합니다. 되돌릴 수 없습니다. 초기화하면 중복 검토용 예제 제품도 함께 사라지므로 필요하면 [예제를 다시 추가](#중복-검토용-예제-추가)합니다. 예제는 그때 지정된 데이터 폴더에 들어갑니다.
+완전히 지우려면 `Remove-Item -Recurse -Force runtime\data, runtime\uploads, runtime\exports`를 실행합니다. 되돌릴 수 없습니다.
 
 `pytest`는 매번 임시 폴더에 DB를 새로 만들므로 `runtime/`의 데이터와 관계없습니다.
 
@@ -142,10 +142,6 @@ Rename-Item runtime\exports exports-backup
 | 수정 후 승인 불가 | 필수값·자료형·단위·범위 오류를 해결하고 재검증 |
 | 이전 작업이 보이지 않음 | 이전과 같은 `ONTOPRODUCT_DATA_DIR`를 사용하는지 확인 |
 
-## 중복 검토용 예제 추가
+## 제품 데이터의 범위
 
-DM-500A, DM-510, MX-500은 화면의 예제 추가 버튼 또는 저장소 루트의 아래 명령으로 넣습니다. 반복 실행해도 예제 제품을 중복 생성하지 않습니다.
-
-```powershell
-.venv\Scripts\python.exe scripts/seed_database.py
-```
+제품은 문서를 업로드하고 검토·승인을 거쳐 등록합니다. 예제 제품 추가 버튼·스크립트와 샘플 RDF 선택 기능은 제거했습니다. 제품 목록·대시보드·제품 RDF·중복 조회는 등록 제품(`origin="REGISTRATION"`)만 사용합니다. 과거 예제(`origin="SEED"`) 행은 DB에서 삭제하지 않지만 이 화면과 조회에서는 제외합니다.
