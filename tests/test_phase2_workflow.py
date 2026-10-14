@@ -5,6 +5,8 @@ from uuid import uuid4
 
 import pytest
 
+from product_fixtures import save_test_products
+
 from ontoproduct.agents.registry import validate_contract
 from ontoproduct.agents.duplicate_agent import DuplicateAgent
 from ontoproduct.agents.registration_agent import RegistrationAgent
@@ -12,7 +14,6 @@ from doubles import mock_registry
 from ontoproduct.schemas.error import unresolved_errors
 from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.services.duplicate_service import DuplicateService
-from ontoproduct.services.seed_service import seed_products
 from ontoproduct.services.workflow_runtime import WorkflowRuntime
 from conftest import count_runs, fail_once
 
@@ -172,7 +173,7 @@ def test_case_graph_is_reused_and_adapters_obey_frozen_contract(runtime):
 
 
 def test_seed_candidates_appear_in_sqlite_workflow(runtime):
-    seed_products(runtime.products)
+    save_test_products(runtime.products)
     thread, references = create_case(runtime)
     list(runtime.start(thread, references))
     state = runtime.snapshot(thread).values

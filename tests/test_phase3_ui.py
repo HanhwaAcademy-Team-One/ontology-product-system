@@ -7,7 +7,7 @@ def test_dashboard_empty_and_registered_stats_and_reopen(app):
     page, runtime, _ = app
     page.switch_page("src/ontoproduct/views/dashboard.py").run()
     assert not page.exception
-    assert [metric.value for metric in page.metric[:4]] == ["0", "0", "0", "0"]
+    assert [metric.value for metric in page.metric[:3]] == ["0", "0", "0"]
     page.button(key="dashboard_start").click().run()
     assert page.file_uploader
     # AppTest keeps its explicit page hash after st.switch_page; synchronize the next simulated request.
@@ -18,7 +18,7 @@ def test_dashboard_empty_and_registered_stats_and_reopen(app):
     page.button(key="approve_case").click().run()
     page.switch_page("src/ontoproduct/views/dashboard.py").run()
     assert not page.exception
-    assert [metric.value for metric in page.metric[:4]] == ["1", "0", "1", "0"]
+    assert [metric.value for metric in page.metric[:3]] == ["1", "1", "0"]
     page.button(key="open_dashboard_case").click().run()
     assert not page.exception
     assert page.session_state["thread_id"] == case
@@ -82,15 +82,14 @@ def test_evaluation_ui_calculates_downloads_and_leaves_products_untouched(app):
     assert not page.exception
 
 
-def test_database_filters_registration_and_class(app):
+def test_database_filters_registered_products_by_class(app):
     page, runtime, _ = app
+    start_case(page)
+    fill_speed(page)
+    page.button(key="approve_case").click().run()
     page.switch_page("src/ontoproduct/views/product_database.py").run()
-    page.button(key="seed_database").click().run()
-    page.selectbox(key="product_origin_filter").select("REGISTRATION").run()
     assert not page.exception
-    assert not any(box.key == "selected_product" for box in page.selectbox)
-    page.selectbox(key="product_origin_filter").select("SEED").run()
-    assert len(page.selectbox(key="selected_product").options) == 3
+    assert len(page.selectbox(key="selected_product").options) == 1
     page.selectbox(key="product_class_filter").select("Bearing").run()
     assert not page.exception
     assert any("표시할 제품" in info.value for info in page.info)

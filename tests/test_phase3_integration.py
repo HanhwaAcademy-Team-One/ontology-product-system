@@ -5,10 +5,11 @@ from uuid import uuid4
 from real_llm_helpers import HonestLlm
 from test_streamlit_app import MISSING_SPEED
 
+from product_fixtures import save_test_products
+
 from ontoproduct.cli import build_runtime
 from ontoproduct.services.analytics_service import AnalyticsService
 from ontoproduct.services.application_paths import ApplicationPaths
-from ontoproduct.services.seed_service import seed_products
 
 
 def real_runtime(paths):
@@ -19,7 +20,7 @@ def real_runtime(paths):
 def test_final_upload_checkpoint_review_registration_analytics(tmp_path):
     paths = ApplicationPaths(tmp_path)
     runtime = real_runtime(paths)
-    seed_products(runtime.products)
+    save_test_products(runtime.products)
     session = str(uuid4())
     case = runtime.create_case(session)
     refs = [runtime.documents.save(session, "dm500_spec.txt", MISSING_SPEED)]
@@ -46,8 +47,8 @@ def test_final_upload_checkpoint_review_registration_analytics(tmp_path):
         == record["product"]
     )
     overview = AnalyticsService(runtime).overview()
-    assert overview["products"]["registered"] == 1
-    assert overview["products"]["seed"] == 3
+    assert overview["products"]["registered"] == 4
+    assert overview["products"]["total"] == 4
     assert overview["cases"]["statuses"] == {"REGISTERED": 1}
     assert overview["open_errors"] == 0
     monitor = AnalyticsService(runtime).monitor(case)
@@ -61,7 +62,7 @@ def test_final_upload_checkpoint_review_registration_analytics(tmp_path):
     )
     assert (
         len(runtime.products.list(origin="REGISTRATION", product_class="BLDCMotor"))
-        == 1
+        == 4
     )
     assert not runtime.products.list(product_class="Bearing")
     assert runtime.snapshot(case).values["case_status"] == "REGISTERED"

@@ -31,6 +31,15 @@ ONTOLOGY_LEGEND = "보라색: 자체 개념·내부 출처 · 분홍색: 물리�
 PRODUCT_LEGEND = "파란색: 제품 모델 · 노란색: 제조사 · 청록색: 물리량 값 · 주황색: 값 · 초록색: 단위 · 분홍색: 물리량 종류 · 보라색: 자체 개념·내부 출처"
 
 
+
+def example_graphs():
+    products = json.loads(
+        (Path(__file__).parent / "fixtures/extraction_ontology/semantic_products.json").read_text(encoding="utf-8")
+    )
+    service = RdfOntologyService(ProductOntology())
+    return {name: service.product_graph(product, record_id=f"example_{name}") for name, product in products.items()}
+
+
 def assert_classes(diagram):
     for group in {node["group"] for node in diagram["nodes"]}:
         fill, stroke = COLORS[group]
@@ -157,7 +166,7 @@ def test_diagram_groups_use_iri_and_type_with_label_priority(kind):
     graph = (
         viewer.rdf.ontology_graph()
         if kind == "ontology"
-        else viewer.example_graphs()["motor"]
+        else example_graphs()["motor"]
     )
     terms = {
         viewer.rdf.unit_uri("W"): ("watt", "unit"),
@@ -205,7 +214,7 @@ def test_diagram_groups_use_iri_and_type_with_label_priority(kind):
 
 def test_diagram_uses_actual_rdf_and_preserves_graph_with_distinct_literal_nodes():
     viewer = OntologyVisualization(ProductOntology())
-    graph = viewer.example_graphs()["motor"]
+    graph = example_graphs()["motor"]
     before = set(graph)
     diagram = viewer.diagram(graph, kind="product")
     labels = {node["label"] for node in diagram["nodes"]}
@@ -288,7 +297,7 @@ def test_ontology_diagram_focus_shows_inheritance_internal_concepts_and_properti
 
 def test_attributes_show_raw_and_normalized_values_with_original_evidence():
     viewer = OntologyVisualization(ProductOntology())
-    graphs = viewer.example_graphs()
+    graphs = example_graphs()
     rows = {row["키"]: row for row in viewer.attribute_rows(graphs["motor"])}
     assert (rows["rated_power"]["원문 값"], rows["rated_power"]["원문 단위"]) == (
         "0.6",
@@ -322,7 +331,7 @@ def test_attributes_show_raw_and_normalized_values_with_original_evidence():
 @pytest.mark.parametrize("sample", ["motor", "bearing"])
 def test_projection_attributes_download_payloads_and_validation_preserve_rdf(sample):
     viewer = OntologyVisualization(ProductOntology())
-    graph = viewer.example_graphs()[sample]
+    graph = example_graphs()[sample]
     before = set(graph)
     diagram = viewer.diagram(graph, kind="product", include_evidence=True)
     assert set(graph) == before
@@ -377,7 +386,7 @@ def test_mermaid_label_entities_preserve_text_without_reinterpreting_source():
 
 def test_untrusted_labels_cannot_break_mermaid_diagram():
     viewer = OntologyVisualization(ProductOntology())
-    graph = viewer.example_graphs()["motor"]
+    graph = example_graphs()["motor"]
     root = next(graph.subjects(RDF.type, viewer.op.ProductModel))
     injected = '"]\nunsafe --> injected\n<script>alert(1)</script>|['
     graph.set((root, RDFS.label, Literal(injected)))
@@ -390,17 +399,22 @@ def test_untrusted_labels_cannot_break_mermaid_diagram():
     assert any(node["label"] == injected for node in diagram["nodes"])
 
 
-def test_ui_sample_graph_switching_evidence_validation_and_downloads_are_read_only(
+def test_ui_stored_graph_switching_evidence_validation_and_downloads_are_read_only(
     app, graph_calls
 ):
     page, runtime, root = app
+    products = json.loads(
+        (Path(__file__).parent / "fixtures/extraction_ontology/semantic_products.json").read_text(encoding="utf-8")
+    )
+    ids = {name: runtime.products.save(name, product)["record"]["product_id"] for name, product in products.items()}
     before = db_rows(root)
     page.switch_page("src/ontoproduct/views/ontology_explorer.py").run()
     assert not page.exception
     assert db_rows(root) == before
     assert page.download_button(key="ontology_graph_rdf")
     assert page.download_button(key="product_graph_json")
-    assert page.selectbox(key="rdf_product_example").value == "motor"
+    page.selectbox(key="rdf_stored_product").select(ids["motor"]).run()
+    assert not page.exception
     captions = "\n".join(caption.value for caption in page.caption)
     assert ONTOLOGY_LEGEND in captions and PRODUCT_LEGEND in captions
     assert "외부 온톨로지" not in captions
@@ -430,7 +444,7 @@ def test_ui_sample_graph_switching_evidence_validation_and_downloads_are_read_on
     assert not page.exception and page.success
     assert graph_calls["validate_graph"][-1]["valid"]
     assert db_rows(root) == before
-    page.selectbox(key="rdf_product_example").select("bearing").run()
+    page.selectbox(key="rdf_stored_product").select(ids["bearing"]).run()
     assert not page.exception
     assert any(
         "원문 값" in frame.value.columns and len(frame.value) == 2
@@ -444,19 +458,15 @@ def test_ui_sample_graph_switching_evidence_validation_and_downloads_are_read_on
     assert not page.exception and page.success
     assert graph_calls["validate_graph"][-1]["valid"]
     page.radio(key="semantic_graph_scope").set_value("전체 구조").run()
-    assert not page.exception and runtime.products.count() == 0
+    assert not page.exception and runtime.products.count() == len(products)
     assert any(
         node["label"] == "Bearing model" for node in graph_calls["diagram"][-2]["nodes"]
     )
-    page.selectbox(key="rdf_product_example").select("motor").run()
+    page.selectbox(key="rdf_stored_product").select(ids["motor"]).run()
     assert not page.exception
     assert any(
         node["label"] == "DM-600" for node in graph_calls["diagram"][-1]["nodes"]
     )
-    assert db_rows(root) == before
-    page.selectbox(key="rdf_product_source").select("저장된 제품").run()
-    assert not page.exception
-    assert any("저장된 제품이 없습니다" in info.value for info in page.info)
     assert db_rows(root) == before
 
 
@@ -471,7 +481,6 @@ def test_ui_saved_product_graph_uses_actual_record_without_modifying_it(
     rows_before = db_rows(root)
     page.switch_page("src/ontoproduct/views/ontology_explorer.py").run()
     assert not page.exception
-    page.selectbox(key="rdf_product_source").select("저장된 제품").run()
     assert not page.exception and page.selectbox(key="rdf_stored_product")
     assert db_rows(root) == rows_before
     stored = before[0]["product"]["attributes"]["rated_power"]
@@ -492,7 +501,4 @@ def test_ui_saved_product_graph_uses_actual_record_without_modifying_it(
     assert not page.exception and page.success
     assert graph_calls["validate_graph"][-1]["valid"]
     assert runtime.products.list() == before
-    assert db_rows(root) == rows_before
-    page.selectbox(key="rdf_product_source").select("샘플 사양").run()
-    assert not page.exception
     assert db_rows(root) == rows_before

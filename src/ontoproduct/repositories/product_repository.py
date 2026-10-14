@@ -59,7 +59,8 @@ class ProductRepository:
                 ).fetchone()
             )
 
-    def list(self, *, search="", limit=500, product_class=None, origin=None):
+    def list(self, *, search="", limit=500, product_class=None, origin="REGISTRATION"):
+        # Legacy SEED rows remain accessible explicitly, but never enter normal product flows.
         # Escape LIKE wildcards so the search text matches literally; LIMIT -1 means no limit in SQLite.
         pattern = (
             "%"
@@ -82,18 +83,19 @@ class ProductRepository:
 
     def count(self):
         with self.database.connect() as connection:
-            return connection.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+            return connection.execute(
+                "SELECT COUNT(*) FROM products WHERE origin='REGISTRATION'"
+            ).fetchone()[0]
 
     def summary(self):
         with self.database.connect() as connection:
             rows = connection.execute(
-                "SELECT product_class, origin, COUNT(*) AS count FROM products GROUP BY product_class, origin"
+                "SELECT product_class, origin, COUNT(*) AS count FROM products WHERE origin='REGISTRATION' GROUP BY product_class, origin"
             ).fetchall()
         return {
             "total": sum(row["count"] for row in rows),
             "registered": sum(
                 row["count"] for row in rows if row["origin"] == "REGISTRATION"
             ),
-            "seed": sum(row["count"] for row in rows if row["origin"] == "SEED"),
             "groups": [dict(row) for row in rows],
         }

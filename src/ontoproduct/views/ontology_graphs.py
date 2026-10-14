@@ -3,7 +3,6 @@
 import json
 
 import streamlit as st
-from rdflib.namespace import RDFS
 
 from ontoproduct.services.ontology_visualization import OntologyVisualization
 
@@ -70,55 +69,27 @@ def render(runtime, selected_class):
         with st.expander("클래스·속성·관계 정의"):
             st.json(model.model.model_dump(mode="json"), expanded=False)
     with products:
-        source = st.selectbox(
-            "제품 데이터 선택", ["샘플 사양", "저장된 제품"], key="rdf_product_source"
+        records = runtime.products.list()
+        if not records:
+            st.info("저장된 제품이 없습니다. 제품 등록 화면에서 문서를 업로드하고 승인하세요.")
+            return
+        lookup = {record["product_id"]: record for record in records}
+        selected = st.selectbox(
+            "저장 제품",
+            list(lookup),
+            format_func=lambda key: (
+                f"{lookup[key]['product'].get('product_name') or key} · {lookup[key]['product']['product_class']}"
+            ),
+            key="rdf_stored_product",
         )
-        if source == "샘플 사양":
-            examples = viewer.example_graphs()
-            if not examples:
-                st.info("표시할 샘플 제품이 없습니다.")
-                return
-
-            def label(key):
-                root = next(examples[key].subjects(None, viewer.op.ProductModel))
-                return str(examples[key].value(root, RDFS.label) or key)
-
-            keys = list(examples)
-            selected = st.selectbox(
-                "샘플 제품",
-                keys,
-                index=keys.index("motor") if "motor" in keys else 0,
-                format_func=label,
-                key="rdf_product_example",
+        try:
+            graph = runtime.ontology.to_rdf(
+                lookup[selected]["product"], record_id=selected
             )
-            graph, filename = examples[selected], f"example_{selected}"
-            st.caption(
-                "모터·베어링 샘플 사양입니다. 원문 값과 표준 단위로 변환한 값을 함께 확인할 수 있습니다."
-            )
-        else:
-            records = runtime.products.list()
-            if not records:
-                st.info(
-                    "저장된 제품이 없습니다. 샘플 사양을 선택하면 예제 그래프를 볼 수 있습니다."
-                )
-                return
-            lookup = {record["product_id"]: record for record in records}
-            selected = st.selectbox(
-                "저장 제품",
-                list(lookup),
-                format_func=lambda key: (
-                    f"{lookup[key]['product'].get('product_name') or key} · {lookup[key]['product']['product_class']}"
-                ),
-                key="rdf_stored_product",
-            )
-            try:
-                graph = runtime.ontology.to_rdf(
-                    lookup[selected]["product"], record_id=selected
-                )
-            except ValueError as exc:
-                st.error(f"이 제품의 RDF 그래프를 만들 수 없습니다: {exc}")
-                return
-            filename = "stored_product"
+        except ValueError as exc:
+            st.error(f"이 제품의 RDF 그래프를 만들 수 없습니다: {exc}")
+            return
+        filename = "stored_product"
         include_evidence = st.checkbox(
             "파일·페이지·원문 근거도 그래프에 표시", key="rdf_show_evidence"
         )

@@ -3,6 +3,8 @@ from copy import deepcopy
 
 import pytest
 
+from product_fixtures import save_test_products
+
 from ontoproduct.agents.duplicate_agent import DuplicateAgent
 from ontoproduct.agents.registry import AgentRegistry, validate_contract
 from ontoproduct.graph.execution import execute_agent
@@ -10,7 +12,6 @@ from ontoproduct.repositories.database import Database
 from ontoproduct.repositories.product_repository import ProductRepository
 from ontoproduct.schemas.duplicate import DuplicateCandidate
 from ontoproduct.services.duplicate_service import DuplicateService, compare_names, normalize, structure, tokens
-from ontoproduct.services.seed_service import seed_products
 
 
 def motor(name, voltage=24, power=500, speed=3000, *, manufacturer="ABC Motors", power_unit="W", **extra):
@@ -59,7 +60,7 @@ def test_identical_product_returns_real_db_id_as_likely_duplicate(repository, fi
 
 
 def test_seed_false_positives_are_removed(repository, find):
-    seed_products(repository)
+    save_test_products(repository)
     assert [c["product_name"] for c in find(motor("DM-500", 24, 500, 3000))] == ["DM-500A"]
     assert [c["product_name"] for c in find(motor("DM-510", 24, 510, 3200))] == ["DM-510"]
 
@@ -178,7 +179,7 @@ def test_verification_rejects_fabricated_or_misordered_candidates(repository, se
 
 
 def test_agent_contract_no_mutation_and_no_new_products(repository, service, ontology):
-    seed_products(repository)
+    save_test_products(repository)
     agent = DuplicateAgent(service)
     validate_contract(agent)
     registry = AgentRegistry()
@@ -204,7 +205,7 @@ def test_verification_failure_follows_agent_error_path(repository, service, onto
 
 
 def test_concurrent_queries_do_not_mix_candidates(repository, find):
-    seed_products(repository)
+    save_test_products(repository)
     queries = [motor("DM-500", 24, 500, 3000), motor("DM-510", 24, 510, 3200)] * 10
     with ThreadPoolExecutor(max_workers=8) as pool:
         results = list(pool.map(find, queries))

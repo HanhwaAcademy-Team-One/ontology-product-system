@@ -14,11 +14,10 @@ def render():
     if st.button("현황 새로고침", key="refresh_dashboard"):
         st.rerun()
     products, cases = overview["products"], overview["cases"]
-    columns = st.columns(4)
+    columns = st.columns(3)
     columns[0].metric("등록 제품", products["registered"])
-    columns[1].metric("예제 제품", products["seed"])
-    columns[2].metric("전체 등록 작업", cases["total"])
-    columns[3].metric(
+    columns[1].metric("전체 등록 작업", cases["total"])
+    columns[2].metric(
         "검토 대기 작업",
         sum(
             cases["statuses"].get(status, 0)
@@ -48,14 +47,12 @@ def render():
                         "분류": CLASS_LABELS.get(
                             group["product_class"], group["product_class"]
                         ),
-                        "구분": "예제" if group["origin"] == "SEED" else "등록 제품",
                         "제품 수": group["count"],
                     }
                     for group in products["groups"]
                 ],
                 x="분류",
                 y="제품 수",
-                color="구분",
             )
         else:
             st.info("아직 저장된 제품이 없습니다.")

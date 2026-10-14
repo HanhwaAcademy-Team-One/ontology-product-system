@@ -156,16 +156,17 @@ def test_ui_reject_new_case_and_restore_saved_review(app):
     assert runtime.products.count() == 0
 
 
-def test_ui_product_page_seed_search_and_json_download(app):
+def test_ui_product_page_registered_search_and_json_download(app):
     page, runtime, _ = app
+    start_case(page)
+    fill_speed(page)
+    page.button(key="approve_case").click().run()
     page.switch_page("src/ontoproduct/views/product_database.py").run()
     assert not page.exception
-    page.button(key="seed_database").click().run()
-    page.button(key="seed_database").click().run()
-    assert runtime.products.count() == 3
+    assert runtime.products.count() == 1
     page.text_input(key="product_search").set_value("DM-").run()
     assert not page.exception
-    assert len(page.selectbox(key="selected_product").options) == 2
+    assert len(page.selectbox(key="selected_product").options) == 1
     assert page.download_button(key="download_product")
     page.button(key="new_case").click().run()
     assert not page.exception

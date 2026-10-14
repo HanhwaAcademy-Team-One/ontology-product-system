@@ -1,7 +1,9 @@
+"""Products for isolated test databases only."""
+
 from ontoproduct.schemas.product import NormalizedProduct
 
 
-def seed_products(repository):
+def save_test_products(repository):
     results = []
     for name, voltage, power, speed in [
         ("DM-500A", 24, 500, 3000),
@@ -18,5 +20,5 @@ def seed_products(repository):
                 "rated_speed": {"value": speed, "unit": "rpm", "provenance": "RULE"},
             },
         ).model_dump(mode="json")
-        results.append(repository.save(f"seed:{name}", product, origin="SEED"))
+        results.append(repository.save(f"fixture:{name}", product))
     return results

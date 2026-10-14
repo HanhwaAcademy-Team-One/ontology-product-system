@@ -4,10 +4,11 @@ from threading import Barrier
 
 import pytest
 
+from product_fixtures import save_test_products
+
 from ontoproduct.repositories.database import Database
 from ontoproduct.repositories.product_repository import ProductRepository
 from ontoproduct.services.registration_service import RegistrationService
-from ontoproduct.services.seed_service import seed_products
 
 
 @pytest.fixture
@@ -58,8 +59,8 @@ def test_invalid_product_cannot_be_registered(registration, paused_state):
 
 
 def test_seed_is_idempotent_and_search_reads_database(registration):
-    first = seed_products(registration.repository)
-    second = seed_products(registration.repository)
+    first = save_test_products(registration.repository)
+    second = save_test_products(registration.repository)
     assert all(r["status"] == "REGISTERED" for r in first)
     assert all(r["status"] == "ALREADY_REGISTERED" for r in second)
     assert registration.repository.count() == 3
@@ -72,7 +73,7 @@ def test_seed_is_idempotent_and_search_reads_database(registration):
 
 
 def test_search_treats_like_wildcards_literally(registration):
-    seed_products(registration.repository)
+    save_test_products(registration.repository)
     product = {
         "product_name": "DM_100%",
         "product_class": "BLDCMotor",
@@ -90,7 +91,7 @@ def test_search_treats_like_wildcards_literally(registration):
 def test_duplicate_search_covers_products_beyond_listing_limit(registration):
     from ontoproduct.services.duplicate_service import DuplicateService
 
-    seed_products(registration.repository)
+    save_test_products(registration.repository)
     for index in range(600):
         registration.repository.save(
             f"filler-{index}",
