@@ -1,1 +1,0 @@
-from ontoproduct.evaluation.metrics import evaluate_ontology

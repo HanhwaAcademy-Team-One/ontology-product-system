@@ -1,1 +1,1 @@
-"""OntoProduct PHASE 1: domain contracts and checkpointed mock workflow."""
+"""OntoProduct: domain contracts and checkpointed product registration workflow."""

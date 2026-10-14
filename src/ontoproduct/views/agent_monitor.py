@@ -37,7 +37,6 @@ def render():
                     "역할": AGENT_LABELS[agent["name"]],
                     "Provider": agent["provider"],
                     "Version": agent["version"],
-                    "모드": "Mock" if agent["is_mock"] else "Real",
                     "Health": "응답 정상" if agent["health"] else "응답 실패",
                     "최근 상태": agent["latest_status"].upper(),
                     "실행 수": agent["executions"],

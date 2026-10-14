@@ -4,7 +4,7 @@
 
 ## 처음 읽는 순서
 
-1. [Quick start](QUICK_START.md): 설치 → Mock 데모 → Real 모드 실행.
+1. [Quick start](QUICK_START.md): 설치 → API Key 등록 → 첫 등록.
 2. [사용자 매뉴얼](USER_MANUAL.md): 화면 사용, 검토·승인, 복원과 오류 대응.
 3. [시스템 동작과 온톨로지](SYSTEM_AND_ONTOLOGY.md): 처리 순서와 업무 규칙.
 4. [개발자 매뉴얼](DEVELOPER_GUIDE.md): 구조, 테스트, 평가와 패키징.
@@ -18,12 +18,11 @@
 | [개발자 매뉴얼](DEVELOPER_GUIDE.md) | 실행 구조와 계약, 검증 명령, 평가, 배포 파일 |
 | [시스템 동작과 온톨로지](SYSTEM_AND_ONTOLOGY.md) | 상속, 정규화, 검증, 사람 수정, 승인과 저장 |
 | [제품 온톨로지 모델](team/03_PRODUCT_ONTOLOGY.md) | 자체 의미 모델, YAML/RDF/OWL/SHACL, 확장·시각화 |
-| [평가 자료 안내](../eval/README.md) | 합성 문서·정답, 보고서 계산과 해석 |
-| [계산된 평가 보고서](../eval/reports/evaluation.md) | 지표 정의·분자·분모와 저장된 계산 결과 |
+| [평가 자료 안내](../eval/README.md) | inputdata 실문서 평가 실행, 보고서 계산과 해석 |
 
 ## 팀 협업·담당별 가이드
 
-[팀 협업 가이드](MOCK_REPLACEMENT_PLAN.md)에서 현재 구현 상태와 분업표를 먼저 확인하세요. 01~03의 최초 교체 절차는 구현 당시 참고 자료이며, 현재 연결은 08 통합 가이드를 따릅니다.
+[팀 협업 가이드](MOCK_REPLACEMENT_PLAN.md)에서 현재 구현 상태와 분업표를 먼저 확인하세요. Mock은 모두 실제 Agent로 교체되어 제거되었습니다. 01~03의 최초 교체 절차는 구현 당시 참고 자료이며, 현재 연결은 08 통합 가이드를 따릅니다.
 
 | 담당 | 문서 |
 | --- | --- |

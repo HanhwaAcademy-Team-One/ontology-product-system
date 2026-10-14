@@ -1,7 +1,6 @@
 # LLM team defaults. Environment variables override every value here:
 #   LLM_PROVIDER, LLM_MODEL, LLM_MODEL_EXTRACTION, LLM_MODEL_ONTOLOGY,
 #   LLM_TIMEOUT_SECONDS, LLM_MAX_RETRIES.
-# AGENT_MODE (mock/real) is chosen only by the environment.
 # Never put API keys here; the provider SDK reads them from its own environment variable.
 
 provider: openai # API key: OPENAI_API_KEY environment variable

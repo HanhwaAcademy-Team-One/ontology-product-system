@@ -45,7 +45,7 @@ def markdown_report(report):
             "",
             "Agents: "
             + ", ".join(
-                f"{a['name']} ({a['provider']}, {'Mock' if a['is_mock'] else 'Real'})"
+                f"{a['name']} ({a['provider']})"
                 for a in suite["agents"]
             ),
             "",

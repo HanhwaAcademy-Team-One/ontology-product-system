@@ -6,7 +6,7 @@
 
 제품을 살펴보고 “정보를 다시 뽑자”, “분류를 다시 하자”, “사람이 고쳐야 한다”, “사람에게 승인을 받자”를 결정합니다.
 
-현재 Real 모드는 [ReviewerAgent](../../src/ontoproduct/agents/reviewer_agent.py)의 규칙 판단을 사용하며 기본 Mock 모드의 ReviewerMock은 유지합니다. LLM Reviewer는 추가하지 않았습니다. 아래 초기 구현 순서는 이력이며 현재 우선순위는 다음과 같습니다.
+앱은 [ReviewerAgent](../../src/ontoproduct/agents/reviewer_agent.py)의 규칙 판단을 사용합니다. ReviewerMock은 제거되었습니다. LLM Reviewer는 추가하지 않았습니다. 아래 초기 구현 순서는 이력이며 현재 우선순위는 다음과 같습니다.
 
 1. AI 분류가 원문 근거와 다른 경우(`ontology_mapping.classification_check`, 수동 분류 제외), 필수 문서 충돌, HUMAN/locked 필수 null, 누락 이외의 검증 오류(TYPE·UNIT·RANGE·CLASS)는 NEEDS_FIX입니다. 분류 불일치는 재분류(REMAP)로 같은 AI에게 다시 묻지 않고 유형·근거를 reason에 넣어 사람이 분류를 정하게 합니다. 관계 오류나 충돌과 낮은 confidence/일반 누락이 함께 있어도 사람 수정을 먼저 요청하고 retry_fields는 비웁니다.
 2. 그 밖의 필수 누락·낮거나 없는 AI confidence는 기존 0.70 기준으로 RE_EXTRACT입니다. HUMAN/locked 값은 재추출하지 않습니다.
@@ -19,7 +19,7 @@
 
 | 구분 | 위치 | 역할 |
 | --- | --- | --- |
-| 현재 규칙 | [mocks/agents.py의 ReviewerMock](../../src/ontoproduct/mocks/agents.py) | 누락·confidence·validation 기반 판단 |
+| 현재 규칙 | [agents/reviewer_agent.py](../../src/ontoproduct/agents/reviewer_agent.py) | 충돌·누락·confidence·validation·중복 기반 판단 |
 | schema | [schemas/review.py](../../src/ontoproduct/schemas/review.py) | 허용 decision, can_register 관계 |
 | 기존 흐름 | [graph/routing.py](../../src/ontoproduct/graph/routing.py), [graph/nodes.py](../../src/ontoproduct/graph/nodes.py) | 추가 시도 상한, 사람 검토, 승인 검사 |
 | 신규 | src/ontoproduct/agents/reviewer_agent.py | 실제 adapter |
@@ -186,11 +186,11 @@ can_register=true는 저장을 실행하라는 뜻이 아닙니다. **사람에�
 }
 ```
 
-현재 Mock은 retry_fields에 속성 키 rated_speed를 넣습니다. 기존 병합 함수는 attributes.rated_speed 경로도 처리하지만 팀은 한 표기 규칙을 합의해 사용하세요.
+현재 ReviewerAgent는 retry_fields에 속성 키 rated_speed를 넣습니다. 기존 병합 함수는 attributes.rated_speed 경로도 처리하지만 팀은 한 표기 규칙을 합의해 사용하세요.
 
 ## 5. 구현 순서
 
-1. 기존 ReviewerMock을 읽고 판단 순서를 이해합니다.
+1. 기존 ReviewerAgent를 읽고 판단 순서를 이해합니다.
 2. 수동 보호 항목을 먼저 확인합니다. locked_fields이거나 provenance=HUMAN이면 AI confidence로 재추출을 요구하지 않습니다.
 3. AI의 필수 속성이 누락됐거나 confidence가 낮으면 retry_fields를 만듭니다.
 4. AI 분류가 불확실하고 product_class가 locked가 아니면 재매핑을 요청합니다.
@@ -216,14 +216,11 @@ LLM을 쓰더라도 validation=false인 결과를 READY_FOR_HUMAN으로 허용�
 ## 7. 교체
 
 ```python
-from ontoproduct.mocks.agents import mock_registry
-from ontoproduct.services.ontology_service import OntologyService
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.agents.reviewer_agent import ReviewerAgent
 
-ontology = OntologyService()
-registry = mock_registry(ontology)
-registry.register(ReviewerAgent(), replace=True)
-registry.validate_complete()
+registry = AgentRegistry()
+registry.register(ReviewerAgent())
 ```
 
 이 예시는 현재 구현으로 실행할 수 있습니다. `build_document_registry`도 ReviewerAgent를 연결합니다.

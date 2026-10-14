@@ -23,7 +23,6 @@ class OntologyAgent(BaseAgent):
     name = "ontology"
     provider = "ontology-rules"
     version = VERSION
-    is_mock = False
 
     def __init__(self, ontology, llm_service=None, *, aliases=None):
         required, optional, writes = CONTRACTS[self.name]

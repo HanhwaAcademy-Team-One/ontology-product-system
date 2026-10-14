@@ -6,7 +6,7 @@
 
 각 담당자의 “동작한다”는 말을 실제 문서와 사람이 검수한 정답으로 확인합니다. 어떤 값을 맞혔고 틀렸는지, 사람 수정 전과 후가 어떻게 다른지 재현 가능한 결과를 남깁니다.
 
-기존 합성 TXT 3개 Mock/SQLite 평가를 유지하며 [document_runner.py](../../src/ontoproduct/evaluation/document_runner.py)가 inputdata의 80개 TXT/PDF/XLSX·75 업로드 조합을 격리 Real runtime으로 평가합니다. 기본 실행은 통신만 고정 참조 응답으로 대체한 `offline_reference`이며 실제 LLM 정확도가 아닙니다. 순차 실행 기록·정답 범위·실패 분모는 [04 실행 기록](04_EXECUTION_LOG.md)에 있습니다. 아래 초기 Real 평가 구현 계획은 현재 구현과 대조해 읽습니다.
+합성 TXT 3개 Mock 평가는 Mock 제거와 함께 삭제했습니다. [document_runner.py](../../src/ontoproduct/evaluation/document_runner.py)가 inputdata의 80개 TXT/PDF/XLSX·75 업로드 조합을 격리 Real runtime으로 평가합니다. 기본 실행은 통신만 고정 참조 응답으로 대체한 `offline_reference`이며 실제 LLM 정확도가 아닙니다. 순차 실행 기록·정답 범위·실패 분모는 [04 실행 기록](04_EXECUTION_LOG.md)에 있습니다. 아래 초기 Real 평가 구현 계획은 현재 구현과 대조해 읽습니다.
 
 ```powershell
 $env:ONTOPRODUCT_LIVE_LLM = "0"
@@ -21,79 +21,41 @@ manifest의 기대값은 정답 후보이며 independent human review는 아직 
 
 | 위치 | 현재 기능 | 앞으로 할 일 |
 | --- | --- | --- |
-| [evaluation/runner.py](../../src/ontoproduct/evaluation/runner.py) | Mock workflow와 실제 규칙 Duplicate 별도 실행 | Real 실행 경로 추가 |
 | [evaluation/document_runner.py](../../src/ontoproduct/evaluation/document_runner.py) | inputdata 오프라인·승인 후 실모델 평가 경로, 대표 TXT 4건 비교 실행 | 전체 실모델 평가·정답 독립 검수·분류 실패 보완 |
 | [evaluation/metrics.py](../../src/ontoproduct/evaluation/metrics.py) | 지표 계산 | 기본 계산 재사용, 새 요구는 정의부터 합의 |
 | [evaluation/report.py](../../src/ontoproduct/evaluation/report.py) | Markdown 보고서 | provider/model/prompt 정보 추가 |
-| [views/evaluation.py](../../src/ontoproduct/views/evaluation.py) | 평가 실행/조회/다운로드 | Mock/Real 데이터·모드 구분 |
-| eval/documents/ | 합성 TXT 3개 | 실제 PDF/XLSX/TXT 자료 |
-| eval/ground_truth/ | JSON 정답 3개 | 검수한 실제 문서 정답 |
-| eval/reports/ | 기존 평가 결과 | Real 결과를 별도 경로/실행 ID로 저장 |
-| tests/test_evaluation.py | 지표/출력 기록 검사 | 실제 데이터/실행 모드 테스트 추가 |
+| [views/evaluation.py](../../src/ontoproduct/views/evaluation.py) | inputdata 오프라인 참조 평가 실행/조회/다운로드 | 실모델 평가 결과 조회 |
+| [inputdata/manifest.json](../../inputdata/manifest.json) | 사례별 파일·기대 결과·정규화 정답 후보 | 정답 독립 검수 |
+| eval/document_reports/ | 실행 ID별 평가 JSON/Markdown | 실모델 결과 누적 |
+| tests/test_evaluation.py | 지표 계산 검사 | 새 지표 정의 시 테스트 추가 |
 | tests/test_real_workflow.py | 실제 문서·평가·충돌·복원·저장 통합 회귀 | 승인 범위의 실제 모델 확인 |
-| 필요 시 신규 eval/ground_truth_real/ | 없음 | Mock용 정답과 실제용 정답 분리 |
 
 ## 3. Ground Truth가 무엇인가요?
 
 사람이 원문을 읽고 적은 정답입니다. 모델 답을 그대로 정답으로 복사하면 정확도를 측정할 수 없습니다.
 
-현재 형식 예:
-
-```json
-{
-  "case_id": "real_motor_001",
-  "description": "원문과 canonical 단위를 사람이 검수한 모터",
-  "source_document": "../documents/motor_001.pdf",
-  "product": {
-    "product_name": "DM-600",
-    "product_class": "BLDCMotor",
-    "attributes": {
-      "manufacturer": {
-        "value": "XYZ Motors"
-      },
-      "rated_voltage": {
-        "value": 24,
-        "unit": "V"
-      },
-      "rated_power": {
-        "value": 600,
-        "unit": "W"
-      },
-      "rated_speed": {
-        "value": 3200,
-        "unit": "rpm"
-      }
-    }
-  },
-  "relevant_duplicates": [
-    "DM-600"
-  ]
-}
-```
-
-이 JSON은 예시입니다. 해당 PDF가 실제로 있어야 loader가 읽을 수 있습니다.
+현재 정답은 [inputdata/manifest.json](../../inputdata/manifest.json)에 있습니다. 사례마다 업로드할 파일 목록, `expected_outcome`(valid, missing_required, unsupported_unit, document_conflict 등), `expected_normalized_attributes`(canonical 단위 기준 값)를 적습니다. 파일 무결성은 `verification.json`의 SHA-256으로 확인합니다.
 
 정답 power는 원문 0.6 kW를 canonical 600 W로 적습니다. 다른 단위처럼 보여도 같은 실제 사양을 평가하기 위한 것입니다.
 
-relevant_duplicates는 평가용 기존 제품 목록 중 사람이 관련 있다고 판단한 제품명입니다. 현재 지표는 이름으로 비교하므로 평가 catalog의 이름이 유일하도록 준비합니다. 운영 환경의 이름 중복을 지원하려면 정답 ID와 metric 비교를 함께 변경합니다.
-
-현재 loader는 source_document가 eval 폴더 안의 실제 파일인지 확인하고 source_text를 UTF-8로 읽습니다. **PDF/XLSX는 바이너리이므로 현재 loader를 그대로 쓰면 안 됩니다.** Real 모드에서는 원문 bytes hash와 경로를 보존하고 실제 Parser의 FileReference 입력으로 연결하도록 바꿉니다.
+manifest의 기대값은 정답 후보이며 사람의 독립 검수는 아직 하지 않았습니다. 중복 관련성 정답은 없으므로 중복 정확도는 주장하지 않습니다.
 
 ## 4. 실제 평가 실행 경로 만들기
 
-1. 기존 Mock 평가를 유지합니다.
-2. Real 평가용 데이터와 실행 모드를 별도로 만듭니다.
-3. 격리된 평가 workspace/DB/checkpoint를 만듭니다.
-4. 원본 PDF/XLSX/TXT를 DocumentService로 저장하여 FileReference를 얻습니다.
-5. 통합 담당자의 실제 registry_factory를 WorkflowRuntime에 주입합니다.
-6. runtime.start로 실제 Parser부터 Reviewer까지 실행합니다.
-7. 사람이 고치기 전에 extracted/normalized/mapping/validation/candidate 출력을 저장합니다.
-8. 정답과 이 출력으로 지표를 계산합니다.
-9. 별도 통합 테스트에서 EDIT/APPROVE와 DB/JSON까지 확인합니다.
+현재 document_runner가 아래 순서로 구현되어 있습니다.
+
+1. inputdata 사례를 읽고 파일 SHA-256을 확인합니다.
+2. 격리된 평가 workspace/DB/checkpoint를 만듭니다.
+3. 원본 PDF/XLSX/TXT를 DocumentService로 저장하여 FileReference를 얻습니다.
+4. 실제 registry_factory를 WorkflowRuntime에 주입합니다.
+5. runtime.start로 실제 Parser부터 Reviewer까지 실행합니다.
+6. 사람이 고치기 전에 extracted/normalized/mapping/validation/candidate 출력을 저장합니다.
+7. 정답과 이 출력으로 지표를 계산합니다.
+8. EDIT/APPROVE와 DB/JSON은 별도 통합 테스트(test_real_workflow.py)에서 확인합니다.
 
 사람이 정답을 보고 수정한 결과를 “자동 추출 정확도”에 넣으면 안 됩니다. 사람이 수정한 결과는 별도 최종 제품 품질/통합 결과로 기록합니다.
 
-기존 runner의 initial_state에 text만 넣는 방식은 Real Parser에 맞지 않습니다. 원본 경로가 있는 FileReference로 바꿔야 합니다.
+실제 Parser에는 원본 경로가 있는 FileReference를 넣습니다.
 
 ## 5. 통합용 DB와 중복 평가용 DB
 
@@ -101,7 +63,7 @@ relevant_duplicates는 평가용 기존 제품 목록 중 사람이 관련 있�
 
 중복 검출 성능만 보고 싶으면 canonical 정답 query를 실제 DuplicateAgent에 넣습니다. 전체 파이프라인의 효과를 보려면 실제 추출/정규화 결과를 query로 씁니다. 이 두 결과는 입력이 다르므로 보고서에서 구분합니다.
 
-현재 factory 예시는 문서 5개만 바꾸고 Runtime이 Duplicate/Registration을 실제로 연결합니다. factory만 build_workflow에 넣고 평가하면 두 슬롯이 Mock으로 남을 수 있으므로 최종 metadata를 확인하세요.
+현재 factory는 문서 5개 슬롯만 등록하고 Runtime이 Duplicate/Registration을 실제로 연결합니다. factory만 build_workflow에 넣으면 두 슬롯이 비어 오류가 나므로 WorkflowRuntime을 사용하세요.
 
 ## 6. 현재 지표를 쉽게 읽기
 
@@ -140,13 +102,13 @@ TP는 맞게 찾은 속성, FP는 정답 밖 속성, FN은 놓친 정답 속성�
 
 **실제 모델 확인**은 선택한 실제 provider/model로 실행합니다. 문서 정답 대비 실제 출력과 오류를 기록합니다. 모델 통신을 대체한 테스트 결과를 Real 정확도로 표시하지 않습니다.
 
-기존 test_phase2_workflow의 가짜 PDF/XLSX bytes는 Mock 흐름용입니다. 실제 Parser 통합 테스트 자료는 정상 형식 파일로 교체/추가합니다.
+test_phase2_workflow의 가짜 PDF/XLSX bytes는 `tests/doubles.py` 고정 Agent로 checkpoint 동작만 보는 테스트용입니다. 실제 Parser 통합 테스트는 정상 형식 파일을 씁니다.
 
 ## 9. 통합 테스트 시나리오
 
 1. 실제 DM-600 문서를 업로드.
 2. Parser text와 source/page 확인.
-3. Extraction이 DM-500 고정값 대신 실제 DM-600 사양 추출.
+3. Extraction이 실제 DM-600 사양 추출.
 4. Ontology가 0.6 kW를 600 W로 정규화.
 5. Validation과 Duplicate가 완료된 다음 Reviewer 실행.
 6. 누락값이 있으면 추가 시도 후 사람 검토에서 멈춤.
@@ -168,13 +130,13 @@ TP는 맞게 찾은 속성, FP는 정답 밖 속성, FN은 놓친 정답 속성�
 .venv\Scripts\python.exe -m pytest -q -W error::pytest.PytestCacheWarning
 ```
 
-현재 eval/report.py는 Mock 평가 명령입니다. Real CLI 옵션은 구현한 뒤 실제 동작에 맞춰 README에 추가합니다.
+평가 CLI는 `python -m ontoproduct.evaluation.document_runner`이며 실모델은 `--live`와 호출·시간 제한을 함께 지정합니다([eval/README.md](../../eval/README.md)).
 
 보고서에 남길 것:
 
 - 실행 ID·시각·원문/정답 hash.
 - provider/model과 prompt/Agent 버전.
-- Mock/Real/부분 교체 여부.
+- 실행 모드(offline_reference / live).
 - 실제 Parser/Agent 출력과 오류.
 - 지표 정의, 분자/분모, 실패 사례.
 - 사람 수정 전/후 구분.

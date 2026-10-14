@@ -4,11 +4,10 @@ import hashlib
 import html
 import json
 
-from rdflib import BNode, Graph, Literal, URIRef
+from rdflib import BNode, Literal, URIRef
 from rdflib.namespace import DCTERMS, OWL, RDF, RDFS, SH, XSD
 
 from ontoproduct.schemas.product import ProductAttribute
-from ontoproduct.services.mapping_service import DATA_DIR
 from ontoproduct.services.rdf_ontology_service import RdfOntologyService
 
 
@@ -278,9 +277,3 @@ class OntologyVisualization:
                     }
                 )
         return sorted(rows, key=lambda row: row["키"])
-
-    def example_graphs(self):
-        return {
-            path.stem.removeprefix("example_"): Graph().parse(path, format="turtle")
-            for path in sorted((DATA_DIR / "rdf").glob("example_*.ttl"))
-        }

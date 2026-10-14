@@ -4,7 +4,7 @@
 
 ## 1. 현재 상태부터 확인하세요
 
-UI에서는 이미 실제 DuplicateAgent가 SQLite 제품을 조회합니다. DuplicateMock은 기본 CLI/Mock 평가에서 빈 후보를 반환합니다.
+앱·CLI·평가 모두 실제 DuplicateAgent가 SQLite 등록 제품(`origin="REGISTRATION"`)을 조회합니다. 과거 예제 행은 보존하되 중복 후보에서는 제외합니다.
 
 따라서 이 담당자는 기본 기능을 새로 만들기보다 기존 구현을 검증·개선하고 실제 데이터 품질을 확인합니다. 임베딩/벡터 검색은 추가 목표가 있을 때 구현하는 선택 확장입니다.
 
@@ -16,7 +16,6 @@ UI에서는 이미 실제 DuplicateAgent가 SQLite 제품을 조회합니다. Du
 | [services/duplicate_service.py](../../src/ontoproduct/services/duplicate_service.py) | 이름·분류·속성 비교와 ranking |
 | [repositories/product_repository.py](../../src/ontoproduct/repositories/product_repository.py) | 기존 제품 조회 |
 | [schemas/duplicate.py](../../src/ontoproduct/schemas/duplicate.py) | DuplicateCandidate |
-| [services/seed_service.py](../../src/ontoproduct/services/seed_service.py) | 중복 데모용 제품 |
 | [tests/test_real_duplicate_agent.py](../../tests/test_real_duplicate_agent.py) | 후보/순위/음성 사례/검증 단계 테스트 |
 | 필요 시 신규 services/semantic_duplicate_service.py | 의미 검색 추가 구현 |
 
@@ -158,7 +157,7 @@ DB Repository/service는 생성자에서 받습니다. DB Connection이나 전�
 
 위 product_id는 설명용 ID입니다. Repository가 저장할 때 생성한 실제 ID로 바뀌므로 테스트에서 이 문자열을 그대로 비교하지 말고 저장 결과의 `record["product_id"]`와 비교하세요. evidence 예시는 일부만 표시했습니다. 실제로는 제품명과 핵심 사양 전체, 양쪽 중 한쪽에라도 값이 있는 선택 사양이 들어갑니다.
 
-`verdict`와 `evidence`는 선택 필드입니다(기본값 `null`, `[]`). DuplicateMock 등 기존 생산자는 그대로 유효하며, 실제 규칙 엔진은 항상 채웁니다.
+`verdict`와 `evidence`는 선택 필드입니다(기본값 `null`, `[]`). 테스트 대역은 비워 둘 수 있으며, 실제 규칙 엔진은 항상 채웁니다.
 
 | 필드 | 의미 |
 | --- | --- |
@@ -234,7 +233,7 @@ Reviewer에게 전달할 해석 기준과 알려진 한계:
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from ontoproduct.agents.duplicate_agent import DuplicateAgent
-from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.repositories.database import Database
 from ontoproduct.repositories.product_repository import ProductRepository
 from ontoproduct.services.application_paths import ApplicationPaths
@@ -245,12 +244,8 @@ with TemporaryDirectory(prefix="ontoproduct-duplicate-") as directory:
     paths = ApplicationPaths(Path(directory))
     ontology = OntologyService()
     repository = ProductRepository(Database(paths.product_db))
-    registry = mock_registry(ontology)
-    registry.register(
-        DuplicateAgent(DuplicateService(repository)),
-        replace=True,
-    )
-    registry.validate_complete()
+    registry = AgentRegistry()
+    registry.register(DuplicateAgent(DuplicateService(repository, ontology)))
     # 테스트 제품 저장과 execute_agent 호출도 이 with 블록 안에서 수행합니다.
 ```
 

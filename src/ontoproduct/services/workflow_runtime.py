@@ -10,7 +10,6 @@ from ontoproduct.agents.duplicate_agent import DuplicateAgent
 from ontoproduct.agents.registration_agent import RegistrationAgent
 from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
-from ontoproduct.mocks.agents import mock_registry
 from ontoproduct.repositories.database import Database
 from ontoproduct.repositories.product_repository import ProductRepository
 from ontoproduct.repositories.registration_repository import RegistrationRepository
@@ -21,7 +20,7 @@ from ontoproduct.services.registration_service import RegistrationService
 
 
 class WorkflowRuntime:
-    def __init__(self, paths, *, registry_factory=None):
+    def __init__(self, paths, *, registry_factory):
         self.paths = paths
         database = Database(paths.product_db)
         self.products = ProductRepository(database)
@@ -39,7 +38,7 @@ class WorkflowRuntime:
         self.checkpointer = SqliteSaver(
             self.connection, serde=JsonPlusSerializer(allowed_msgpack_modules=[])
         )
-        self.registry_factory = registry_factory or mock_registry
+        self.registry_factory = registry_factory
         self._graphs, self._locks, self._registries = {}, {}, {}
         self._guard = Lock()
 
@@ -156,7 +155,11 @@ class WorkflowRuntime:
         return self._case_registry("metadata").metadata()
 
     def compiled_diagram(self):
-        return build_workflow(ontology=self.ontology).get_graph().draw_mermaid()
+        return (
+            build_workflow(self._case_registry("diagram"), ontology=self.ontology)
+            .get_graph()
+            .draw_mermaid()
+        )
 
     def close(self):
         self.connection.close()

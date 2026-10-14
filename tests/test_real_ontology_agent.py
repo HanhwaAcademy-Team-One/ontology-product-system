@@ -6,7 +6,7 @@ from pydantic import ValidationError
 
 from ontoproduct.agents.ontology_agent import OntologyAgent
 from ontoproduct.graph.execution import execute_agent
-from ontoproduct.mocks.agents import mock_registry
+from doubles import mock_registry
 from ontoproduct.schemas.product import ProductAttribute
 from ontoproduct.services.agent_errors import (
     DocumentConflictError,
@@ -53,7 +53,6 @@ def test_rule_motor_mapping_inheritance_units_and_input_contract(ontology):
     assert (
         wrapped["agent_logs"][-1]["status"] == "success" and not wrapped["error_events"]
     )
-    assert not agent.is_mock
     json.dumps(wrapped, allow_nan=False)
 
 

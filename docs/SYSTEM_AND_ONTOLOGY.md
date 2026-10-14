@@ -4,7 +4,7 @@
 
 온톨로지는 이 과정에서 **“이 제품은 어떤 종류이고, 어떤 속성이 필요하며, 어떤 단위와 값으로 저장해야 하는가”를 정의하는 공통 기준**입니다. 업무 속성 기준은 [ontology.yaml](../src/ontoproduct/ontology/ontology.yaml)에 있으며, 기본 OntologyService는 [product_model.yaml](../src/ontoproduct/ontology/product_model.yaml)의 의미 모델 투영과 일치하는지 검사합니다. 자체 제품 모델·RDF/OWL·SHACL 정의와 확장 방법은 [제품 온톨로지 매뉴얼](team/03_PRODUCT_ONTOLOGY.md)에 있습니다.
 
-기본 Mock 모드는 고정 예제를 사용하며, Real 모드는 실제 Parser·Extraction·Ontology를 사용합니다. 온톨로지 정의 읽기, 상속 속성 계산, 단위 변환, 규칙 검증, 수동 수정, UI의 SQLite 중복 조회·저장은 두 모드에서 실제 코드로 동작합니다. Validation은 Mock 모드에서 ValidationMock, Real 모드에서 실제 Python 규칙 Agent를 사용하며, Reviewer는 기존 Mock의 규칙 판단을 사용합니다. 실행은 [Quick start](QUICK_START.md), 설정과 연결은 [통합 가이드](team/08_INTEGRATION.md)를 참고하세요.
+Mock 모드는 없습니다. Parser·Extraction·Ontology·Validation·Duplicate·Reviewer·Registration 7개 Agent가 모두 실제 구현으로 동작합니다. Extraction과 Ontology의 분류 판단은 OpenAI 모델을 사용하고, 온톨로지 정의 읽기, 상속 속성 계산, 단위 변환, 규칙 검증, 검토 판단, 수동 수정, SQLite 중복 조회·저장은 Python 규칙 코드로 동작합니다. 실행은 [Quick start](QUICK_START.md), 설정과 연결은 [통합 가이드](team/08_INTEGRATION.md)를 참고하세요.
 
 **1. 온톨로지에는 무엇이 들어 있나요?**
 
@@ -70,20 +70,20 @@ Agent는 각 단계의 입구이고, Service는 실제 작업 함수입니다. �
 | 단계 | 받는 자료 → 넘기는 자료 | 온톨로지의 역할 | 현재 UI 동작 |
 | --- | --- | --- | --- |
 | 업로드 | 파일 bytes → source_documents | 다음 단계가 읽을 파일을 준비 | 원본 파일 실제 보관 |
-| Parser | source_documents → parsed_documents | 제품 규칙 적용 전 문서 텍스트 준비 | Mock: 고정 예제 / Real: PDF·XLSX·TXT 실제 파싱 |
-| Extraction | parsed_documents → extracted_product | 표준 속성과 연결할 원문 정보·분류 후보 준비 | Mock: DM-500 / Real: LLM으로 원문 속성·근거 추출 |
-| Ontology | extracted_product → ontology_mapping, base_normalized_product | 분류 존재 확인, 상속 속성 계산, 지원 단위 변환 | Mock: 고정 분류 판단 / Real: 실제 분류·매핑; 공통 OntologyService로 정규화 |
+| Parser | source_documents → parsed_documents | 제품 규칙 적용 전 문서 텍스트 준비 | PDF·XLSX·TXT 실제 파싱 |
+| Extraction | parsed_documents → extracted_product | 표준 속성과 연결할 원문 정보·분류 후보 준비 | LLM으로 원문 속성·근거 추출 |
+| Ontology | extracted_product → ontology_mapping, base_normalized_product | 분류 존재 확인, 상속 속성 계산, 지원 단위 변환 | 규칙·LLM 분류와 매핑; 공통 OntologyService로 정규화 |
 | 수동 수정 병합 | 기본 제품 + 사람 수정 → normalized_product | 현재 분류의 속성에 수정 적용, 수정 단위 정규화 | 실제 규칙 처리 |
-| Validation | normalized_product + ontology_mapping → validation_result | 필수값·타입·표준 단위·범위·분류 일치 검사 | Mock: ValidationMock / Real: ValidationAgent; 모두 실제 validate_product 호출 |
+| Validation | normalized_product + ontology_mapping → validation_result | 필수값·타입·표준 단위·범위·분류 일치 검사 | ValidationAgent가 validate_product 호출 |
 | Duplicate | 정규화 제품 → duplicate_candidates | 표준화된 분류·값·단위가 비교 기준 | 실제 SQLite 규칙 비교 |
-| Reviewer | 제품 + 검증 + 후보 + 매핑 → review_result | 필수 속성과 신뢰도를 보고 재추출·재매핑·수정·승인 대기 판단 | ReviewerMock의 규칙 처리 |
+| Reviewer | 제품 + 검증 + 후보 + 매핑 → review_result | 필수 속성과 신뢰도를 보고 재추출·재매핑·수정·승인 대기 판단 | ReviewerAgent의 규칙 처리 |
 | Registration | 제품 + 사람 승인 → final_product | OntologyService의 속성 정의로 최종 검증 | 실제 SQLite 저장·JSON Export |
 
 Duplicate는 ontology_mapping을 입력 계약으로 받지만, 현재 [DuplicateService](../src/ontoproduct/services/duplicate_service.py)는 그 정의를 직접 조회하지 않습니다. 앞에서 정규화된 제품의 product_class와 속성 값·단위, 제품명을 비교합니다. 온톨로지가 비교 가능한 자료를 만드는 방식으로 간접 적용됩니다. 중복 후보만으로 등록이 자동 차단되지는 않습니다.
 
 **4. 제품 정보는 실제로 어떻게 바뀌나요?**
 
-Real 모드에서 처리할 문서의 설명용 예시입니다. 실제 모델의 추출 결과는 근거와 함께 확인해야 합니다.
+처리할 문서의 설명용 예시입니다. 실제 모델의 추출 결과는 근거와 함께 확인해야 합니다.
 
 ```text
 제품명: DM-600
@@ -94,7 +94,7 @@ Real 모드에서 처리할 문서의 설명용 예시입니다. 실제 모델�
 정격 속도: 3200 rpm
 ```
 
-Real ExtractionAgent는 이 원문에서 product_name, candidate_class, attributes와 근거를 추출합니다. Ontology 단계는 선택한 BLDCMotor 분류가 정의에 존재하는지 확인하고 필수·선택 속성을 계산합니다. 실제 Extraction·Ontology Agent가 원문 항목을 manufacturer, rated_voltage, rated_power, rated_speed 같은 표준 키와 제품 분류에 연결합니다.
+ExtractionAgent는 이 원문에서 product_name, candidate_class, attributes와 근거를 추출합니다. Ontology 단계는 선택한 BLDCMotor 분류가 정의에 존재하는지 확인하고 필수·선택 속성을 계산합니다. 실제 Extraction·Ontology Agent가 원문 항목을 manufacturer, rated_voltage, rated_power, rated_speed 같은 표준 키와 제품 분류에 연결합니다.
 
 온톨로지상 rated_power의 표준 단위는 W입니다. 따라서 기존 [normalize_unit](../src/ontoproduct/services/ontology_service.py)으로 `0.6 kW → 600.0 W`를 처리할 수 있습니다. [normalize_attributes](../src/ontoproduct/services/normalization_service.py)가 제품 속성별로 이 변환을 호출합니다. 지원하지 않는 단위는 원래 값을 보존하여 후속 검증에서 오류를 표시합니다.
 
@@ -107,7 +107,7 @@ Ontology 단계가 만드는 결과는 두 가지입니다.
 
 위 예시에는 필수값이 모두 있으므로 검증을 통과합니다. weight가 없어도 선택 항목이므로 경고만 발생합니다. 반면 rated_speed가 없으면 MISSING_REQUIRED 오류가 발생하며 valid=false입니다. 검증 함수의 현재 메시지는 영어 고정 문자열입니다.
 
-Mock 모드에 이 문서를 업로드하면 DM-500 예제를 반환합니다. Real 모드는 실제 문서를 읽고 모델로 추출하므로 결과와 근거를 직접 검토합니다.
+실제 문서를 읽고 모델로 추출하므로 결과와 근거를 직접 검토합니다.
 
 **5. 사람이 수정하거나 분류를 바꾸면 어떻게 되나요?**
 
@@ -129,26 +129,25 @@ Mock 모드에 이 문서를 업로드하면 DM-500 예제를 반환합니다. R
 
 중간 상태는 제품 DB와 별도의 SQLite checkpoint에 저장합니다. 따라서 사람 수정·승인 대기와 오류 처리 중에 서버를 재시작해도 작업을 이어갈 수 있습니다.
 
-**7. Mock 모드 실행 확인 기록**
+**7. 실제 모델 실행 확인 기록 (2026-10-11)**
 
-기본 WorkflowRuntime과 별도 임시 데이터 폴더로 확인했습니다. 업로드한 TXT에는 다른 제품명과 0.6 kW, 3200 rpm을 넣었지만, 실제 결과는 현재 Mock 정의를 따랐습니다.
+Mock 제거 후 `openai/gpt-5`와 별도 임시 데이터 폴더로 확인했습니다.
 
-| 시점 | 결과 |
+| 확인 | 결과 |
 | --- | --- |
-| 업로드 후 실행 | DM-500 / BLDCMotor, 0.5 kW가 500.0 W로 변환 |
-| 필수 항목 검사 | manufacturer는 Motor에서 상속; rated_speed 누락 오류, weight 누락 경고 |
-| 자동 재추출 추가 1회 후 | 속도 누락 유지, NEEDS_FIX, 이 작업의 저장 제품 0개 |
-| 사람이 3000 rpm 입력 후 | provenance=HUMAN, confidence=null, valid=true, READY_FOR_HUMAN, 저장 제품 0개 |
-| 사람이 승인 후 | REGISTERED, 저장 제품 1개, JSON Export 생성 |
+| CLI, `M001_bldcmotor.txt` | BLDCMotor, 0.6 kW → 600.0 W, 750 g → 0.75 kg, READY_FOR_HUMAN → 자동 승인 후 REGISTERED (약 53초) |
+| CLI, `B001_bearing.pdf` | Bearing, 내경 8 mm·외경 22 mm, 근거 2페이지 → REGISTERED (약 42초) |
+| UI(AppTest), `M002_bldcmotor.pdf` | 업로드 → 실제 분석 → 승인 → 대시보드·제품 DB·온톨로지·Agent 모니터 화면 오류 없음 |
+| 실제 모델 평가 9개 사례(11개 업로드 조합, 25회 호출) | 기대 결과 9/11 일치. 추출 값 20/20, 단위 16/16, 필수 항목 판정 16/16 |
 
-이 실행은 온톨로지 규칙부터 검증·사람 수정·승인·DB 저장까지의 연결을 확인한 것입니다. 실제 원문 분석이나 LLM 추출 품질을 검증한 것은 아닙니다.
+불일치 2건은 모델의 분류 판단입니다. E001(분류 오류 기대)은 BLDCMotor로 분류되어 필수값 누락으로 관측되었고, E002(전압 누락 기대)는 상위 분류 Motor로 분류되어 검증은 통과했습니다. 두 건 모두 NEEDS_FIX에서 멈춰 사람 확인 없이 등록되지 않았습니다. 9개 사례는 대표 표본이며 전체 50개 사례의 실제 모델 정확도를 뜻하지 않습니다.
 
-**8. Real 모드와 남은 구현 범위**
+**8. 실제 Agent 구성과 남은 구현 범위**
 
-Real 모드에서는 Parser가 원문을 읽고 Extraction이 실제 속성·근거를 추출하며 OntologyAgent가 실제 분류·표준 속성 매핑을 수행합니다. 현재 UI runtime의 Registry에 연결되어 있습니다. 온톨로지 정의·상속·정규화·검증·사람 수정·승인·저장 흐름은 공통 구현을 재사용합니다.
+Parser가 원문을 읽고 Extraction이 실제 속성·근거를 추출하며 OntologyAgent가 실제 분류·표준 속성 매핑을 수행합니다. 현재 UI runtime의 Registry에 연결되어 있습니다. 온톨로지 정의·상속·정규화·검증·사람 수정·승인·저장 흐름은 공통 구현을 재사용합니다.
 
 이때 온톨로지는 여러 제조사의 서로 다른 표기를 공통 분류·속성·단위로 정리하는 기준이 됩니다. 제품 데이터가 같은 규칙을 따르므로 검색·비교·검증에 재사용할 수 있습니다. 분류 판단의 근거와 신뢰도를 만드는 일은 실제 분류·추출 기능의 책임입니다. 온톨로지 규칙을 통과했다는 사실만으로 원문 추출값이 정확하다는 뜻은 아니므로 근거 확인과 실제 문서 평가가 함께 필요합니다.
 
-SHACL 검사는 온톨로지 탐색에서 실행할 수 있지만 Graph의 Validation에 자동 연결되어 있지 않습니다. Real 모드의 ValidationAgent는 기존 Python 규칙 검증을 사용합니다. Reviewer Agent 교체와 SHACL 업무 정책 통합, RDF DB 저장은 추가 구현 범위입니다.
+ValidationAgent와 승인 직전 RegistrationService는 `validate_registration_product`로 Python 규칙과 SHACL 정책을 함께 적용합니다([SHACL 통합 명세](team/04_SHACL_INTEGRATION_SPEC.md)). RDF DB 저장은 추가 구현 범위입니다.
 
 구현 분담과 교체·테스트 방법은 [팀 협업 가이드](MOCK_REPLACEMENT_PLAN.md)를 참고하세요.

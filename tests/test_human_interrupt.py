@@ -6,6 +6,7 @@ from langgraph.types import Command
 from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
 from conftest import count_runs
+from doubles import SAMPLE_DOCUMENTS, mock_registry
 
 EDIT_SPEED = {
     "action": "EDIT",
@@ -14,8 +15,8 @@ EDIT_SPEED = {
 
 
 def test_real_interrupt_edit_revalidate_approve(config):
-    graph = build_workflow()
-    result = graph.invoke(initial_state(), config)
+    graph = build_workflow(mock_registry())
+    result = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     assert result["__interrupt__"][0].value["kind"] == "human_review"
     state = graph.get_state(config).values
     assert state["case_status"] == "NEEDS_FIX"
@@ -60,8 +61,8 @@ def test_real_interrupt_edit_revalidate_approve(config):
     ],
 )
 def test_invalid_resume_reinterrupts_without_registration(config, command):
-    graph = build_workflow()
-    graph.invoke(initial_state(), config)
+    graph = build_workflow(mock_registry())
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     result = graph.invoke(Command(resume=command), config)
     assert result["__interrupt__"]
     state = graph.get_state(config).values
@@ -73,16 +74,16 @@ def test_invalid_resume_reinterrupts_without_registration(config, command):
 
 
 def test_reject_stops(config):
-    graph = build_workflow()
-    graph.invoke(initial_state(), config)
+    graph = build_workflow(mock_registry())
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     result = graph.invoke(Command(resume={"action": "REJECT"}), config)
     assert result["case_status"] == "REJECTED"
     assert "final_product" not in result and not graph.get_state(config).next
 
 
 def test_other_thread_does_not_resume_original(config):
-    graph = build_workflow()
-    graph.invoke(initial_state(), config)
+    graph = build_workflow(mock_registry())
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     other = {"configurable": {"thread_id": "different-thread"}}
     assert not graph.get_state(other).values
     assert graph.get_state(config).next == ("human_review",)

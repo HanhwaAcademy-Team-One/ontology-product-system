@@ -15,7 +15,7 @@ from ontoproduct.agents.ontology_agent import OntologyAgent
 from ontoproduct.graph.execution import execute_agent
 from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
-from ontoproduct.mocks.agents import mock_registry
+from doubles import SAMPLE_DOCUMENTS, mock_registry
 from ontoproduct.schemas.error import unresolved_errors
 from ontoproduct.services.normalization_service import (
     apply_overrides,
@@ -58,7 +58,7 @@ def test_complete_real_agents_graph_human_edit_and_approval(ontology, config):
     transport = RecordingTransport(fixture_handler)
     registry = document_registry(ontology, [document()], transport)
     graph = build_workflow(registry, ontology=ontology)
-    result = graph.invoke(initial_state(), config)
+    result = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     assert result["__interrupt__"][0].value["kind"] == "human_review"
     assert result["review_result"]["can_register"] and "final_product" not in result
     assert result["normalized_product"]["attributes"]["rated_power"]["value"] == 600
@@ -121,7 +121,7 @@ def conflicted_graph(ontology, config):
     graph = build_workflow(
         document_registry(ontology, docs, transport), ontology=ontology
     )
-    result = graph.invoke(initial_state(), config)
+    result = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     return graph, result, transport
 
 
@@ -197,7 +197,7 @@ def test_deterministic_optional_conflict_retry_is_blocked_then_stop(
     graph = build_workflow(
         document_registry(ontology, docs, transport), ontology=ontology
     )
-    first = graph.invoke(initial_state(), config)
+    first = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     assert first["__interrupt__"][0].value["actions"] == ["STOP"]
     assert (
         unresolved_errors(first["error_events"])[0]["exception_type"]
@@ -220,7 +220,7 @@ def test_deterministic_classification_error_retry_does_not_reextract(ontology, c
     graph = build_workflow(
         document_registry(ontology, [document()], transport), ontology=ontology
     )
-    first = graph.invoke(initial_state(), config)
+    first = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     assert (
         unresolved_errors(first["error_events"])[0]["exception_type"]
         == "OntologyClassificationError"
@@ -243,7 +243,7 @@ def test_low_llm_class_score_remaps_then_manual_class_supersedes_it(ontology, co
         document_registry(ontology, [document()], transport, classify_with_llm=True),
         ontology=ontology,
     )
-    result = graph.invoke(initial_state(), config)
+    result = graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     assert result["case_status"] == "NEEDS_FIX" and result["ontology_retry_count"] == 1
     assert result["extraction_retry_count"] == 0 and count_runs(result, "ontology") == 2
     ontology_calls = sum(c["task"] == "ontology" for c in transport.calls)

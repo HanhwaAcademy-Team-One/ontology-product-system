@@ -7,7 +7,7 @@ import pytest
 
 from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
-from ontoproduct.mocks.agents import ExtractionMock, mock_registry
+from doubles import SAMPLE_DOCUMENTS, ExtractionMock, mock_registry
 from ontoproduct.services.ontology_service import OntologyService
 
 
@@ -59,7 +59,7 @@ def complete_registry(registry):
 @pytest.fixture
 def paused_state(complete_registry, ontology, config):
     graph = build_workflow(complete_registry, ontology=ontology)
-    graph.invoke(initial_state(), config)
+    graph.invoke(initial_state(SAMPLE_DOCUMENTS), config)
     return graph.get_state(config).values
 
 

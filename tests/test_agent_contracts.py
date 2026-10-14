@@ -14,7 +14,7 @@ from ontoproduct.schemas.review import ReviewResult
 @pytest.mark.parametrize("name", list(CONTRACTS))
 def test_metadata_and_required_only_reads(name, registry, paused_state):
     agent = registry.get(name)
-    assert agent.name == name and agent.provider and agent.version and agent.is_mock
+    assert agent.name == name and agent.provider and agent.version
     assert agent.health_check() is True
     state = {key: deepcopy(paused_state.get(key)) for key in agent.required_reads}
     if name == "registration":

@@ -6,7 +6,6 @@ class DuplicateAgent(BaseAgent):
     name = "duplicate"
     provider = "sqlite-rule-engine"
     version = "0.3.0"
-    is_mock = False
 
     def __init__(self, service):
         required, optional, writes = CONTRACTS[self.name]

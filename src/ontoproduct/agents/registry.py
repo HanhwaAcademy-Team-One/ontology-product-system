@@ -60,12 +60,8 @@ def validate_contract(agent: BaseAgent) -> None:
         )
     if not isinstance(agent.provider, str) or not agent.provider.strip():
         raise AgentContractError("provider must be a non-empty string")
-    if (
-        not isinstance(agent.version, str)
-        or not agent.version.strip()
-        or type(agent.is_mock) is not bool
-    ):
-        raise AgentContractError("Invalid version/is_mock metadata")
+    if not isinstance(agent.version, str) or not agent.version.strip():
+        raise AgentContractError("Invalid version metadata")
     required, optional, writes = CONTRACTS[agent.name]
     if (
         agent.required_reads != required
@@ -104,7 +100,6 @@ class AgentRegistry:
                 "name": a.name,
                 "provider": a.provider,
                 "version": a.version,
-                "is_mock": a.is_mock,
                 "required_reads": sorted(a.required_reads),
                 "optional_reads": sorted(a.optional_reads),
                 "writes": sorted(a.writes),

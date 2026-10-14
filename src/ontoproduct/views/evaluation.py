@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 import streamlit as st
 
-from ontoproduct.evaluation.runner import load_ground_truth, run_evaluation
+from ontoproduct.evaluation.document_runner import load_cases, run_document_evaluation
 from ontoproduct.evaluation.report import markdown_report
 from ontoproduct.services.application_paths import ApplicationPaths
 
@@ -10,39 +10,33 @@ from ontoproduct.services.application_paths import ApplicationPaths
 def render():
     st.title("평가")
     st.caption(
-        "Ground Truth와 실제 Agent 출력으로 계산합니다. Mock 평가와 SQLite 규칙 기반 평가는 별도 결과입니다."
+        "inputdata 문서를 실제 Parser·Extraction·Ontology·Validation·Reviewer Agent로 처리하고 manifest 정답과 비교합니다."
     )
-    ground_truth = Path.cwd() / "eval" / "ground_truth"
+    dataset = Path.cwd() / "inputdata"
     output = ApplicationPaths.from_environment().root / "evaluation"
     try:
-        truths = load_ground_truth(ground_truth)
+        groups = load_cases(dataset)
     except (ValueError, OSError) as exc:
-        st.error(f"Ground Truth를 읽을 수 없습니다: {exc}")
+        st.error(f"평가 데이터를 읽을 수 없습니다: {exc}")
         return
     st.info(
-        f"교육용으로 작성한 합성 문서 {len(truths)}개입니다. 실제 PDF/Excel 추출 성능을 나타내지 않습니다."
+        f"평가 사례 {len(groups)}개입니다. 모델 호출 대신 정답 기반 참조 응답을 사용하므로 LLM 정확도가 아니라 파이프라인 동작을 측정합니다."
     )
-    with st.expander("Ground Truth 확인"):
-        case = st.selectbox(
-            "정답 문서", [truth["case_id"] for truth in truths], key="truth_case"
-        )
-        truth = next(truth for truth in truths if truth["case_id"] == case)
-        left, right = st.columns(2)
-        left.code(truth["source_text"], language="text")
-        right.json(truth["product"], expanded=True)
-        st.write("중복 정답: " + (", ".join(truth["relevant_duplicates"]) or "없음"))
     if st.button("평가 실행", type="primary", key="run_evaluation"):
         with st.spinner("Agent 출력과 정답을 비교하고 있습니다."):
             try:
-                run_evaluation(ground_truth, output)
+                run_document_evaluation(dataset, output)
             except Exception as exc:
                 st.error(f"평가 실행 실패: {exc}")
                 return
         st.success("계산 결과와 실행 출력을 저장했습니다.")
-    report_path = output / "evaluation.json"
-    if not report_path.exists():
+    reports = sorted(
+        output.glob("*/evaluation.json"), key=lambda path: path.stat().st_mtime
+    )
+    if not reports:
         st.info("평가 실행을 누르면 계산된 결과가 표시됩니다.")
         return
+    report_path = reports[-1]
     try:
         report = json.loads(report_path.read_text(encoding="utf-8"))
     except (ValueError, OSError) as exc:

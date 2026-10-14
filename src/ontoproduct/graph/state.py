@@ -31,7 +31,7 @@ class ProductState(TypedDict, total=False):
 
 
 def initial_state(
-    source_documents: list[dict] | None = None,
+    source_documents: list[dict],
     *,
     case_id: str | None = None,
     max_extraction_retries: int = 1,
@@ -44,11 +44,7 @@ def initial_state(
     return ProductState(
         session_id=str(uuid4()),
         registration_case_id=case_id or str(uuid4()),
-        source_documents=source_documents
-        if source_documents is not None
-        else [
-            {"name": "motor_spec.pdf", "text": "MOCK DM-500 BLDC Motor specification"}
-        ],
+        source_documents=source_documents,
         manual_overrides={},
         locked_fields=[],
         orphaned_overrides={},

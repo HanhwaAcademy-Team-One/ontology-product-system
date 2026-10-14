@@ -9,7 +9,7 @@ from ontoproduct.agents.validation_agent import ValidationAgent
 from ontoproduct.graph.execution import execute_agent
 from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
-from ontoproduct.mocks.agents import mock_registry
+from doubles import SAMPLE_DOCUMENTS, mock_registry
 from ontoproduct.repositories.database import Database
 from ontoproduct.repositories.product_repository import ProductRepository
 from ontoproduct.services.duplicate_service import DuplicateService
@@ -410,7 +410,7 @@ def test_real_validation_and_duplicate_join_before_reviewer(
         monkeypatch.setattr(agent, "run", run)
 
     graph = build_workflow(complete_registry, ontology=ontology)
-    events = list(graph.stream(initial_state(), config, stream_mode="updates"))
+    events = list(graph.stream(initial_state(SAMPLE_DOCUMENTS), config, stream_mode="updates"))
     updates = [key for event in events for key in event if key != "__interrupt__"]
     assert updates.count("post_parallel_gate") == 1
     assert (

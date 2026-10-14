@@ -7,6 +7,7 @@ from ontoproduct.graph.state import initial_state
 from ontoproduct.graph.workflow import build_workflow
 from ontoproduct.schemas.error import unresolved_errors
 from conftest import count_runs, fail_once
+from doubles import SAMPLE_DOCUMENTS
 
 
 def test_branches_execute_concurrently_and_join_once(
@@ -23,7 +24,7 @@ def test_branches_execute_concurrently_and_join_once(
 
         agent.run = run
     graph = build_workflow(complete_registry, ontology=ontology)
-    events = list(graph.stream(initial_state(), config, stream_mode="updates"))
+    events = list(graph.stream(initial_state(SAMPLE_DOCUMENTS), config, stream_mode="updates"))
     updates = [key for event in events for key in event if key != "__interrupt__"]
     assert updates.count("post_parallel_gate") == 1
     assert updates.index("post_parallel_gate") > max(
@@ -45,7 +46,7 @@ def test_branch_errors_join_then_retry_entire_stage(
     for name in failed:
         fail_once(complete_registry.get(name))
     graph = build_workflow(complete_registry, ontology=ontology)
-    events = list(graph.stream(initial_state(), config, stream_mode="updates"))
+    events = list(graph.stream(initial_state(SAMPLE_DOCUMENTS), config, stream_mode="updates"))
     updates = [key for event in events for key in event if key != "__interrupt__"]
     assert updates.index("post_parallel_gate") > max(
         updates.index("validation"), updates.index("duplicate")

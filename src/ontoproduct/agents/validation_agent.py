@@ -14,7 +14,6 @@ class ValidationAgent(BaseAgent):
     # LLM이 아닌 Python 규칙으로 검증
     provider = "python-validation-rules"
     version = "0.2.0"
-    is_mock = False
 
     def __init__(self, ontology=None):
         self.ontology = ontology

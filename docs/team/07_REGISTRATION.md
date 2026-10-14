@@ -4,7 +4,7 @@
 
 ## 1. 현재 실제 구현이 있습니다
 
-UI는 RegistrationAgent와 RegistrationService를 사용하여 SQLite 저장과 JSON Export를 합니다. 기본 CLI/Mock 평가의 RegistrationMock은 메모리의 final_product만 반환합니다.
+앱과 CLI는 RegistrationAgent와 RegistrationService를 사용하여 SQLite 저장과 JSON Export를 합니다.
 
 이 담당자는 기존 실제 저장 흐름을 이해하고 실제 Agent들이 만든 제품에서도 승인·멱등성·오류 복구가 유지되는지 검증합니다.
 
@@ -165,7 +165,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from uuid import uuid4
 from ontoproduct.agents.registration_agent import RegistrationAgent
-from ontoproduct.mocks.agents import mock_registry
+from ontoproduct.agents.registry import AgentRegistry
 from ontoproduct.repositories.database import Database
 from ontoproduct.repositories.product_repository import ProductRepository
 from ontoproduct.services.application_paths import ApplicationPaths
@@ -178,12 +178,8 @@ with TemporaryDirectory(prefix="ontoproduct-registration-") as directory:
     repository = ProductRepository(Database(paths.product_db))
     registration_service = RegistrationService(repository, ontology, paths.exports)
     case_id = str(uuid4())
-    registry = mock_registry(ontology)
-    registry.register(
-        RegistrationAgent(case_id, registration_service),
-        replace=True,
-    )
-    registry.validate_complete()
+    registry = AgentRegistry()
+    registry.register(RegistrationAgent(case_id, registration_service))
     # execute_agent 호출과 DB/Export 확인도 이 with 블록 안에서 수행합니다.
 ```
 

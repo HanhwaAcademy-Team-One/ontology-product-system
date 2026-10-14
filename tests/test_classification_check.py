@@ -8,12 +8,12 @@ from uuid import uuid4
 import pytest
 from extraction_ontology_helpers import attribute, constant_transport, motor_response
 from test_shacl_registration import BearingLlm
-from test_streamlit_app import app  # noqa: F401  (pytest fixture)
+from test_streamlit_app import app, start_case  # noqa: F401  (pytest fixture)
 
 from ontoproduct.agents.ontology_agent import OntologyAgent
 from ontoproduct.agents.real_registry import build_document_registry
 from ontoproduct.agents.reviewer_agent import ReviewerAgent
-from ontoproduct.mocks.agents import ExtractionMock, mock_registry
+from doubles import ExtractionMock, mock_registry
 from ontoproduct.services.application_paths import ApplicationPaths
 from ontoproduct.services.parser_service import ParserService
 from ontoproduct.services.validation_service import validate_registration_product
@@ -177,7 +177,7 @@ def parent_class_registry(ontology):
 def test_ui_shows_ai_class_mismatch(app):  # noqa: F811
     page, runtime, _ = app
     runtime.registry_factory = parent_class_registry
-    page.button(key="start_demo").click().run()
+    start_case(page)
     assert not page.exception
     assert page.button(key="approve_case").disabled
     shown = " ".join(w.value for w in page.warning)
